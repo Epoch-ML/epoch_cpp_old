@@ -19,12 +19,14 @@ option(DISABLE_SPDLOG "Disable Spdlog")
 if (DISABLE_SPDLOG)
 	message(STATUS "Spdlog is disabled")
 else()
+    message(STATUS "Spdlog is enabled")
 	find_package(Spdlog REQUIRED)
 endif()
-message(${SPD_INCLUDE_PATH})
+message(${SPDLOG_INCLUDE_DIR})
 
 include_directories(src)
-include_directories(${SPD_INCLUDE_PATH})
+include_directories(${SPDLOG_INCLUDE_DIR})
+#include_directories(${SPD_INCLUDE_PATH})
 
 add_subdirectory(src)
 
