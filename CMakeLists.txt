@@ -2,9 +2,9 @@
 
 cmake_minimum_required(VERSION 3.8)
 
-set(SBVR_SDK_VERSION 0.0.1)
+set(EPOCH_VERSION 0.0.1)
 
-project(sbvr LANGUAGES CXX)
+project(epoch LANGUAGES CXX)
 
 set (CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,13 +22,12 @@ else()
     message(STATUS "Spdlog is enabled")
 	find_package(Spdlog REQUIRED)
 endif()
-message(${SPDLOG_INCLUDE_DIR})
+message(${SPD_INCLUDE_PATH})
 
 include_directories(src)
-include_directories(${SPDLOG_INCLUDE_DIR})
-#include_directories(${SPD_INCLUDE_PATH})
+include_directories(${SPD_INCLUDE_PATH})
 
 add_subdirectory(src)
 
 # Set start up project
-#set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT unitydlltest)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT helloworld)

@@ -24,7 +24,7 @@
 	#define UNUSED /* empty */
 #endif
 
-#define SBVR_DEBUGGER_SIGNATURE			"SBVR::"
+#define SBVR_DEBUGGER_SIGNATURE			"EP::"
 #define SBVR_DEBUGGER_SIGNATURE_SIZE		5			// size in bytes
 #define	SBVR_DEBUGGER_OUTPUT_MAX_SIZE	1024
 
@@ -42,7 +42,7 @@
 		} while(0);
 #endif
 
-#include "logger/sblogger.h"
+#include "logger/eplogger.h"
 
 // Logging (needs DreamLogger included)
 // This has been moved to project config, otherwise it breaks across multiple projects

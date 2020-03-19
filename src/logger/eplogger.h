@@ -10,7 +10,7 @@
 
 #include "core/types/singleton.h"
 
-#include "third_party/spdlog/include/spdlog/spdlog.h"
+#include "spdlog/spdlog.h"
 
 #define SPDLOG_QUEUE_SIZE 1024
 #define SPDLOG_THREAD_COUNT 1
