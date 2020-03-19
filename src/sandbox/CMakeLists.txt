@@ -36,33 +36,40 @@ file(GLOB WIN64_SOURCES
 )
 source_group("win64" FILES ${WIN64_SOURCES})
 
-IF(APPLE
-   Mac OS X specific code
-   TODO: Add OSX vs. iOS
-   add_library(sandbox
-   ${SOURCES}
-   ${OSX_SOURCES}
-   )
 
-   add_library(sandbox
-   ${SOURCES}
-   ${IOS_SOURCES}
-   )
+# TODO: Switch to the below
+add_library(sandbox
+    ${SOURCES}
+    ${WIN64_SOURCES}
 )
-ELSEIF(UNIX AND NOT APPLE)
-    add_library(sandbox
-        ${SOURCES}
-        ${LINUX_SOURCES}
-    )
-ELSEIF(ANDROID)
-    add_library(sandbox
-        ${SOURCES}
-        ${LINUX_SOURCES}
-    )
-ELSEIF(WIN32)
-    add_library(sandbox
-        ${SOURCES}
-        ${WIN64_SOURCES}
-    )
-ENDIF()
+
+#IF(APPLE
+#   Mac OS X specific code
+#   TODO: Add OSX vs. iOS
+#   add_library(sandbox
+#   ${SOURCES}
+#   ${OSX_SOURCES}
+#   )
+#
+#   add_library(sandbox
+#   ${SOURCES}
+#   ${IOS_SOURCES}
+#   )
+#)
+#ELSEIF(UNIX AND NOT APPLE)
+#    add_library(sandbox
+#        ${SOURCES}
+#        ${LINUX_SOURCES}
+#    )
+#ELSEIF(ANDROID)
+#    add_library(sandbox
+#        ${SOURCES}
+#        ${LINUX_SOURCES}
+#    )
+#ELSEIF(WIN32)
+#    add_library(sandbox
+#        ${SOURCES}
+#        ${WIN64_SOURCES}
+#    )
+#ENDIF()
 
