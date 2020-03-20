@@ -36,7 +36,6 @@ file(GLOB WIN64_SOURCES
 )
 source_group("win64" FILES ${WIN64_SOURCES})
 
-
 # TODO: Switch to the below
 add_library(sandbox
     ${SOURCES}
@@ -73,3 +72,27 @@ add_library(sandbox
 #    )
 #ENDIF()
 
+# Tests
+
+add_executable(sandbox.tests
+    "sandbox.tests.cpp"
+)
+
+target_link_libraries(sandbox.tests
+  core
+  logger
+  sandbox
+)
+
+add_test(
+  NAME 
+    all_tests
+  COMMAND 
+    "sandbox.tests"
+)
+
+# Copy over the DLL so things don't implode
+# add_custom_command(TARGET sandbox.tests POST_BUILD        
+#     COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+#     $<TARGET_FILE:unitydlltest>      
+#     $<TARGET_FILE_DIR:unitydlltest.tests>)                 

@@ -9,7 +9,13 @@
 #include "core/types/epobject.h"
 
 class sandbox : public EPObject {
-    // TODO:
-}
+
+protected:
+    sandbox();
+    ~sandbox();
+
+private:
+    // 
+};
 
 #endif // ! SANDBOX_H_
