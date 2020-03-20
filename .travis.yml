@@ -41,7 +41,7 @@ script:
   #- make -j 8
   #- make test
   - export PATH=$MSBUILD_PATH:$PATH
-  - MSBuild.exe sbvr.sln 
+  - MSBuild.exe epoch.sln 
 
 notifications:
   email: false
