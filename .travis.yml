@@ -1,0 +1,53 @@
+sudo: required
+language: cpp
+
+os: 
+  - windows
+  - linux
+# - osx
+
+compiler: 
+  - clang
+# # - gcc
+
+#before_install:
+#  - sudo apt-get -y install ninja-build
+
+#addons:
+#  apt:
+#    packages: ninja-build
+#    update: true
+
+env:
+  - MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+  #- MSBUILD2019_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin"
+
+before_script:
+  - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - if [ -n "$CLANG_VERSION" ]; then export CXX="clang++-${CLANG_VERSION}" CC="clang-${CLANG_VERSION}"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export CXX="clang++" CC="clang"; fi
+  - which $CXX
+  - which $CC
+  - $CXX --version
+  - cmake --version
+  # TODO: Support VS2019
+  #- choco install visualstudio2019community
+
+script:
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir -p out 
+  - cd out
+  - cmake .. --warn-uninitialized -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  - echo "$TRAVIS_OS_NAME build"
+  # Windows
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export PATH=$MSBUILD_PATH:$PATH; fi 
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then MSBuild.exe epoch.sln; fi   
+  # Not Windows
+  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then make -j 8; fi 
+  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then make test; fi 
+
+  #- export PATH=$MSBUILD_PATH:$PATH
+  #- MSBuild.exe epoch.sln 
+
+notifications:
+  email: false

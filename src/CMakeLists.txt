@@ -111,6 +111,7 @@ endif()
 # Components
 add_subdirectory(core)
 add_subdirectory(logger)
+add_subdirectory(sandbox)
 
 # Adds junk repos
 add_subdirectory(junk)
