@@ -19,7 +19,7 @@ compiler:
 #    update: true
 
 env:
-  #- MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+  - MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
   #- MSBUILD2019_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin"
 
 before_script:
@@ -38,12 +38,11 @@ script:
   - mkdir -p out 
   - cd out
   - cmake .. --warn-uninitialized -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  - echo "$TRAVIS_OS_NAME build"
   # Windows
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then echo "windows build"; fi 
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export PATH=$MSBUILD_PATH:$PATH; fi 
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then MSBuild.exe epoch.sln; fi   
   # Not Windows
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then echo "$TRAVIS_OS_NAME build"; fi 
   - if [ "$TRAVIS_OS_NAME" != "windows" ]; then make -j 8; fi 
   - if [ "$TRAVIS_OS_NAME" != "windows" ]; then make test; fi 
 
