@@ -2,7 +2,7 @@ sudo: required
 language: cpp
 
 os: 
-#  - windows
+  - windows
   - linux
 # - osx
 
@@ -38,8 +38,16 @@ script:
   - mkdir -p out 
   - cd out
   - cmake .. --warn-uninitialized -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  - if [ "$TRAVIS_OS_NAME" = "windows" ] 
+  - then 
+  - export PATH=$MSBUILD_PATH:$PATH 
+  - MSBuild.exe epoch.sln
+  # TODO: How to test on MSBuild?
+  - else
   - make -j 8
   - make test
+  - fi
+
   #- export PATH=$MSBUILD_PATH:$PATH
   #- MSBuild.exe epoch.sln 
 
