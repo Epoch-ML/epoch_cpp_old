@@ -39,9 +39,11 @@ script:
   - cd out
   - cmake .. --warn-uninitialized -DCMAKE_BUILD_TYPE=$BUILD_TYPE
   # Windows
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then echo "windows build"; fi 
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export PATH=$MSBUILD_PATH:$PATH; fi 
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then MSBuild.exe epoch.sln; fi   
   # Not Windows
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then echo "$TRAVIS_OS_NAME build"; fi 
   - if [ "$TRAVIS_OS_NAME" != "windows" ]; then make -j 8; fi 
   - if [ "$TRAVIS_OS_NAME" != "windows" ]; then make test; fi 
 
