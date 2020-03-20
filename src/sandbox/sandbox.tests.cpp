@@ -8,8 +8,15 @@
 
 #include <functional>
 
+#include <sandbox/sandbox.h>
+
 std::function<RESULT()> SandboxImpTest = []() -> RESULT {
-	return R::SUCCEED;
+	RESULT r = R::SUCCEED;
+
+	sandbox* pSandbox = nullptr;
+
+Error:
+	return r;
 };
 
 int main(int argc, char* argv[]) {
