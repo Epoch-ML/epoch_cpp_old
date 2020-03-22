@@ -11,10 +11,21 @@
 
 #include "core/types/EPProcess.h"
 
+
+
 class SandboxProcess : public EPProcess {
+
+public:
+	typedef enum class type : uint32_t {
+		OS_WINDOW,
+		CUSTOM
+	} SandboxProcessType;
+
 public:
 	SandboxProcess();
 	~SandboxProcess();
+
+	virtual SandboxProcess::type GetType() = 0;
 
 private:
 

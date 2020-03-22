@@ -1,4 +1,4 @@
-# src/core/CmakeLists.txt - Core SBVR CMakeLists 
+# src/core/CmakeLists.txt - Core EP CMakeLists 
 
 # Core
 file(GLOB CORE_SOURCES 

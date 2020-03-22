@@ -122,8 +122,8 @@ RESULT SBLogger::Initialize() {
 	m_pSpdlogger = spdlog::create_async<spdlog::sinks::basic_file_sink_mt>(m_kSBLoggerName, m_strSBLogPath);
 	CN(m_pSpdlogger);
 
-	log(level::info, "SBVR Process Launched: {}", GetPathOfExecutible());
-	log(level::info, "SBVR Process ID: {:d}", GetProcessID());
+	log(level::info, "EP Process Launched: {}", GetPathOfExecutible());
+	log(level::info, "EP Process ID: {:d}", GetProcessID());
 
 Error:
 	return r;

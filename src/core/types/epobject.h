@@ -9,13 +9,18 @@
 // This is the base object for epoch
 
 #include "core/types/valid.h"
+#include "core/types/epuid.h"
+
+template <class T>
+concept EPObjectDerived = std::is_base_of<typename EPObject, T>::value;
 
 class EPObject :
 	public valid
 {
 
+
+protected:
+	epuid m_epuid;
 };
-
-
 
 #endif // ! EP_OBJECT_H_

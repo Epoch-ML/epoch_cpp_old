@@ -8,7 +8,9 @@
 
 # include "core/types/EPFactory.h"
 
-class SandboxProcessFactory : public EPFactory {
+#include "sandbox/SandboxProcess.h"
+
+class SandboxProcessFactory : public EPFactory<SandboxProcess> {
 public:
 	SandboxProcessFactory() {
 		//
@@ -19,7 +21,7 @@ public:
 	}
 
 private:
-
+	static epref<SandboxProcess> make() override;
 };
 
 #endif // ! SANDBOX_PROCESS_FACTORY_H_
