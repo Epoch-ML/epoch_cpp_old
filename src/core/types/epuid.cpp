@@ -6,7 +6,7 @@
 uint64_t epuid::ms_EPUIDCount = (uint64_t)(0);
 
 epuid::epuid() :
-	m_localUID(GetLocalEPUIDValue()),
+	m_localUID(GetLocalEPUIDValue())
 {
 	GetGlobalEPUIDValue();
 }
@@ -25,13 +25,16 @@ uint64_t epuid::GetLocalEPUIDValue() {
 }
 
 #if defined(_WIN32) || defined(_WIN64)
+
+#include <combaseapi.h>
+
 RESULT epuid::InitializeGUIDImpl() {
 	
 	GUID tempWindowsGUID;
 
 	CoCreateGuid(&tempWindowsGUID);
 
-	m_globalUID.bytes = {
+	uint8_t guidBytes[16] = {
 		(unsigned char)((tempWindowsGUID.Data1 >> 24) & 0xFF),
 		(unsigned char)((tempWindowsGUID.Data1 >> 16) & 0xFF),
 		(unsigned char)((tempWindowsGUID.Data1 >> 8) & 0xFF),
@@ -52,6 +55,8 @@ RESULT epuid::InitializeGUIDImpl() {
 		(unsigned char)tempWindowsGUID.Data4[6],
 		(unsigned char)tempWindowsGUID.Data4[7]
 	};
+
+	memcpy(&m_globalUID.bytes, guidBytes, (sizeof(m_globalUID.bytes) / sizeof(m_globalUID.bytes[0])));
 
 	return R::OK;
 }

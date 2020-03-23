@@ -17,7 +17,7 @@ private:
 	
 	// GUID
 	RESULT GetGlobalEPUIDValue();
-	RESULT epuid::InitializeGUIDImpl() {
+	RESULT InitializeGUIDImpl();
 
 public:
 	epuid();
@@ -28,7 +28,7 @@ private:
 
 	struct guid {
 		uint8_t bytes[16] = { 0 };
-	} m_globalUID = { 0 };
+	} m_globalUID;
 };
 
 #endif // EP_UID_H_

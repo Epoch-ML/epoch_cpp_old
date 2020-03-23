@@ -11,8 +11,14 @@
 #include <type_traits>
 
 #include "core/types/EPObject.h"
+#include "core/types/epref.h"
 
-template <typename TEPObj> requires EPObjectDerived<TEPObj>
+// TODO: Fix this, C++20!!
+#ifndef NOCONCEPTS
+	template <typename TEPObj> requires EPObjectDerived<TEPObj>
+#else
+	template <typename TEPObj>
+#endif
 class EPFactory : 
 	public EPObject
 	// TODO: singleton?

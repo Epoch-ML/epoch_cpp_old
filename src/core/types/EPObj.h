@@ -9,14 +9,14 @@
 // This is the base object for epoch
 
 #include "core/types/valid.h"
+
 #include "core/types/epuid.h"
 
-//#if (__cplusplus > 199711L) || (_MSC_VER >= 1300)
-#if false
+#ifndef NOCONCEPTS
 	template <class T>
-	concept EPObjectDerived = requires { std::is_base_of<typename EPObject, T>::value};
+	concept EPObjectDerived = std::is_base_of<typename EPObject, T>::value;
 #else
-	#define EPObjectDerived
+	#define EPObjectDerived 
 #endif
 
 class EPObject :
