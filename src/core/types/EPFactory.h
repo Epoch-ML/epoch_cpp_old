@@ -10,7 +10,7 @@
 
 #include <type_traits>
 
-#include "core/types/EPObject.h"
+#include "core/types/EPObj.h"
 #include "core/types/epref.h"
 
 // TODO: Fix this, C++20!!
@@ -20,11 +20,27 @@
 	template <typename TEPObj>
 #endif
 class EPFactory : 
-	public EPObject
+	public EPObj
 	// TODO: singleton?
 	
 {
-private:
+public:
+	class EPObjectPackage {
+	public:
+		RESULT r;
+		epref<TEPObj> pEPObj;
+
+		EPObjectPackage(RESULT r, epref<TEPObj> pEPObj) :
+			r(r),
+			pEPObj(p)
+		{}
+
+		~EPObjectPackage() {
+			pEPObj = nullptr;
+		}
+	};
+
+protected:
 	EPFactory() {
 		// 
 	}
@@ -34,7 +50,19 @@ private:
 	}
 
 public:
-	virtual static epref<TEPObj> make() = 0;
+	// TODO: Might make more sense to return "object package"
+	static EPObjectPackage make() {
+		RESULT r = R::OK;
+
+		epref<TEPObj> pEPObj = InternalMake();
+		CNM(pEPObj, "Failed to create factory object");
+
+	Error:
+		return EPObjectPackage(r, pEPObj);
+	}
+
+private:
+	virtual epref<TEPObj> InternalMake() = 0;
 };
 
 #endif // EP_FACTORY_H_

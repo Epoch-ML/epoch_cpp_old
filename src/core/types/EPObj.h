@@ -14,12 +14,12 @@
 
 #ifndef NOCONCEPTS
 	template <class T>
-	concept EPObjectDerived = std::is_base_of<typename EPObject, T>::value;
+	concept EPObjectDerived = std::is_base_of<typename EPObj, T>::value;
 #else
 	#define EPObjectDerived 
 #endif
 
-class EPObject :
+class EPObj :
 	public valid
 {
 

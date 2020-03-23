@@ -10,7 +10,10 @@
 
 #include "sandbox/SandboxProcess.h"
 
-class SandboxProcessFactory : public EPFactory<SandboxProcess> {
+class SandboxProcessFactory : 
+	public EPFactory<SandboxProcess> 
+{
+
 public:
 	SandboxProcessFactory() {
 		//
@@ -21,7 +24,7 @@ public:
 	}
 
 private:
-	static epref<SandboxProcess> make() override;
+	epref<SandboxProcess> InternalMake() override;
 };
 
 #endif // ! SANDBOX_PROCESS_FACTORY_H_

@@ -6,9 +6,9 @@
 // epoch Windows 64 Sandbox
 // epoch/src/sandbox/win64/Win64Sandbox.h
 
-#include "core/types/epobject.h"
+#include "core/types/EPObj.h"
 
-class sandbox : public EPObject {
+class sandbox : public EPObj {
 
 protected:
     sandbox();

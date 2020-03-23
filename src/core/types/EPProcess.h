@@ -8,9 +8,9 @@
 
 // This represents a process (vs a thread, task etc)
 
-#include "core/types/EPObject.h"
+#include "core/types/EPObj.h"
 
-class EPProcess : public EPObject {
+class EPProcess : public EPObj {
 public:
 	EPProcess() {
 		// 
