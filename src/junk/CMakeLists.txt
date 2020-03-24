@@ -5,4 +5,4 @@
 
 # Projects
 add_subdirectory(helloworld)
-add_subdirectory(euler)
+add_subdirectory(ProjectEuler)
