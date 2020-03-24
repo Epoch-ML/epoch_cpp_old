@@ -22,7 +22,14 @@
 class EPObj :
 	public valid
 {
+public:
+	EPObj() = default;
+	virtual ~EPObj() = default;
+	EPObj(const EPObj&) = default;
+	EPObj(EPObj&&) = default;
 
+	EPObj& operator= (const EPObj&) = default;
+	EPObj& operator= (EPObj&&) = default;
 
 protected:
 	epuid m_epuid;

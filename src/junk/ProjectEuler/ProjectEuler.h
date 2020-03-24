@@ -5,8 +5,15 @@
 
 // epoch powered project euler (Idan Beck) solutions
 
+#include "test/EPTestSuite.h"
 
-class ProjectEuler {
+class ProjectEuler : EPTestSuite {
+public:
+	ProjectEuler() = default;
+	~ProjectEuler() = default;
+
+
+private:
 
 };
 
