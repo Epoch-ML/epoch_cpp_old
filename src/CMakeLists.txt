@@ -112,8 +112,9 @@ endif()
 # TODO:
 
 # Components
-add_subdirectory(core)
 add_subdirectory(logger)
+add_subdirectory(core)
+add_subdirectory(test)
 add_subdirectory(sandbox)
 
 # Adds junk repos

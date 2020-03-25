@@ -8,11 +8,20 @@
 
 #include "core/types/EPFunction.h"
 
+template <typename T>
+class EPTest;
 
-template <typename TReturn, typename ... TArgs>
-class EPTest : public EPFunction<TReturn(TArgs...)>
+template <typename TReturn, typename... TArgs>
+class EPTest<TReturn(TArgs...)> : public EPFunction<TReturn(TArgs...)>
 {
 public:
+	EPTest() :
+		EPFunction(nullptr)
+	{
+		//
+	}
+
+
 	EPTest(TReturn(*pfnTestFunction)(TArgs...)) :
 		EPFunction(pfnTestFunction)
 	{

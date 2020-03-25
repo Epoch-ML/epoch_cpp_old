@@ -7,18 +7,20 @@
 // epoch/src/test/test.h
 
 #include "core/types/EPObj.h"
+
 #include "test/EPTest.h"
 
-#include <vector>
+#include <map>
 
 class EPTestSuite :
 	public EPObj
 {
 public:
-	
+	RESULT Add(std::string strTestName, EPTest<RESULT()> eptest);
+	RESULT Run(std::string strTestName);
 
 private:
-	std::vector<EPTest<RESULT()>> m_tests;
+	std::map<std::string, EPTest<RESULT()>> m_tests;
 };
 
 #endif // !EP_TEST_SUITE_H_

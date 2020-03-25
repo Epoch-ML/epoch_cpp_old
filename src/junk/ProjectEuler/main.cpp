@@ -7,6 +7,9 @@ int main(int argc, char* argv[]) {
 
 	DEBUG_LINEOUT("Starting...");
 
+	ProjectEuler projectEuler; 
+	projectEuler.Run("problem 8");
+
 Error:
 	return 0;
 }

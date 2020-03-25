@@ -14,10 +14,16 @@ template <typename>
 class EPFunction;
 
 template <typename TReturn, typename... TArgs>
-class EPFunction<TReturn(TArgs...)> final : 
+class EPFunction<TReturn(TArgs...)> : 
 	public EPObj
 {
 public:
+	EPFunction() :
+		m_pfnFunction(nullptr)
+	{
+		//
+	}
+
 	EPFunction(TReturn(*pfnFunction)(TArgs...)) :
 		m_pfnFunction(pfnFunction)
 	{
@@ -28,10 +34,10 @@ public:
 
 	TReturn operator()(TArgs&& ... args) {
 		if (m_pfnFunction != nullptr) {
-			return m_pfnFunction(args);
+			return m_pfnFunction(args...);
 		}
 		else {
-			return (TReturn)(nullptr);
+			return static_cast<TReturn>(0);
 		}
 	}
 

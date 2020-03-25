@@ -82,6 +82,7 @@ target_link_libraries(sandbox.tests
   core
   logger
   sandbox
+  eptest
 )
 
 add_test(

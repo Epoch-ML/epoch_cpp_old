@@ -7,14 +7,19 @@
 
 #include "test/EPTestSuite.h"
 
-class ProjectEuler : EPTestSuite {
+class ProjectEuler : 
+	public EPTestSuite 
+{
 public:
 	ProjectEuler() = default;
 	~ProjectEuler() = default;
 
 
-private:
+public:
+	RESULT Problem8();
 
+private:
+	
 };
 
 

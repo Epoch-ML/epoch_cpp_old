@@ -16,4 +16,5 @@ add_executable(project_euler
 target_link_libraries(project_euler
   core
   logger
+  eptest
 )
