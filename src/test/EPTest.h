@@ -28,6 +28,16 @@ public:
 		// 
 	}
 
+	template <typename Fx>
+	EPTest<TReturn(TArgs...)> operator=(Fx pfn) {
+		
+		//m_pfnFunction = static_cast<TReturn(TArgs...)>(fn);
+
+		//return *this;
+
+		return EPTest<TReturn(TArgs...)>(pfn);
+	}
+
 private:
 	// 
 };

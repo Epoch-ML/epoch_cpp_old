@@ -3,7 +3,7 @@
 
 #include "core/ehm/ehm.h"
 
-// epoch powered project euler (Idan Beck) solutions
+// epoch powered project Euler (Idan Beck) solutions
 
 #include "test/EPTestSuite.h"
 
@@ -17,6 +17,11 @@ public:
 
 public:
 	RESULT Problem8();
+
+	//EPFunctionPack<RESULT()> m_pfnProblem8 = 
+	//[]() -> RESULT {	
+	//	return Problem8();
+	//};
 
 private:
 	

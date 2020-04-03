@@ -41,6 +41,13 @@ public:
 		}
 	}
 
+	template <typename Fx>
+	EPFunction<TReturn(TArgs...)>& operator=(const Fx& fn) {
+		m_pfnFunction = fn;
+		return *this;
+	}
+	
+
 private:
 	TReturn(*m_pfnFunction)(TArgs...) = nullptr;
 };
