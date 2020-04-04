@@ -119,3 +119,6 @@ add_subdirectory(sandbox)
 
 # Adds junk repos
 add_subdirectory(junk)
+
+# teaching
+add_subdirectory(teaching)
