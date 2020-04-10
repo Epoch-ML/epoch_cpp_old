@@ -85,6 +85,11 @@ public:
 		// 
 	}
 
+	template <size_t index, typename GType>
+	GType& get() {
+		return static_cast<tuple_implementation<index, GType>*>(this)->get();
+	}
+
 private:
 	
 };
