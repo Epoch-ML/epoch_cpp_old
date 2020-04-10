@@ -7,6 +7,8 @@
 
 #include "test/EPTestSuite.h"
 
+#include <functional>
+
 class ProjectEuler : 
 	public EPTestSuite 
 {
@@ -14,13 +16,15 @@ public:
 	ProjectEuler() = default;
 	~ProjectEuler() = default;
 
-
 public:
 	RESULT Problem8();
 
-	//EPFunctionPack<RESULT()> m_pfnProblem8 = 
-	//[]() -> RESULT {	
-	//	return Problem8();
+	//EPFunction<RESULT()> m_pfnProblem8 = [=]() -> RESULT {	
+	//	return this->Problem8();
+	//};
+
+	//std::function<RESULT()> m_pfnProblem8 = [=]() -> RESULT {	
+	//	return this->Problem8();
 	//};
 
 private:

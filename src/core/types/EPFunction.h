@@ -10,46 +10,56 @@
 
 #include "core/types/EPObj.h"
 
-template <typename>
-class EPFunction;
+//template <typename>
+//class EPFunction;
 
-template <typename TReturn, typename... TArgs>
-class EPFunction<TReturn(TArgs...)> : 
+template <typename TCapture, typename... TArgs>
+class EPFunction :
+	public EPFunction<decltype(&TCapture::operator())(TArgs...)>
+{
+	//
+};
+
+
+template <typename CObject>
+class EPFunction<CObject> :
 	public EPObj
 {
+private:
+	//TReturn(*m_pfnFunction)(TArgs...) = nullptr;
+	CObject m_object;
+
 public:
-	EPFunction() :
-		m_pfnFunction(nullptr)
+	//EPFunction() :
+	//	m_pfnFunction(nullptr)
+	//{
+	//	//
+	//}
+
+	EPFunction(const CObject& cObject) :
+		m_object(cObject)
 	{
 		//
 	}
 
-	EPFunction(TReturn(*pfnFunction)(TArgs...)) :
-		m_pfnFunction(pfnFunction)
-	{
-		// 
-	}
-
 	~EPFunction() = default;
 
-	TReturn operator()(TArgs&& ... args) {
-		if (m_pfnFunction != nullptr) {
-			return m_pfnFunction(args...);
-		}
-		else {
-			return static_cast<TReturn>(0);
-		}
+	template<typename... Args> typename 
+	std::result_of<CObject(Args...)>::type operator()(Args... args) {
+		return this->m_object.operator()(Args...);
 	}
 
-	template <typename Fx>
-	EPFunction<TReturn(TArgs...)>& operator=(const Fx& fn) {
-		m_pfnFunction = fn;
-		return *this;
+	template<typename... Args> typename 
+	std::result_of<CObject(Args...)>::type operator()(Args... args) const {
+		return this->m_object.operator()(Args...);
 	}
-	
 
-private:
-	TReturn(*m_pfnFunction)(TArgs...) = nullptr;
+	//template <typename Fx>
+	//EPFunction<TReturn(TArgs...)>& operator=(const Fx& fn) {
+	//	m_pfnFunction = fn;
+	//	return *this;
+	//}
+
 };
 
 #endif // ! EP_FUNCTION_H_
