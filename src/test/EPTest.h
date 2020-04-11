@@ -12,22 +12,21 @@ template <typename T>
 class EPTest;
 
 template <typename TReturn, typename... TArgs>
-class EPTest<TReturn(TArgs...)> : public EPFunction<TReturn(TArgs...)>
+class EPTest<TReturn(TArgs...)> //: public EPFunction<TReturn(TArgs...)>
 {
 public:
-	EPTest() :
-		EPFunction(nullptr)
+	EPTest() //: EPFunction(nullptr)
 	{
 		//
 	}
 
 
-	EPTest(TReturn(*pfnTestFunction)(TArgs...)) :
-		EPFunction(pfnTestFunction)
+	EPTest(TReturn(*pfnTestFunction)(TArgs...)) //: EPFunction(pfnTestFunction)
 	{
 		// 
 	}
 
+	/*
 	template <typename Fx>
 	EPTest<TReturn(TArgs...)> operator=(Fx pfn) {
 		
@@ -37,6 +36,7 @@ public:
 
 		return EPTest<TReturn(TArgs...)>(pfn);
 	}
+	*/
 
 private:
 	// 
