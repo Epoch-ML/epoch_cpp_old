@@ -30,7 +30,7 @@
 #endif
 
 #define RFAILED(res) (res&0x80000000)
-#define RSUCCESS() (!RFAILED())
+#define RSUCCESS(res) (!RFAILED(res))
 #define RCHECK(res) (!(res & 0x80000000))
 
 typedef enum class RESULT : uint32_t {

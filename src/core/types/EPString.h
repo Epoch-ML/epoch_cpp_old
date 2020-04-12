@@ -16,14 +16,29 @@
 template <typename TChar>
 class EPString : public EPObj {
 public:
+	EPString() :
+		m_stringStorage()
+	{
+		// 
+	}
 
-	EPString(const TChar &szString[]) :
-		m_stringStorage(szString)
+	EPString(const TChar szString[]) :
+		m_stringStorage(szString, strlen(szString) + 1)
 	{
 		//
 	}
 
-	~EPString() = default;
+	EPString(const TChar szString[], size_t szString_n) :
+		m_stringStorage(szString, szString_n)
+	{
+		//
+	}
+
+	virtual ~EPString() = default;
+
+	const TChar* c_str() {
+		return m_stringStorage.GetCBuffer();
+	}
 
 private:
 	EPDynamicStorage<TChar> m_stringStorage;

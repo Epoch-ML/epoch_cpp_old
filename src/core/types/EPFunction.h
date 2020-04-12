@@ -10,6 +10,8 @@
 
 #include "core/types/EPObj.h"
 
+#include <cstddef>
+
 template <typename>
 class EPFunction;
 
@@ -49,7 +51,12 @@ class EPFunction<TReturn(TArgs...)> :
 {
 public:
 	EPFunction() = default;
-	EPFunction(const EPFunction&& rhs) = delete;
+
+	EPFunction(const EPFunction&& rhs) : 
+		m_pfnFunction(rhs.m_pfnFunction)
+	{
+		rhs.m_pfnFunction = nullptr;
+	}
 
 	EPFunction(EPFunction& rhs) :
 		m_pfnFunction(rhs.m_pfnFunction ? rhs.m_pfnFunction->clone() : nullptr)
@@ -63,6 +70,18 @@ public:
 		m_pfnFunction(rhs.m_pfnFunction)
 	{
 		rhs.m_pfnFunction = nullptr;
+	}
+
+	EPFunction(std::nullptr_t) noexcept :
+		m_pfnFunction(nullptr)
+	{
+		//
+	}
+
+	EPFunction(functor_base<TReturn, TArgs...>* pfnFunction) noexcept :
+		m_pfnFunction(pfnFunction ? pfnFunction->clone() : nullptr)
+	{
+		//
 	}
 
 	~EPFunction() {
@@ -89,20 +108,43 @@ public:
 	}
 
 	template <class Callable, class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
-	EPFunction<TReturn(TArgs...)>& operator=(Callable&& object) {
+	EPFunction& operator=(Callable&& object) {
 		m_pfnFunction = new functor_impl<typename std::decay<Callable>::type, TReturn, TArgs...>(static_cast<Callable&&>(object));
 		return *this;
 	}
+
+	EPFunction& operator=(std::nullptr_t) noexcept {
+		m_pfnFunction = nullptr;
+		return *this;
+	}
+
+	EPFunction& operator=(EPFunction&& rhs) {
+		m_strName = rhs.m_strName;
+		m_pfnFunction = rhs.m_pfnFunction;
+		rhs.m_pfnFunction = nullptr;
+
+		return *this;
+	}
 	
-	void operator=(EPFunction rhs) noexcept {
-		std::swap(m_pfnFunction, rhs.m_pfnFunction);
+	EPFunction& operator=(EPFunction& rhs) noexcept {
+		m_pfnFunction = (rhs.m_pfnFunction ? rhs.m_pfnFunction->clone() : nullptr);
+		return *this;
+	}
+
+	EPFunction& operator=(const EPFunction& rhs) noexcept {
+		m_pfnFunction = (rhs.m_pfnFunction ? rhs.m_pfnFunction->clone() : nullptr);
+		return *this;
 	}
 
 	explicit operator bool() const noexcept {
 		return m_pfnFunction != nullptr;
 	}
 
-private:
+	bool operator==(std::nullptr_t) const noexcept {
+		return (m_pfnFunction == nullptr);
+	}
+
+protected:
 	functor_base<TReturn, TArgs...>* m_pfnFunction = nullptr;
 };
 

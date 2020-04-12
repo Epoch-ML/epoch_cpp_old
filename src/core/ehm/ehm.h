@@ -50,7 +50,7 @@
 
 #ifdef _ENABLE_LOGGING
 #define EPLOG(logLevel, strMsg, ...) do { \
-		SBLogger::instance()->log(SBLogger::level::logLevel, strMsg, ##__VA_ARGS__); \
+		EPLogger::instance()->log(EPLogger::level::logLevel, strMsg, ##__VA_ARGS__); \
 	} while (0);
 #else
 	#define EPLOG(level, strMsg, ...)

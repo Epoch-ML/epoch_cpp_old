@@ -35,21 +35,23 @@ add_library(core
     ${TYPES_SOURCES}
 )
 
-# add_executable(math.tests
-#   math/math.tests.cpp
-# )
+add_executable(types.tests
+  types/types.tests.cpp
+  types/EPDynamicStorage.tests.cpp
+)
 
-# target_link_libraries(math.tests
-#   core
-#   logger
-# )
+target_link_libraries(types.tests
+  core
+  logger
+  eptest
+)
 
-# add_test(
-#   NAME 
-#     all_tests
-#   COMMAND 
-#     "math.tests"
-# )
+add_test(
+  NAME 
+    all_tests
+  COMMAND 
+    "types.tests"
+)
 
 
 

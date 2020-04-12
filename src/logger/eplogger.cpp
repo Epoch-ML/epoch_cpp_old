@@ -88,11 +88,11 @@ std::string GetFolderPathOfExecutible() {
 }
 
 
-SBLogger::SBLogger() {
+EPLogger::EPLogger() {
 	// empty
 }
 
-SBLogger::~SBLogger() {
+EPLogger::~EPLogger() {
 	if (m_pSpdlogger != nullptr) {
 		m_pSpdlogger = nullptr;
 	}
@@ -100,7 +100,7 @@ SBLogger::~SBLogger() {
 	spdlog::drop_all();
 }
 
-RESULT SBLogger::Initialize() {
+RESULT EPLogger::Initialize() {
 	RESULT r = R::PASS;
 
 	std::time_t timeNow = std::time(nullptr);
@@ -110,16 +110,16 @@ RESULT SBLogger::Initialize() {
 	std::strftime(szTime, 32, "%Y-%m-%d_%H-%M-%S", localTimeNow);
 
 #if (defined(_WIN32) || defined(_WIN64))
-	m_strSBLogPath = GetFolderPathOfExecutible() + "\\" + "log-" + szTime + ".log";
+	m_strEPLogPath = GetFolderPathOfExecutible() + "\\" + "log-" + szTime + ".log";
 #else
-	m_strSBLogPath = GetFolderPathOfExecutible() + "/" + "log-" + szTime + ".log";
+	m_strEPLogPath = GetFolderPathOfExecutible() + "/" + "log-" + szTime + ".log";
 #endif
 	
 	// Configure async a bit 
 	spdlog::init_thread_pool(SPDLOG_QUEUE_SIZE, SPDLOG_THREAD_COUNT);
 	spdlog::flush_every(std::chrono::seconds(1));
 
-	m_pSpdlogger = spdlog::create_async<spdlog::sinks::basic_file_sink_mt>(m_kSBLoggerName, m_strSBLogPath);
+	m_pSpdlogger = spdlog::create_async<spdlog::sinks::basic_file_sink_mt>(m_kEPLoggerName, m_strEPLogPath);
 	CN(m_pSpdlogger);
 
 	log(level::info, "EP Process Launched: {}", GetPathOfExecutible());
@@ -129,7 +129,7 @@ Error:
 	return r;
 }
 
-RESULT SBLogger::InitializeSingleton() {
+RESULT EPLogger::InitializeSingleton() {
 	RESULT r = R::PASS;
 
 	CRM(Initialize(), "Failed to initialize logger");

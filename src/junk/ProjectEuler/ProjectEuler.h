@@ -8,10 +8,8 @@
 #include "test/EPTestSuite.h"
 #include "core/types/EPFunction.h"
 
-#include <functional>
-
 class ProjectEuler : 
-	public EPTestSuite 
+	public EPTestSuite<ProjectEuler>
 {
 public:
 	ProjectEuler() = default;
@@ -23,6 +21,11 @@ public:
 	EPFunction<RESULT()> m_pfnProblem8 = [&]() -> RESULT {	
 		return this->Problem8();
 	};
+
+	// TODO: Switch this to system in types test suite
+	virtual RESULT AddTests() override {
+		return R::NOT_IMPLEMENTED;
+	}
 
 private:
 	
