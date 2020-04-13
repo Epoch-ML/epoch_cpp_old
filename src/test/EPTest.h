@@ -9,6 +9,8 @@
 #include "core/types/EPFunction.h"
 #include "core/types/EPString.h"
 
+#include <chrono>
+
 template <typename T>
 class EPTest;
 
@@ -79,8 +81,12 @@ public:
 	RESULT Run() {
 		RESULT r = R::OK;
 
-		m_fTestRun = true;
+		auto timeStart = std::chrono::high_resolution_clock::now();
 		m_testResult = this->operator()();
+		auto timeEnd = std::chrono::high_resolution_clock::now();
+
+		m_usTimeRun = std::chrono::duration_cast<std::chrono::microseconds>(timeEnd - timeStart).count();
+		m_fTestRun = true;
 
 	Error:
 		return r;
@@ -133,6 +139,8 @@ private:
 	EPString<char> m_strName;
 	RESULT m_testResult = R::OK;
 	bool m_fTestRun = false;
+
+	size_t m_usTimeRun = 0;
 };
 
 #endif // ! EP_TEST_H_

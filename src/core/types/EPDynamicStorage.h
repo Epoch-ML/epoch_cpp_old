@@ -23,6 +23,14 @@ public:
 		//
 	}
 
+	~EPDynamicStorage() {
+		delete[] m_pBuffer;
+
+		m_pBuffer_c = 0;
+		m_pBuffer_n = 0;
+		m_pBuffer = nullptr;
+	}
+
 	EPDynamicStorage(size_t initialSize, const TStorage& initValue) :
 		m_pBuffer_n(initialSize),
 		m_pBuffer_c(m_pBuffer_n)
@@ -40,6 +48,42 @@ public:
 		m_pBuffer_c = m_pBuffer_n;
 	}
 
+	EPDynamicStorage(const EPDynamicStorage& rhs) {
+		m_pBuffer_n = rhs.m_pBuffer_n;
+		m_pBuffer = new TStorage[m_pBuffer_n];
+		m_pBuffer_c = rhs.m_pBuffer_c;
+		
+		memset(m_pBuffer, 0, m_pBuffer_n);
+		memcpy(m_pBuffer, rhs.m_pBuffer, m_pBuffer_n);
+	}
+
+	EPDynamicStorage& operator=(const EPDynamicStorage& rhs) {
+		m_pBuffer_n = rhs.m_pBuffer_n;
+		m_pBuffer = new TStorage[m_pBuffer_n];
+		m_pBuffer_c = rhs.m_pBuffer_c;
+
+		memset(m_pBuffer, 0, m_pBuffer_n);
+		memcpy(m_pBuffer, rhs.m_pBuffer, m_pBuffer_n);
+
+		return *this;
+	}
+
+	EPDynamicStorage(EPDynamicStorage&& rhs) {
+		m_pBuffer_n = rhs.m_pBuffer_n;
+		m_pBuffer = rhs.m_pBuffer;
+		m_pBuffer_c = rhs.m_pBuffer_c;
+		rhs.m_pBuffer = nullptr;
+	}
+
+	EPDynamicStorage& operator=(EPDynamicStorage&& rhs) {
+		m_pBuffer_n = rhs.m_pBuffer_n;
+		m_pBuffer = rhs.m_pBuffer;
+		m_pBuffer_c = rhs.m_pBuffer_c;
+		rhs.m_pBuffer = nullptr;
+
+		return *this;
+	}
+
 	RESULT Allocate(size_t newSize) {
 		RESULT r = R::OK;
 
@@ -48,7 +92,7 @@ public:
 		CNR(pTempBuffer, R::MEMORY_ALLOCATION_FAILED);
 
 		// set to zero and swap
-		memset(pTempBuffer, 0, pTempBuffer_n);	// this will ensure null termination 
+		memset(pTempBuffer, 0, sizeof(TStorage) * pTempBuffer_n);	// this will ensure null termination 
 
 		std::swap(pTempBuffer, m_pBuffer);
 		std::swap(pTempBuffer_n, m_pBuffer_n);
@@ -82,6 +126,10 @@ public:
 	RESULT PushFront(const TStorage& value) {
 		RESULT r = R::OK;
 
+		if (m_pBuffer == nullptr) {
+			CR(this->Allocate(1));
+		}
+
 		if (m_pBuffer_c == m_pBuffer_n) {
 			CR(this->DoubleSize());
 		}
@@ -98,6 +146,32 @@ public:
 	const TStorage* GetCBuffer() {
 		TStorage* pData = (TStorage*)m_pBuffer;
 		return pData;
+	}
+
+	TStorage operator[](size_t index) const { 
+		return m_pBuffer[index]; 
+	}
+
+	TStorage& operator [](size_t index) { 
+		return m_pBuffer[index];
+	}
+
+	size_t size() { 
+		return m_pBuffer_c;
+	}
+	
+	inline void clear(bool fDeallocate = true) {
+		if (fDeallocate) {
+			if (m_pBuffer != nullptr) {
+				delete[] m_pBuffer;
+				m_pBuffer = nullptr;
+			}
+			m_pBuffer_c = 0;
+			m_pBuffer_n = 0;
+		}
+		else {
+			memset(m_pBuffer, 0, sizeof(TStorage) * m_pBuffer_n);
+		}
 	}
 
 private:
@@ -134,8 +208,8 @@ private:
 		CNR(pTempBuffer, R::MEMORY_ALLOCATION_FAILED);
 
 		// Copy and swap
-		memset(pTempBuffer, 0, pTempBuffer_n);	// this will ensure null termination 
-		memcpy(pTempBuffer, m_pBuffer, m_pBuffer_n);
+		memset(pTempBuffer, 0, sizeof(TStorage) * pTempBuffer_n);	// this will ensure null termination 
+		memcpy(pTempBuffer, m_pBuffer, sizeof(TStorage) * m_pBuffer_n);
 
 		std::swap(pTempBuffer, m_pBuffer);
 		std::swap(pTempBuffer_n, m_pBuffer_n);

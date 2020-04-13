@@ -17,10 +17,12 @@ class TypesTestSuite :
 public:
 	// EPDynamicStorage
 	RESULT TestEPDynamicStorage();
+	RESULT TestEPString();
 
 	EP_TESTS_START {
 
 		EP_ADD_TEST(TestEPDynamicStorage);
+		EP_ADD_TEST(TestEPString);
 
 	} EP_TESTS_END
 };

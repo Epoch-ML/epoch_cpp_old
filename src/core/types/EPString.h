@@ -22,6 +22,20 @@ public:
 		// 
 	}
 
+	virtual ~EPString() = default;
+
+	EPString(const EPString& rhs) :
+		m_stringStorage(rhs.m_stringStorage)
+	{
+		//
+	}
+
+	EPString(EPString&& rhs) :
+		m_stringStorage(rhs.m_stringStorage)
+	{
+		rhs.m_stringStorage.clear(true);
+	}
+
 	EPString(const TChar szString[]) :
 		m_stringStorage(szString, strlen(szString) + 1)
 	{
@@ -34,7 +48,21 @@ public:
 		//
 	}
 
-	virtual ~EPString() = default;
+	EPString& operator=(EPString& rhs) {
+		m_stringStorage = rhs.m_stringStorage;
+		return *this;
+	}
+
+	EPString& operator=(const EPString& rhs) {
+		m_stringStorage = rhs.m_stringStorage;
+		return *this;
+	}
+
+	EPString& operator=(EPString&& rhs) {
+		m_stringStorage = rhs.m_stringStorage;
+		rhs.m_stringStorage.clear(true);
+		return *this;
+	}
 
 	const TChar* c_str() {
 		return m_stringStorage.GetCBuffer();

@@ -25,6 +25,7 @@ class EPObj :
 public:
 	EPObj() = default;
 	virtual ~EPObj() = default;
+
 	EPObj(const EPObj&) = default;
 	EPObj(EPObj&&) = default;
 
