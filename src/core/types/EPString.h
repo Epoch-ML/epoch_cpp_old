@@ -9,7 +9,7 @@
 // String class that works the way WE FUCKING WANT it to
 
 #include "core/types/EPObj.h"
-#include "core/types/EPDynamicStorage.h"
+#include "core/types/EPVector.h"
 
 // TODO: expand to wide string as well
 
@@ -69,7 +69,7 @@ public:
 	}
 
 private:
-	EPDynamicStorage<TChar> m_stringStorage;
+	EPVector<TChar> m_stringStorage;
 };
 
 
