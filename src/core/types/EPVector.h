@@ -13,9 +13,9 @@
 // TODO: Needs test suite (all the core shits need test suites)
 
 template <typename TStorage>
-class EPDynamicStorage {
+class EPVector {
 public:
-	EPDynamicStorage() :
+	EPVector() :
 		m_pBuffer_n(0),
 		m_pBuffer(nullptr),
 		m_pBuffer_c(0)
@@ -23,7 +23,7 @@ public:
 		//
 	}
 
-	~EPDynamicStorage() {
+	~EPVector() {
 		delete[] m_pBuffer;
 
 		m_pBuffer_c = 0;
@@ -31,14 +31,14 @@ public:
 		m_pBuffer = nullptr;
 	}
 
-	EPDynamicStorage(size_t initialSize, const TStorage& initValue) :
+	EPVector(size_t initialSize, const TStorage& initValue) :
 		m_pBuffer_n(initialSize),
 		m_pBuffer_c(m_pBuffer_n)
 	{
 		m_pBuffer = new TStorage[m_pBuffer_n];
 	}
 
-	EPDynamicStorage(const TStorage staticValueArray[], size_t staticValueArray_n) {
+	EPVector(const TStorage staticValueArray[], size_t staticValueArray_n) {
 		m_pBuffer_n = staticValueArray_n;
 		m_pBuffer = new TStorage[m_pBuffer_n];
 
@@ -48,7 +48,7 @@ public:
 		m_pBuffer_c = m_pBuffer_n;
 	}
 
-	EPDynamicStorage(const EPDynamicStorage& rhs) {
+	EPVector(const EPVector& rhs) {
 		m_pBuffer_n = rhs.m_pBuffer_n;
 		m_pBuffer = new TStorage[m_pBuffer_n];
 		m_pBuffer_c = rhs.m_pBuffer_c;
@@ -57,7 +57,7 @@ public:
 		memcpy(m_pBuffer, rhs.m_pBuffer, m_pBuffer_n);
 	}
 
-	EPDynamicStorage& operator=(const EPDynamicStorage& rhs) {
+	EPVector& operator=(const EPVector& rhs) {
 		m_pBuffer_n = rhs.m_pBuffer_n;
 		m_pBuffer = new TStorage[m_pBuffer_n];
 		m_pBuffer_c = rhs.m_pBuffer_c;
@@ -68,14 +68,14 @@ public:
 		return *this;
 	}
 
-	EPDynamicStorage(EPDynamicStorage&& rhs) {
+	EPVector(EPVector&& rhs) {
 		m_pBuffer_n = rhs.m_pBuffer_n;
 		m_pBuffer = rhs.m_pBuffer;
 		m_pBuffer_c = rhs.m_pBuffer_c;
 		rhs.m_pBuffer = nullptr;
 	}
 
-	EPDynamicStorage& operator=(EPDynamicStorage&& rhs) {
+	EPVector& operator=(EPVector&& rhs) {
 		m_pBuffer_n = rhs.m_pBuffer_n;
 		m_pBuffer = rhs.m_pBuffer;
 		m_pBuffer_c = rhs.m_pBuffer_c;

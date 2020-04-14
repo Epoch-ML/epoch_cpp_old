@@ -60,8 +60,8 @@ public:
 
 	template<typename CType, typename... CArgs>
 	tuple_recurring_base(CType &&arg, CArgs && ... args) :
-		tuple_implementation<index, CType>(std::forward<CType>(arg)),
-		tuple_recurring_base<index + 1, CArgs...>(std::forward<CArgs>(args)...)
+		tuple_implementation<index, CType>(static_cast<CType&&>(arg)),
+		tuple_recurring_base<index + 1, CArgs...>(static_cast<CArgs&&>(args)...)
 	{
 		// 
 	}
@@ -70,17 +70,17 @@ public:
 
 
 template <typename... TArgs>
-class tuple : public tuple_recurring_base<0, TArgs...>
+class EPTuple : public tuple_recurring_base<0, TArgs...>
 {
 public:
-	tuple() 
+	EPTuple() 
 	{
 		// 
 	}
 
 	template <typename... CArgs>
-	tuple(CArgs && ... args) :
-		tuple_recurring_base<0, TArgs...>(std::forward<CArgs>(args)...)
+	EPTuple(CArgs && ... args) :
+		tuple_recurring_base<0, TArgs...>(static_cast<TArgs&&>(args)...)
 	{
 		// 
 	}

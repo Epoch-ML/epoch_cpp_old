@@ -37,7 +37,7 @@ add_library(core
 
 add_executable(types.tests
   types/types.tests.cpp
-  types/EPDynamicStorage.tests.cpp
+  types/EPVector.tests.cpp
   types/EPString.tests.cpp
 )
 
