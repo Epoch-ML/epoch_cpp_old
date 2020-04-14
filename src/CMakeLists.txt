@@ -31,6 +31,9 @@ set(CMAKE_CXX_FLAGS_CORE "${CMAKE_CXX_FLAGS}")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	message("epoch/src/cmakelists.txt msvc")
+	
+	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")      # C++ version
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOCONCEPTS")
 
 	# Compiler Flags Release
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi /W3 /WX /sdl /MP")      # General
@@ -109,9 +112,13 @@ endif()
 # TODO:
 
 # Components
-add_subdirectory(core)
 add_subdirectory(logger)
+add_subdirectory(core)
+add_subdirectory(test)
 add_subdirectory(sandbox)
 
 # Adds junk repos
 add_subdirectory(junk)
+
+# teaching
+add_subdirectory(teaching)

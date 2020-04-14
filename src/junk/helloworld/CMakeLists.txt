@@ -1,4 +1,5 @@
 # epoch/src/junk/CMakeLists.txt : CMake configuration file for Hello World project
+
 # Hello World is really just a validation of the CMake build system to ensure 
 # CMake is working well in build and debug on all platforms
 

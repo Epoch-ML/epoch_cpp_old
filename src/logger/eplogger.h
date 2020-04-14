@@ -1,5 +1,5 @@
-#ifndef SB_LOGGER_H_
-#define SB_LOGGER_H_
+#ifndef EP_LOGGER_H_
+#define EP_LOGGER_H_
 #pragma once
 
 #include "core/ehm/result.h"
@@ -16,8 +16,8 @@
 #define SPDLOG_THREAD_COUNT 1
 
 // The curiously recursive template 
-class SBLogger : public singleton<SBLogger> {
-	friend class singleton<SBLogger>;
+class EPLogger : public singleton<EPLogger> {
+	friend class singleton<EPLogger>;
 
 public:
 	enum class level {
@@ -28,12 +28,12 @@ public:
 	};
 
 protected:
-	SBLogger();
-	virtual ~SBLogger();
+	EPLogger();
+	virtual ~EPLogger();
 
 public: 
 	template <typename... Args>
-	RESULT log(SBLogger::level logLevel, const char* pszMessage, const Args& ... args) {
+	RESULT log(EPLogger::level logLevel, const char* pszMessage, const Args& ... args) {
 		RESULT r = R::PASS;
 
 		//CNM(m_pSpdlogger);
@@ -42,19 +42,19 @@ public:
 		}
 
 		switch (logLevel) {
-			case SBLogger::level::info: {
+			case EPLogger::level::info: {
 				m_pSpdlogger->info(pszMessage, args...);
 			} break;
 
-			case SBLogger::level::warn: {
+			case EPLogger::level::warn: {
 				m_pSpdlogger->warn(pszMessage, args...);
 			} break;
 
-			case SBLogger::level::error: {
+			case EPLogger::level::error: {
 				m_pSpdlogger->error(pszMessage, args...);
 			} break;
 
-			case SBLogger::level::critical: {
+			case EPLogger::level::critical: {
 				m_pSpdlogger->critical(pszMessage, args...);
 			} break;
 		}
@@ -70,8 +70,8 @@ public:
 private:
 	std::shared_ptr<spdlog::logger> m_pSpdlogger = nullptr;
 
-	std::string m_strSBLogPath;
-	const std::string m_kSBLoggerName = "sblogger";
+	std::string m_strEPLogPath;
+	const std::string m_kEPLoggerName = "eplogger";
 };
 
-#endif // ! SB_LOGGER_H_
+#endif // ! EP_LOGGER_H_

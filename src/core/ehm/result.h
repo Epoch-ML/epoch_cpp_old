@@ -30,7 +30,7 @@
 #endif
 
 #define RFAILED(res) (res&0x80000000)
-#define RSUCCESS() (!RFAILED())
+#define RSUCCESS(res) (!RFAILED(res))
 #define RCHECK(res) (!(res & 0x80000000))
 
 typedef enum class RESULT : uint32_t {
@@ -46,7 +46,11 @@ typedef enum class RESULT : uint32_t {
 	FAIL = 0x80000000,
 
 	MATRIX_ROW_OUT_OF_RANGE,
-	MATRIX_COL_OUT_OF_RANGE
+	MATRIX_COL_OUT_OF_RANGE,
+
+	MEMORY_ALLOCATION_FAILED,
+
+	PLATFORM_NOT_SUPPORTED
 } R ;
 
 // TODO: Kind of torn about the performance of this

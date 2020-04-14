@@ -4,5 +4,4 @@
 # be used for validation
 
 # Projects
-add_subdirectory(helloworld)
-add_subdirectory(ProjectEuler)
+add_subdirectory(memoization)
