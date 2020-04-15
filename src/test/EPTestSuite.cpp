@@ -55,7 +55,7 @@ RESULT EPTestSuiteBase::RunAllTests() {
 
 		DEBUG_LINEOUT("Test: %s : %s with code 0x%x", 
 			pszName, 
-			RSUCCESS(test.GetResult()) ? "\x1B[32mSUCCEEDED\033[0m" : "\x1B[31mFAILED\033[0m", 
+			RSUCCESS(test.GetResult()) ? C_GREEN("SUCCEEDED") : C_RED("FAILED"), 
 			test.GetResult()
 		);
 

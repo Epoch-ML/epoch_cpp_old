@@ -41,7 +41,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage() {
 		// Case 2 - Check front insertion
 		intArray = EPVector<int>();
 
-		size_t nsEPInsertFrontTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
+		size_t nsEPPushFrontTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
 			for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
 				intArray.PushFront(i);
 			}
@@ -60,10 +60,14 @@ RESULT TypesTestSuite::TestEPDynamicStorage() {
 			stdIntArray = std::vector<int>();
 		}).get<1, size_t>();
 
-		CLTDM(nsEPConstructTime, nsSTDConstructTime,
-			"construct: std::vector faster",
-			"construct: std::vector: %zu ns EPVector: %zu ns",
-			nsSTDConstructTime, nsEPConstructTime);
+		//CLTDM(nsEPConstructTime, nsSTDConstructTime,
+		//	"construct: std::vector faster",
+		//	"construct: std::vector: %zu ns EPVector: %zu ns",
+		//	nsSTDConstructTime, nsEPConstructTime);
+
+		DEBUG_CMP("construct",
+			"EPVector", nsEPConstructTime,
+			"std::vector", nsSTDConstructTime);
 
 		size_t nsSTDPushBackTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
 			for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
@@ -84,10 +88,35 @@ RESULT TypesTestSuite::TestEPDynamicStorage() {
 			return;
 		}).get<1, size_t>();
 
-		CLTDM(nsEPCheckTime, nsSTDCheckTime,
-			"check: std::vector faster",
-			"check: std::vector: %zu ns EPVector: %zu ns",
-			nsSTDCheckTime, nsEPCheckTime);
+		//CLTDM(nsEPCheckTime, nsSTDCheckTime,
+		//	"check: std::vector faster",
+		//	"check: std::vector: %zu ns EPVector: %zu ns",
+		//	nsSTDCheckTime, nsEPCheckTime);
+
+		DEBUG_CMP("check",
+			"EPVector", nsEPCheckTime,
+			"std::vector", nsSTDCheckTime);
+
+		stdIntArray = std::vector<int>();
+		size_t nsSTDInsertFrontTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
+			for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
+				stdIntArray.insert(stdIntArray.begin(), i);
+			}
+		}).get<1, size_t>();
+
+		for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+			CBM(stdIntArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+		}
+
+		//CLTDM(nsEPPushFrontTime, nsSTDInsertFrontTime,
+		//	"push front: std::vector faster",
+		//	"push front: std::vector: %zu ns EPVector: %zu ns",
+		//	nsSTDCheckTime, nsEPCheckTime);
+
+		DEBUG_CMP("push front",
+			"EPVector", nsEPPushFrontTime,
+			"std::vector", nsSTDInsertFrontTime);
+		
 	}
 
 Error:
