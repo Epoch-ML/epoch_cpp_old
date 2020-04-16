@@ -40,6 +40,14 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 			}
 	));
 
+	pEPTest->RegisterAndRunTC("construct", "EPVector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				intArray = EPVector<int>();
+				return R::OK;
+			}
+	));
+
 	tcEPVectorPushBack = EPTestCase::MakeAndRun("pushback", "EPVector",
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {

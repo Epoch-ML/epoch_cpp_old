@@ -145,7 +145,7 @@ public:
 		return pData;
 	}
 
-	TStorage operator[](size_t index) const { 
+	const TStorage& operator[](size_t index) const { 
 		return m_pBuffer[index]; 
 	}
 
@@ -153,7 +153,7 @@ public:
 		return m_pBuffer[index];
 	}
 
-	size_t size() { 
+	const size_t size() const { 
 		return m_pBuffer_c;
 	}
 	

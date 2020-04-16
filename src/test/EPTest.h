@@ -8,8 +8,12 @@
 
 #include "core/types/EPFunction.h"
 #include "core/types/EPString.h"
+#include "core/types/EPTimedFunction.h"
+
+#include "test/EPTestCase.h"
 
 #include <chrono>
+#include <map>
 
 class EPTestBase {
 public:
@@ -36,6 +40,10 @@ public:
 		m_fTestRun(fTestRun),
 		m_usTimeRun(0)
 	{}
+
+	virtual RESULT RegisterAndRunTC(const EPString<char> &strTestCaseName,
+		const EPString<char> &strTestCaseFlavor, 
+		EPTimedFunction<RESULT(void)> pfnFunction) = 0;
 
 protected:
 	void reset() {
@@ -100,7 +108,8 @@ public:
 		EPFunction(nullptr)
 	{}
 
-	template <class Callable, class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
+	template <class Callable, 
+		class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
 	EPTest(const char szName[], Callable&& object) :
 		EPTestBase(szName),
 		EPFunction(object)
@@ -136,7 +145,30 @@ public:
 		return m_strName;
 	}
 
-	template <class Callable, class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
+public:
+	
+	virtual RESULT RegisterAndRunTC(const EPString<char>& strTestCaseName,
+		const EPString<char>& strTestCaseFlavor,
+		EPTimedFunction<RESULT(void)> pfnFunction) override
+	{
+		RESULT r = R::OK;
+
+		// Create and run the test case
+		auto epTestCase = EPTestCase::MakeAndRun(strTestCaseName, strTestCaseFlavor, pfnFunction);
+
+		// Push into test case vector
+		if (m_testCases.find(strTestCaseName) == m_testCases.end())
+			m_testCases[strTestCaseName] = EPVector<EPTestCase>();
+
+		m_testCases[strTestCaseName].PushBack(epTestCase);
+
+	Error:
+		return r;
+	}
+
+public:
+	template <class Callable, 
+		class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
 	EPTest& operator=(Callable&& object) {
 		m_strName = "anonymous function";
 		m_pfnFunction = new functor_impl<typename std::decay<Callable>::type, TReturn, TArgs...>(static_cast<Callable&&>(object));
@@ -174,6 +206,9 @@ public:
 	RESULT GetResult() { return m_testResult; }
 	bool Failed() { return RSUCCESS(m_testResult); }
 	bool Succeeded() { return (m_testResult); }
+
+private:
+	std::map<EPString<char>, EPVector<EPTestCase>, EPString<char>::compare_LT> m_testCases;
 };
 
 #endif // ! EP_TEST_H_

@@ -6,7 +6,6 @@
 // epoch test case
 // epoch/src/test/EpTestCase.h
 
-#include "core/types/EPFunction.h"
 #include "core/types/EPString.h"
 #include "core/types/EPTimedFunction.h"
 #include "core/types/EPTuple.h"
@@ -56,18 +55,18 @@ public:
 		return m_epTimedFunction.GetDuration();
 	}
 
-	static EPTestCase Make(const char szTestCaseName[], const char szTestCaseFlavor[], EPTimedFunction<RESULT(void)> pfnFunction) {
+	static EPTestCase Make(const EPString<char>& strTestCaseName, const EPString<char>& strTestCaseFlavor, EPTimedFunction<RESULT(void)> pfnFunction) {
 		EPTestCase retTestCase;
 
-		retTestCase.m_strTestCaseName = szTestCaseName;
-		retTestCase.m_strTestCaseFlavor = szTestCaseFlavor;
+		retTestCase.m_strTestCaseName = strTestCaseName;
+		retTestCase.m_strTestCaseFlavor = strTestCaseFlavor;
 		retTestCase.m_epTimedFunction = EPTimedFunction<RESULT(void)>(pfnFunction);
 
 		return retTestCase;
 	}
 
-	static EPTestCase MakeAndRun(const char szTestCaseName[], const char szTestCaseFlavor[], EPTimedFunction<RESULT(void)> pfnFunction) {
-		EPTestCase retTestCase = EPTestCase::Make(szTestCaseName, szTestCaseFlavor, pfnFunction);
+	static EPTestCase MakeAndRun(const EPString<char> &strTestCaseName, const EPString<char> &strTestCaseFlavor, EPTimedFunction<RESULT(void)> pfnFunction) {
+		EPTestCase retTestCase = EPTestCase::Make(strTestCaseName, strTestCaseFlavor, pfnFunction);
 		
 		retTestCase.Run();
 
