@@ -143,8 +143,8 @@ public:
 	}
 
 	// This is just providing a pointer to the data
-	const TStorage* GetCBuffer() {
-		TStorage* pData = (TStorage*)m_pBuffer;
+	const TStorage* GetCBuffer() const {
+		const TStorage* pData = (const TStorage*)m_pBuffer;
 		return pData;
 	}
 

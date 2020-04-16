@@ -39,7 +39,7 @@ public:
 	}
 
 public:
-	EPTuple<RESULT, std::duration> operator()(TArgs&& ... args) {
+	EPTuple<RESULT, size_t> operator()(TArgs&& ... args) {
 		RESULT r = R::OK;
 		m_fnResult = R::FAIL;
 
@@ -47,7 +47,7 @@ public:
 		CR(Run(static_cast<TArgs&&>(args)...));
 
 	Error:
-		return EPTuple<RESULT, size_t>(m_fnResult, m_duration);
+		return EPTuple<RESULT, size_t>(m_fnResult, m_nsDuration);
 	}
 
 	template <class Callable, class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
@@ -63,6 +63,12 @@ public:
 		//
 	}
 
+	EPTimedFunction(std::nullptr_t) noexcept :
+		m_pfnFunction(nullptr)
+	{
+		//
+	}
+
 	explicit operator bool() const noexcept {
 		return m_pfnFunction != nullptr;
 	}
@@ -71,15 +77,24 @@ public:
 		return (m_pfnFunction == nullptr);
 	}
 
+	EPTimedFunction& operator=(std::nullptr_t) noexcept {
+		m_pfnFunction = nullptr;
+		return *this;
+	}
+
 	RESULT GetResult() { return m_fnResult; }
-	bool Failed() { return RSUCCESS(m_fnResult); }
-	bool Succeeded() { return (m_fnResult); }
+	bool Failed() { return RFAILED(m_fnResult); }
+	bool Succeeded() { return RSUCCESS(m_fnResult); }
 
 	template <class Callable, 
 		class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
-	static EPTuple<RESULT, std::duration> MakeAndRun(Callable&& object, TArgs... args) {
+	static EPTuple<RESULT, size_t> MakeAndRun(Callable&& object, TArgs... args) {
 		EPTimedFunction<TReturn(TArgs...)> epTimedFunction(object);
 		return epTimedFunction(static_cast<TArgs&&>(args)...);
+	}
+
+	size_t GetDuration() {
+		return m_nsDuration;
 	}
 
 private:
@@ -91,29 +106,16 @@ private:
 			m_pfnFunction->call(static_cast<CArgs&&>(args)...);
 		auto timeEnd = std::chrono::high_resolution_clock::now();
 
-		m_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart);
+		m_fnResult = R::NO_RESULT;
+		m_nsDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart).count();
 
 	Error:
 		return r;
 	}
 
 	functor_base<TReturn, TArgs...>* m_pfnFunction = nullptr;
-	RESULT m_fnResult = R::NOT_RESULT;
-	std::duration m_duration = 0;
+	RESULT m_fnResult = R::NO_RESULT;
+	size_t m_nsDuration = 0;
 };
-
-template <typename ... TArgs, typename... CArgs>
-EPTimedFunction<RESULT(TArgs...)>::Run(CArgs... args) {
-	RESULT r = R::OK;
-
-	auto timeStart = std::chrono::high_resolution_clock::now();
-	m_fnResult = m_pfnFunction->call(static_cast<CArgs&&>(args)...);
-	auto timeEnd = std::chrono::high_resolution_clock::now();
-
-	m_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart);
-
-Error:
-	return r;
-}
 
 #endif // ! EP_TIMED_FUNCTION_H_

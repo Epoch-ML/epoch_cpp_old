@@ -8,45 +8,73 @@
 
 RESULT TypesTestSuite::TestEPDynamicStorage() {
 	RESULT r = R::OK;
+
 	EPVector<int> intArray;
 	std::vector<int> stdIntArray;
+
+	// EPVector test cases
+	EPTestCase tcEPVectorConstruct;
+	EPTestCase tcEPVectorPushBack;
+	EPTestCase tcEPVectorCheck;
+	EPTestCase tcEPVectorPushFront;
+
+	// std::vector test cases (for comparisons) 
+	EPTestCase tcSTDVectorConstruct;
+	EPTestCase tcSTDVectorPushBack;
+	EPTestCase tcSTDVectorCheck;
+	EPTestCase tcSTDVectorInsertFront;
 
 	// TODO: Wrap up the below as test cases
 	// TODO: Create a "ep timed function"
 
 	// Case 1 - Check push back
-	auto tcEPVectorConstruct = EPTestCase::MakeAndRun("construct",
-		[&]() -> void {
-			intArray = EPVector<int>();
-		}
-	);
+	// TODO: get rid of result return
+	tcEPVectorConstruct = EPTestCase::MakeAndRun("construct", "EPVector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				intArray = EPVector<int>();
+				return R::OK;
+			}
+	));
 
-	size_t nsEPPushTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-		for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-			intArray.PushBack(i);
-		}
-	}).get<1, size_t>();
+	tcEPVectorPushBack = EPTestCase::MakeAndRun("pushback", "EPVector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+					intArray.PushBack(i);
+				}
+				return R::OK;
+			}
+	));
 
 	CBM(intArray.size() == TEST_INT_ARRAY_LENGTH,
 		"Size %zu differs from expected size %d", 
 			intArray.size(), TEST_INT_ARRAY_LENGTH);
 
-	size_t nsEPCheckTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-		for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-			CBM(intArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
-		}
-	Error:
-		return;
-	}).get<1, size_t>();
+	tcEPVectorCheck = EPTestCase::MakeAndRun("check", "EPVector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				RESULT r = R::OK;
+				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+					CBM(intArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+				}
+			Error:
+				return r;
+			}
+	));
 
 	// Case 2 - Check front insertion
 	intArray = EPVector<int>();
 
-	size_t nsEPPushFrontTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-		for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
-			intArray.PushFront(i);
-		}
-	}).get<1, size_t>();
+	tcEPVectorPushFront = EPTestCase::MakeAndRun("pushfront", "EPVector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
+					intArray.PushFront(i);
+				}
+				return R::OK;
+			}
+	));
 
 	CBM(intArray.size() == TEST_INT_ARRAY_LENGTH,
 		"Size %zu differs from expected size %d", 
@@ -59,69 +87,59 @@ RESULT TypesTestSuite::TestEPDynamicStorage() {
 
 	// Case 3 - Test performance against std::vector
 
-	size_t nsSTDConstructTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-		stdIntArray = std::vector<int>();
-	}).get<1, size_t>();
+	tcSTDVectorConstruct = EPTestCase::MakeAndRun("construct", "std::vector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				stdIntArray = std::vector<int>();
+			return R::OK;
+			}
+	));
 
-	//CLTDM(nsEPConstructTime, nsSTDConstructTime,
-	//	"construct: std::vector faster",
-	//	"construct: std::vector: %zu ns EPVector: %zu ns",
-	//	nsSTDConstructTime, nsEPConstructTime);
+	tcSTDVectorPushBack = EPTestCase::MakeAndRun("pushback", "std::vector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+					stdIntArray.push_back(i);
+				}
+				return R::OK;
+			}
+	));
 
-	DEBUG_CMP("construct",
-		"EPVector", nsEPConstructTime,
-		"std::vector", nsSTDConstructTime);
-
-	size_t nsSTDPushBackTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-		for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-			stdIntArray.push_back(i);
-		}
-	}).get<1, size_t>();
-
-	CLTDM(nsEPPushTime, nsSTDPushBackTime,
-		"pushback: std::vector faster",
-		"pushback: std::vector: %zu ns EPVector: %zu ns",
-		nsSTDPushBackTime, nsEPPushTime);
-
-	size_t nsSTDCheckTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-		for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-			CBM(stdIntArray[i] == i, 
-				"intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
-		}
-	Error:
-		return;
-	}).get<1, size_t>();
-
-	//CLTDM(nsEPCheckTime, nsSTDCheckTime,
-	//	"check: std::vector faster",
-	//	"check: std::vector: %zu ns EPVector: %zu ns",
-	//	nsSTDCheckTime, nsEPCheckTime);
-
-	DEBUG_CMP("check",
-		"EPVector", nsEPCheckTime,
-		"std::vector", nsSTDCheckTime);
+	tcSTDVectorCheck = EPTestCase::MakeAndRun("check", "std::vector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				RESULT r = R::OK;
+				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+					CBM(stdIntArray[i] == i,
+						"intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+				}
+			Error:
+				return r;
+			}
+	));
 
 	stdIntArray = std::vector<int>();
-	size_t nsSTDInsertFrontTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-		for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
-			stdIntArray.insert(stdIntArray.begin(), i);
-		}
-	}).get<1, size_t>();
+
+	tcSTDVectorInsertFront = EPTestCase::MakeAndRun("insertfront", "std::vector",
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
+					stdIntArray.insert(stdIntArray.begin(), i);
+				}
+				return R::OK;
+			}
+	));
 
 	for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
 		CBM(stdIntArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
 	}
 
-	//CLTDM(nsEPPushFrontTime, nsSTDInsertFrontTime,
-	//	"push front: std::vector faster",
-	//	"push front: std::vector: %zu ns EPVector: %zu ns",
-	//	nsSTDCheckTime, nsEPCheckTime);
-
-	DEBUG_CMP("push front",
-		"EPVector", nsEPPushFrontTime,
-		"std::vector", nsSTDInsertFrontTime);
-		
-
+	// Comparisons and output
+	CR(EPTestCase::CompareTestCases(tcEPVectorConstruct, tcSTDVectorConstruct, EPTestCase::expected::COMPARE));
+	CR(EPTestCase::CompareTestCases(tcEPVectorPushBack, tcSTDVectorPushBack, EPTestCase::expected::FASTER));
+	CR(EPTestCase::CompareTestCases(tcEPVectorCheck, tcSTDVectorCheck, EPTestCase::expected::COMPARE));
+	CR(EPTestCase::CompareTestCases(tcEPVectorPushFront, tcSTDVectorInsertFront, EPTestCase::expected::FASTER));
+	
 Error:
 	return r;
 }
