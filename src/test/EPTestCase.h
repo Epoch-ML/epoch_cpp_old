@@ -91,8 +91,8 @@ public:
 		EPTestCase* pLHS = nullptr;
 		EPTestCase* pRHS = nullptr;
 
-		CBM(cases.size() == 0, "No test cases registered %s");
-		CBM(cases.size() > 2, "CompareTestCases doesn't yet support more han two comparable test cases");
+		CBM(cases.size() != 0, "No test cases registered");
+		CBM(cases.size() <= 2, "CompareTestCases doesn't yet support more han two comparable test cases");
 
 		pLHS = &cases[0];
 		if (cases.size() == 1) {
