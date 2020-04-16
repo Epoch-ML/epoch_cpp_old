@@ -15,13 +15,8 @@
 class EPTestCase {
 public:
 	enum class expected {
-		LT,
-		LTE,
-		GT,
-		GTE,
-		EQ,
-		FASTER,
-		SLOWER,
+		FASTEST,
+		SLOWEST,
 		COMPARE		// This will not error out
 	};
 
@@ -77,49 +72,81 @@ public:
 	bool Failed() { return m_epTimedFunction.Failed(); }
 	bool Succeeded() { return (m_epTimedFunction.Succeeded()); }
 
-	// Compare test cases
-	static RESULT CompareTestCases(EPTestCase lhs, EPTestCase rhs, EPTestCase::expected lhsExpected) {
+	RESULT PrintTestCase() {
 		RESULT r = R::OK;
 
-		CRM(lhs.GetResult(), "lhs failed");
-		CRM(rhs.GetResult(), "rhs failed");
+		CRM(GetResult(), "TestCase failed");
+
+		DEBUG_LINEOUT("%s: %s: %zu", 
+			m_strTestCaseName.c_str(), m_strTestCaseFlavor.c_str(), GetTestCaseDuration());
+
+	Error:
+		return r;
+	}
+
+	// Compare test cases
+	static RESULT CompareTestCases(EPVector<EPTestCase> cases) {
+		RESULT r = R::OK;
+
+		EPTestCase* pLHS = nullptr;
+		EPTestCase* pRHS = nullptr;
+
+		CBM(cases.size() == 0, "No test cases registered %s");
+		CBM(cases.size() > 2, "CompareTestCases doesn't yet support more han two comparable test cases");
+
+		pLHS = &cases[0];
+		if (cases.size() == 1) {
+			return pLHS->PrintTestCase();
+		}
+		pRHS = &cases[1];
+
+		CRM(pLHS->GetResult(), "lhs failed");
+		CRM(pRHS->GetResult(), "rhs failed");
 
 		// Print the comparison
-		DEBUG_CMP(lhs.m_strTestCaseName.c_str(),
-			lhs.m_strTestCaseFlavor.c_str(), lhs.GetTestCaseDuration(),
-			rhs.m_strTestCaseFlavor.c_str(), rhs.GetTestCaseDuration());
+		DEBUG_CMP(pLHS->m_strTestCaseName.c_str(),
+			pLHS->m_strTestCaseFlavor.c_str(), pLHS->GetTestCaseDuration(),
+			pRHS->m_strTestCaseFlavor.c_str(), pRHS->GetTestCaseDuration());
+
+		expected lhsExpected;
+
+		// Defer to LHS to be the fastest, if both are trying to be faster 
+		// then go with the one that actually is trying to be faster
+		if (pLHS->m_expectedBehavior == expected::FASTEST) {
+			lhsExpected = expected::FASTEST;
+		}
+		else if (pRHS->m_expectedBehavior == expected::FASTEST) {
+			lhsExpected = expected::SLOWEST;
+		}
+		else {
+			lhsExpected = expected::COMPARE;
+		}
 
 		switch (lhsExpected) {
-			case EPTestCase::expected::COMPARE: {
+			case expected::COMPARE: {
 				//// Print the comparison
 				//DEBUG_CMP(lhs.m_strTestCaseName.c_str(),
 				//	lhs.m_strTestCaseFlavor.c_str(), lhs.GetTestCaseDuration(),
 				//	rhs.m_strTestCaseFlavor.c_str(), rhs.GetTestCaseDuration());
 			} break;
 
-			//case EPTestCase::expected::LT:
-			//case EPTestCase::expected::LTE:
-			//case EPTestCase::expected::GT:
-			//case EPTestCase::expected::GTE:
-			//case EPTestCase::expected::EQ:
-
-			case EPTestCase::expected::FASTER: {
-				CLTDM(lhs.GetTestCaseDuration(), rhs.GetTestCaseDuration(),
-					lhs.m_strTestCaseName.c_str(),
+			case expected::FASTEST: {
+				CLTDM(pLHS->GetTestCaseDuration(), pRHS->GetTestCaseDuration(),
+					pLHS->m_strTestCaseName.c_str(),
 					"%s: %s: %zu ns %s: %zu ns",
-						lhs.m_strTestCaseName.c_str(), 
-						lhs.m_strTestCaseFlavor.c_str(), lhs.GetTestCaseDuration(), 
-						rhs.m_strTestCaseFlavor.c_str(), rhs.GetTestCaseDuration()
+						pLHS->m_strTestCaseName.c_str(), 
+						pLHS->m_strTestCaseFlavor.c_str(), pLHS->GetTestCaseDuration(),
+					pRHS->m_strTestCaseFlavor.c_str(), pRHS->GetTestCaseDuration()
 				);
 			} break;
 
-			case EPTestCase::expected::SLOWER: {
-				CGTDM(lhs.GetTestCaseDuration(), rhs.GetTestCaseDuration(),
-					lhs.m_strTestCaseName.c_str(),
+			case expected::SLOWEST: {
+				CGTDM(pLHS->GetTestCaseDuration(), pRHS->GetTestCaseDuration(),
+					pLHS->m_strTestCaseName.c_str(),
 					"%s: %s: %zu ns %s: %zu ns",
-					lhs.m_strTestCaseName.c_str(),
-					lhs.m_strTestCaseFlavor.c_str(), lhs.GetTestCaseDuration(),
-					rhs.m_strTestCaseFlavor.c_str(), rhs.GetTestCaseDuration()
+					pLHS->m_strTestCaseName.c_str(),
+					pLHS->m_strTestCaseFlavor.c_str(), pLHS->GetTestCaseDuration(),
+					pRHS->m_strTestCaseFlavor.c_str(), pRHS->GetTestCaseDuration()
 				);
 			} break;	
 		}
@@ -128,7 +155,13 @@ public:
 		return r;
 	}
 
+	RESULT SetExpectedBehavior(EPTestCase::expected expectedBehavior) {
+		m_expectedBehavior = expectedBehavior;
+		return R::OK;
+	}
+
 private:
+	EPTestCase::expected m_expectedBehavior = EPTestCase::expected::COMPARE;
 	EPString<char> m_strTestCaseName;
 	EPString<char> m_strTestCaseFlavor;
 	EPTimedFunction<RESULT(void)> m_epTimedFunction = nullptr;

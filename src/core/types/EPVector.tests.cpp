@@ -4,6 +4,7 @@
 
 #include <vector>
 
+#include "test/EPTest.h"
 #include "test/EPTestCase.h"
 
 RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
@@ -12,27 +13,22 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	EPVector<int> intArray;
 	std::vector<int> stdIntArray;
 
-	// EPVector test cases
-	EPTestCase tcEPVectorConstruct;
-	EPTestCase tcEPVectorPushBack;
-	EPTestCase tcEPVectorCheck;
-	EPTestCase tcEPVectorPushFront;
+	// EPVector test case labels
+	const char *kConstruct = "construct";
+	const char *kPushBack = "pushback";
+	const char *kCheck = "check";
+	const char *kPushFront = "pushfront";
 
-	// std::vector test cases (for comparisons) 
-	EPTestCase tcSTDVectorConstruct;
-	EPTestCase tcSTDVectorPushBack;
-	EPTestCase tcSTDVectorCheck;
-	EPTestCase tcSTDVectorInsertFront;
+	const char* kEPVector = "EPVector";
+	const char* kSTLVector = "std::vector";
 
 	EPTest<RESULT(EPTestBase*)>* pEPTest = dynamic_cast<EPTest<RESULT(EPTestBase*)>*>(pEPTestBase);
 	CNM(pEPTest, "EPTest is nullptr");
 
-	// TODO: Wrap up the below as test cases
-	// TODO: Create a "ep timed function"
-
 	// Case 1 - Check push back
 	// TODO: get rid of result return
-	tcEPVectorConstruct = EPTestCase::MakeAndRun("construct", "EPVector",
+
+	pEPTest->RegisterAndRunTC(kConstruct, kEPVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				intArray = EPVector<int>();
@@ -40,15 +36,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 			}
 	));
 
-	pEPTest->RegisterAndRunTC("construct", "EPVector",
-		EPTimedFunction<RESULT(void)>(
-			[&]() -> RESULT {
-				intArray = EPVector<int>();
-				return R::OK;
-			}
-	));
-
-	tcEPVectorPushBack = EPTestCase::MakeAndRun("pushback", "EPVector",
+	pEPTest->RegisterAndRunTC(kPushBack, kEPVector, EPTestCase::expected::FASTEST,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
@@ -62,7 +50,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 		"Size %zu differs from expected size %d", 
 			intArray.size(), TEST_INT_ARRAY_LENGTH);
 
-	tcEPVectorCheck = EPTestCase::MakeAndRun("check", "EPVector",
+	pEPTest->RegisterAndRunTC(kCheck, kEPVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				RESULT r = R::OK;
@@ -77,7 +65,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	// Case 2 - Check front insertion
 	intArray = EPVector<int>();
 
-	tcEPVectorPushFront = EPTestCase::MakeAndRun("pushfront", "EPVector",
+	pEPTest->RegisterAndRunTC(kPushFront, kEPVector, EPTestCase::expected::FASTEST,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
@@ -98,7 +86,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 
 	// Case 3 - Test performance against std::vector
 
-	tcSTDVectorConstruct = EPTestCase::MakeAndRun("construct", "std::vector",
+	pEPTest->RegisterAndRunTC(kConstruct, kSTLVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				stdIntArray = std::vector<int>();
@@ -106,7 +94,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 			}
 	));
 
-	tcSTDVectorPushBack = EPTestCase::MakeAndRun("pushback", "std::vector",
+	pEPTest->RegisterAndRunTC(kPushBack, kSTLVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
@@ -116,7 +104,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 			}
 	));
 
-	tcSTDVectorCheck = EPTestCase::MakeAndRun("check", "std::vector",
+	pEPTest->RegisterAndRunTC(kCheck, kSTLVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				RESULT r = R::OK;
@@ -131,7 +119,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 
 	stdIntArray = std::vector<int>();
 
-	tcSTDVectorInsertFront = EPTestCase::MakeAndRun("insertfront", "std::vector",
+	pEPTest->RegisterAndRunTC(kPushFront, kSTLVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
@@ -146,10 +134,10 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	}
 
 	// Comparisons and output
-	CR(EPTestCase::CompareTestCases(tcEPVectorConstruct, tcSTDVectorConstruct, EPTestCase::expected::COMPARE));
-	CR(EPTestCase::CompareTestCases(tcEPVectorPushBack, tcSTDVectorPushBack, EPTestCase::expected::FASTER));
-	CR(EPTestCase::CompareTestCases(tcEPVectorCheck, tcSTDVectorCheck, EPTestCase::expected::COMPARE));
-	CR(EPTestCase::CompareTestCases(tcEPVectorPushFront, tcSTDVectorInsertFront, EPTestCase::expected::FASTER));
+	//CR(EPTestCase::CompareTestCases(tcEPVectorConstruct, tcSTDVectorConstruct, EPTestCase::expected::COMPARE));
+	//CR(EPTestCase::CompareTestCases(tcEPVectorPushBack, tcSTDVectorPushBack, EPTestCase::expected::FASTEST));
+	//CR(EPTestCase::CompareTestCases(tcEPVectorCheck, tcSTDVectorCheck, EPTestCase::expected::COMPARE));
+	//CR(EPTestCase::CompareTestCases(tcEPVectorPushFront, tcSTDVectorInsertFront, EPTestCase::expected::FASTEST));
 	
 Error:
 	return r;

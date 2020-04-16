@@ -43,6 +43,7 @@ public:
 
 	virtual RESULT RegisterAndRunTC(const EPString<char> &strTestCaseName,
 		const EPString<char> &strTestCaseFlavor, 
+		EPTestCase::expected expectedBehavior,
 		EPTimedFunction<RESULT(void)> pfnFunction) = 0;
 
 protected:
@@ -137,6 +138,8 @@ public:
 		m_usTimeRun = std::chrono::duration_cast<std::chrono::microseconds>(timeEnd - timeStart).count();
 		m_fTestRun = true;
 
+		CRM(CompareTestCases(), "Not all test cases passed");
+
 	Error:
 		return r;
 	}
@@ -149,12 +152,14 @@ public:
 	
 	virtual RESULT RegisterAndRunTC(const EPString<char>& strTestCaseName,
 		const EPString<char>& strTestCaseFlavor,
+		EPTestCase::expected expectedBehavior,
 		EPTimedFunction<RESULT(void)> pfnFunction) override
 	{
 		RESULT r = R::OK;
 
 		// Create and run the test case
 		auto epTestCase = EPTestCase::MakeAndRun(strTestCaseName, strTestCaseFlavor, pfnFunction);
+		epTestCase.SetExpectedBehavior(expectedBehavior);
 
 		// Push into test case vector
 		if (m_testCases.find(strTestCaseName) == m_testCases.end())
@@ -204,8 +209,22 @@ public:
 	}
 
 	RESULT GetResult() { return m_testResult; }
-	bool Failed() { return RSUCCESS(m_testResult); }
-	bool Succeeded() { return (m_testResult); }
+	bool Failed() { return RFAILED(m_testResult); }
+	bool Succeeded() { return RSUCCESS(m_testResult); }
+
+	RESULT CompareTestCases() {
+		RESULT r = R::OK;
+
+		for (auto& testCases : m_testCases) {
+			RESULT tcResult = EPTestCase::CompareTestCases(testCases.second);
+			if (RFAILED(tcResult)) {
+				r = R::FAIL;
+			}
+		}
+
+	Error:
+		return r;
+	}
 
 private:
 	std::map<EPString<char>, EPVector<EPTestCase>, EPString<char>::compare_LT> m_testCases;
