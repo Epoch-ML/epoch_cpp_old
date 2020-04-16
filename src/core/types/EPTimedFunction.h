@@ -18,6 +18,20 @@ template <typename TReturn, typename... TArgs>
 class EPTimedFunction<TReturn(TArgs...)> : public EPObj
 {
 public:
+	// TODO: This should go into a more general utility area
+	enum class duration_type : uint8_t {
+		//years
+		//months,
+		//days,
+		hours,
+		minutes,
+		seconds,
+		milliseconds,
+		microseconds,
+		nanoseconds
+	};
+
+public:
 	EPTimedFunction() :
 		EPFunction()
 	{
@@ -25,7 +39,7 @@ public:
 	}
 
 public:
-	EPTuple<RESULT, size_t> operator()(TArgs&& ... args) {
+	EPTuple<RESULT, std::duration> operator()(TArgs&& ... args) {
 		RESULT r = R::OK;
 		m_fnResult = R::FAIL;
 
@@ -33,7 +47,7 @@ public:
 		CR(Run(static_cast<TArgs&&>(args)...));
 
 	Error:
-		return EPTuple<RESULT, size_t>(m_fnResult, m_nsTimeRun);
+		return EPTuple<RESULT, size_t>(m_fnResult, m_duration);
 	}
 
 	template <class Callable, class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
@@ -63,7 +77,7 @@ public:
 
 	template <class Callable, 
 		class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
-	static EPTuple<RESULT, size_t> MakeAndRun(Callable&& object, TArgs... args) {
+	static EPTuple<RESULT, std::duration> MakeAndRun(Callable&& object, TArgs... args) {
 		EPTimedFunction<TReturn(TArgs...)> epTimedFunction(object);
 		return epTimedFunction(static_cast<TArgs&&>(args)...);
 	}
@@ -77,7 +91,7 @@ private:
 			m_pfnFunction->call(static_cast<CArgs&&>(args)...);
 		auto timeEnd = std::chrono::high_resolution_clock::now();
 
-		m_nsTimeRun = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart).count();
+		m_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart);
 
 	Error:
 		return r;
@@ -85,7 +99,21 @@ private:
 
 	functor_base<TReturn, TArgs...>* m_pfnFunction = nullptr;
 	RESULT m_fnResult = R::NOT_RESULT;
-	size_t m_nsTimeRun = 0;
+	std::duration m_duration = 0;
 };
+
+template <typename ... TArgs, typename... CArgs>
+EPTimedFunction<RESULT(TArgs...)>::Run(CArgs... args) {
+	RESULT r = R::OK;
+
+	auto timeStart = std::chrono::high_resolution_clock::now();
+	m_fnResult = m_pfnFunction->call(static_cast<CArgs&&>(args)...);
+	auto timeEnd = std::chrono::high_resolution_clock::now();
+
+	m_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart);
+
+Error:
+	return r;
+}
 
 #endif // ! EP_TIMED_FUNCTION_H_
