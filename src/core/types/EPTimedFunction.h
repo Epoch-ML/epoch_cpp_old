@@ -102,9 +102,14 @@ private:
 	RESULT Run(CArgs... args) {
 		RESULT r = R::OK;
 
-		auto timeStart = std::chrono::high_resolution_clock::now();
+		std::chrono::steady_clock::time_point timeStart;
+		std::chrono::steady_clock::time_point timeEnd;
+
+		CNM(m_pfnFunction, "Cannot run null EPTest");
+
+		timeStart = std::chrono::high_resolution_clock::now();
 			m_pfnFunction->call(static_cast<CArgs&&>(args)...);
-		auto timeEnd = std::chrono::high_resolution_clock::now();
+		timeEnd = std::chrono::high_resolution_clock::now();
 
 		m_fnResult = R::NO_RESULT;
 		m_nsDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart).count();

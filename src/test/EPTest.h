@@ -11,19 +11,59 @@
 
 #include <chrono>
 
+class EPTestBase {
+public:
+	EPTestBase() = default;
+	virtual ~EPTestBase() = default;
+
+	EPTestBase(const char szName[]) :
+		m_strName(szName),
+		m_testResult(R::NO_RESULT),
+		m_fTestRun(false),
+		m_usTimeRun(0)
+	{}
+
+	EPTestBase(const char szName[], RESULT r, bool fTestRun) :
+		m_strName(szName),
+		m_testResult(r),
+		m_fTestRun(fTestRun),
+		m_usTimeRun(0)
+	{}
+
+	EPTestBase(const EPString<char> &strName, RESULT r, bool fTestRun) :
+		m_strName(strName),
+		m_testResult(r),
+		m_fTestRun(fTestRun),
+		m_usTimeRun(0)
+	{}
+
+protected:
+	void reset() {
+		RESULT m_testResult = R::NO_RESULT;
+		m_strName = EPString<char>();
+		m_fTestRun = false;
+		m_usTimeRun = 0;
+	}
+
+protected:
+	EPString<char> m_strName;
+	RESULT m_testResult = R::NO_RESULT;
+	bool m_fTestRun = false;
+	size_t m_usTimeRun = 0;
+};
+
 template <typename T>
 class EPTest;
 
 template <typename TReturn, typename... TArgs>
 class EPTest<TReturn(TArgs...)> : 
+	public EPTestBase,
 	public EPFunction<TReturn(TArgs...)>
 {
 public:
 	EPTest() :
+		EPTestBase(),
 		EPFunction()
-		//m_strName(),
-		//m_testResult(R::FAIL),
-		//m_fTestRun(false)
 	{
 		//
 	}
@@ -33,42 +73,36 @@ public:
 	{}
 
 	EPTest(const EPTest& rhs) :
-		m_strName(rhs.m_strName),
-		m_testResult(rhs.m_testResult),
-		m_fTestRun(rhs.m_fTestRun),
+		EPTestBase(rhs.m_strName, rhs.m_testResult, rhs.m_fTestRun),
 		EPFunction(rhs.m_pfnFunction)
 	{}
 	
 	EPTest(EPFunction& rhs) :
-		m_strName(rhs.m_strName),
-		m_testResult(rhs.m_testResult),
-		m_fTestRun(rhs.m_fTestRun),
+		EPTestBase(rhs.m_strName, rhs.m_testResult, rhs.m_fTestRun),
 		EPFunction(rhs.m_pfnFunction)
 	{}
 
 	EPTest(const EPFunction& rhs) :
-		EPTest(),
+		EPTestBase(rhs.m_strName, rhs.m_testResult, rhs.m_fTestRun),
 		EPFunction(rhs.m_pfnFunction)
 	{}
 
 
 	EPTest(EPFunction&& rhs) noexcept :
+		EPTestBase(rhs.m_strName, rhs.m_testResult, rhs.m_fTestRun),
 		EPFunction(rhs.m_pfnFunction),
-		m_strName(),
-		m_testResult(R::FAIL),
-		m_fTestRun(false),
-	{}
+	{
+		rhs.reset();
+	}
 
 	EPTest(std::nullptr_t) noexcept :
-		EPFunction(nullptr),
-		m_strName(),
-		m_testResult(R::FAIL),
-		m_fTestRun(false)
+		EPTestBase(),
+		EPFunction(nullptr)
 	{}
 
 	template <class Callable, class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
 	EPTest(const char szName[], Callable&& object) :
-		m_strName(szName),
+		EPTestBase(szName),
 		EPFunction(object)
 	{}
 	
@@ -78,12 +112,18 @@ public:
 	}
 
 public:
-	RESULT Run() {
+
+	RESULT Run(TArgs... args) {
 		RESULT r = R::OK;
 
-		auto timeStart = std::chrono::high_resolution_clock::now();
-		m_testResult = this->operator()();
-		auto timeEnd = std::chrono::high_resolution_clock::now();
+		std::chrono::steady_clock::time_point timeStart;
+		std::chrono::steady_clock::time_point timeEnd;
+
+		CNM(m_pfnFunction, "Cannot run null EPTest");
+
+		timeStart = std::chrono::high_resolution_clock::now();
+			m_testResult = m_pfnFunction->call(static_cast<TArgs&&>(args)...);
+		timeEnd = std::chrono::high_resolution_clock::now();
 
 		m_usTimeRun = std::chrono::duration_cast<std::chrono::microseconds>(timeEnd - timeStart).count();
 		m_fTestRun = true;
@@ -134,13 +174,6 @@ public:
 	RESULT GetResult() { return m_testResult; }
 	bool Failed() { return RSUCCESS(m_testResult); }
 	bool Succeeded() { return (m_testResult); }
-
-private:
-	EPString<char> m_strName;
-	RESULT m_testResult = R::OK;
-	bool m_fTestRun = false;
-
-	size_t m_usTimeRun = 0;
 };
 
 #endif // ! EP_TEST_H_

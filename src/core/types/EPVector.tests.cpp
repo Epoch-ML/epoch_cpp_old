@@ -6,7 +6,7 @@
 
 #include "test/EPTestCase.h"
 
-RESULT TypesTestSuite::TestEPDynamicStorage() {
+RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	RESULT r = R::OK;
 
 	EPVector<int> intArray;
@@ -23,6 +23,9 @@ RESULT TypesTestSuite::TestEPDynamicStorage() {
 	EPTestCase tcSTDVectorPushBack;
 	EPTestCase tcSTDVectorCheck;
 	EPTestCase tcSTDVectorInsertFront;
+
+	EPTest<RESULT(EPTestBase*)>* pEPTest = dynamic_cast<EPTest<RESULT(EPTestBase*)>*>(pEPTestBase);
+	CNM(pEPTest, "EPTest is nullptr");
 
 	// TODO: Wrap up the below as test cases
 	// TODO: Create a "ep timed function"
