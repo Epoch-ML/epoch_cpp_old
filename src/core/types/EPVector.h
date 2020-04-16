@@ -84,7 +84,7 @@ public:
 		return *this;
 	}
 
-	RESULT Allocate(size_t newSize) {
+	inline RESULT Allocate(size_t newSize) {
 		RESULT r = R::OK;
 
 		size_t pTempBuffer_n = newSize;
@@ -106,15 +106,17 @@ public:
 		return r;
 	}
 
-	RESULT PushBack(const TStorage& value) {
+	RESULT PushBack(const TStorage& value) noexcept  {
 		RESULT r = R::OK;
 
 		if (m_pBuffer == nullptr) {
-			CR(this->Allocate(1));
+			if (this->Allocate(1) != R::OK)
+				return R::MEMORY_ALLOCATION_FAILED;
 		}
 
 		if (m_pBuffer_c == m_pBuffer_n) {
-			CR(this->DoubleSize());
+			if (DoubleSize() != R::OK)
+				return R::MEMORY_ALLOCATION_FAILED;
 		}
 
 		m_pBuffer[m_pBuffer_c++] = value;
@@ -123,23 +125,18 @@ public:
 		return r;
 	}
 
-	RESULT PushFront(const TStorage& value) {
-		RESULT r = R::OK;
-
+	inline RESULT PushFront(const TStorage& value) noexcept {
 		if (m_pBuffer == nullptr) {
-			CR(this->Allocate(1));
+			if (this->Allocate(1) != R::OK)
+				return R::MEMORY_ALLOCATION_FAILED;
 		}
 
-		if (m_pBuffer_c == m_pBuffer_n) {
-			CR(this->DoubleSize());
-		}
-
-		CR(ShiftRight());
+		if (ShiftRight() != R::OK)
+			return R::MEMORY_ALLOCATION_FAILED;
 
 		m_pBuffer[0] = value;
 
-	Error:
-		return r;
+		return R::OK;
 	}
 
 	// This is just providing a pointer to the data
@@ -175,37 +172,33 @@ public:
 	}
 
 private:
-	RESULT ShiftRight() {
-		RESULT r = R::OK;
-
+	inline RESULT ShiftRight() noexcept  {
 		if (m_pBuffer_c == m_pBuffer_n) {
-			CR(this->DoubleSize());
+			if (DoubleSize() != R::OK)
+				return R::MEMORY_ALLOCATION_FAILED;
 		}
 		
-		TStorage lastValue;
-		for (size_t i = 0; i <= m_pBuffer_c; i++) {
-			TStorage tempVal = m_pBuffer[i];
+		TStorage tempVal;
+		TStorage lastValue = m_pBuffer[0];
+		m_pBuffer[0] = 0;
 
-			if (i == 0) 
-				m_pBuffer[i] = 0;
-			else 
-				m_pBuffer[i] = lastValue;
-
+		for (size_t i = 1; i <= m_pBuffer_c; i++) {
+			tempVal = m_pBuffer[i];
+			m_pBuffer[i] = lastValue;
 			lastValue = tempVal;
 		}
 
 		m_pBuffer_c++;
 
-	Error:
-		return r;
+		return R::OK;
 	}
 
-	RESULT DoubleSize() {
-		RESULT r = R::OK;
-
+	inline RESULT DoubleSize() noexcept {
 		size_t pTempBuffer_n = m_pBuffer_n << 1;
 		TStorage* pTempBuffer = new TStorage[pTempBuffer_n];
-		CNR(pTempBuffer, R::MEMORY_ALLOCATION_FAILED);
+
+		if(pTempBuffer == nullptr)
+			return R::MEMORY_ALLOCATION_FAILED;
 
 		// Copy and swap
 		memset(pTempBuffer, 0, sizeof(TStorage) * pTempBuffer_n);	// this will ensure null termination 
@@ -214,13 +207,12 @@ private:
 		std::swap(pTempBuffer, m_pBuffer);
 		std::swap(pTempBuffer_n, m_pBuffer_n);
 
-	Error:
 		if (pTempBuffer != nullptr) {
 			delete[] pTempBuffer;
 			pTempBuffer = nullptr;
 		}
 
-		return r;
+		return R::OK;
 	}
 
 private:
