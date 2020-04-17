@@ -125,6 +125,29 @@
 	#define DEBUG_SYSTEM_PAUSE()
 #endif
 
+// compare
+#define C_BLACK(strString)	"\x1B[30;1m" strString "\033[0m"
+#define C_RED(strString)		"\x1B[31;1m" strString "\033[0m"
+#define C_GREEN(strString)	"\x1B[32;1m" strString "\033[0m"
+#define C_YELLOW(strString)	"\x1B[33;1m" strString "\033[0m"
+#define C_BLUE(strString)	"\x1B[34;1m" strString "\033[0m"
+#define C_MAGENTA(strString)	"\x1B[35;1m" strString "\033[0m"
+#define C_CYAN(strString) 	"\x1B[36;1m" strString "\033[0m"
+#define C_WHITE(strString) 	"\x1B[37;1m" strString "\033[0m"
+
+// Extended 256 colors
+#define C_PINK(strString) 	"\x1B[38;5;207m" strString "\033[0m"
+#define C_ORANGE(strString) 	"\x1B[38;5;202m" strString "\033[0m"
+#define C_PURPLE(strString) 	"\x1B[38;5;93m" strString "\033[0m"
+
+inline const char* CMP_STR(size_t lhs, size_t rhs) {
+	if (lhs == rhs) return C_BLUE("equal");
+	else if (lhs < rhs) return C_GREEN("less than");
+	else return C_ORANGE("greater than");
+}
+
+#define DEBUG_CMP(label, lhsname, lhs, rhsname, rhs) do{ DEBUG_LINEOUT("%s: %s: %zu %s %s: %zu", label, lhsname, lhs, CMP_STR(lhs, rhs), rhsname, rhs); } while(0);
+
 // check result value
 #define CR(res) do{r=(res);if(r&0x80000000){EPLogError("CR", r); goto Error;}} while(0);
 #define CRM(res, msg, ...) do{r= (res);if(r&0x80000000){ EPLogErrorMessage("CRM", res, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("Error: 0x%x\n",r); goto Error;}}while(0);
@@ -143,22 +166,24 @@
 // compare less than
 #define CLT(lhs, rhs) do{if(lhs >= rhs) {r = R::FAIL; EPLogError("CLT", r); goto Error;}} while(0);
 #define CLTR(lhs, rhs, rcode) do{if(lhs >= rhs) {r = rcode; EPLogError("CLTR", r); goto Error;}} while(0);
-#define CLTDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs >= rhs) {r = R::FAIL; EPLogErrorMessage("CLTM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; } else {DEBUG_LINEOUT(dmsg, ##__VA_ARGS__);}} while(0);
+#define CLTDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs >= rhs) {r = R::FAIL; EPLogErrorMessage("CLTM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CLTM(lhs, rhs, msg, ...) do{if(lhs >= rhs) {r = R::FAIL; EPLogErrorMessage("CLTM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CLTRM(condition, rcode, msg, ...) do{if(lhs >= rhs) {r = rcode; EPLogErrorMessage("CLTRM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 
 // compare greater than
 #define CGT(lhs, rhs) do{if(lhs <= rhs) {r = R::FAIL; EPLogError("CGT", r); goto Error;}} while(0);
 #define CGTR(lhs, rhs, rcode) do{if(lhs <= rhs) {r = rcode; EPLogError("CGTR", r); goto Error;}} while(0);
-#define CGTDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs <= rhs) {r = R::FAIL; EPLogErrorMessage("CGTM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; } else {DEBUG_LINEOUT(dmsg, ##__VA_ARGS__);}} while(0);
+#define CGTDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs <= rhs) {r = R::FAIL; EPLogErrorMessage("CGTM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CGTM(lhs, rhs, msg, ...) do{if(lhs <= rhs) {r = R::FAIL; EPLogErrorMessage("CGTM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CGTRM(condition, rcode, msg, ...) do{if(lhs <= rhs) {r = rcode; EPLogErrorMessage("CGTRM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 
 // compare equal than
 #define CEQ(lhs, rhs) do{if(lhs == rhs) {r = R::FAIL; EPLogError("CEQ", r); goto Error;}} while(0);
 #define CEQR(lhs, rhs, rcode) do{if(lhs == rhs) {r = rcode; EPLogError("CEQR", r); goto Error;}} while(0);
-#define CEQDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs == rhs) {r = R::FAIL; EPLogErrorMessage("CEQM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; } else {DEBUG_LINEOUT(dmsg, ##__VA_ARGS__);}} while(0);
+#define CEQDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs == rhs) {r = R::FAIL; EPLogErrorMessage("CEQM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CEQM(lhs, rhs, msg, ...) do{if(lhs == rhs) {r = R::FAIL; EPLogErrorMessage("CEQM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CEQRM(condition, rcode, msg, ...) do{if(lhs == rhs) {r = rcode; EPLogErrorMessage("CEQRM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
+
+
 
 #endif // !EHM_H_

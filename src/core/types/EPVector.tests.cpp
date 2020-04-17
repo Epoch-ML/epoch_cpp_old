@@ -4,92 +4,136 @@
 
 #include <vector>
 
-#include "core/types/EPTimedFunction.h"
+#include "test/EPTest.h"
+#include "test/EPTestCase.h"
 
-RESULT TypesTestSuite::TestEPDynamicStorage() {
+RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	RESULT r = R::OK;
+
 	EPVector<int> intArray;
 	std::vector<int> stdIntArray;
 
-	{
+	// EPVector test case labels
+	const char *kConstruct = "construct";
+	const char *kPushBack = "pushback";
+	const char *kCheck = "check";
+	const char *kPushFront = "pushfront";
 
-		// TODO: Wrap up the below as test cases
-		// TODO: Create a "ep timed function"
+	const char* kEPVector = "EPVector";
+	const char* kSTLVector = "std::vector";
 
-		// Case 1 - Check push back
-		size_t nsEPConstructTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-			intArray = EPVector<int>();
-		}).get<1, size_t>();
+	EPTest<RESULT(EPTestBase*)>* pEPTest = dynamic_cast<EPTest<RESULT(EPTestBase*)>*>(pEPTestBase);
+	CNM(pEPTest, "EPTest is nullptr");
 
-		size_t nsEPPushTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-			for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-				intArray.PushBack(i);
+	// Case 1 - Check push back
+	// TODO: get rid of result return
+
+	pEPTest->RegisterAndRunTC(kConstruct, kEPVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				intArray = EPVector<int>();
+				return R::OK;
 			}
-		}).get<1, size_t>();
+	));
 
-		CBM(intArray.size() == TEST_INT_ARRAY_LENGTH,
-			"Size %zu differs from expected size %d", intArray.size(), TEST_INT_ARRAY_LENGTH);
-
-		size_t nsEPCheckTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-			for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-				CBM(intArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+	pEPTest->RegisterAndRunTC(kPushBack, kEPVector, EPTestCase::expected::FASTEST,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+					intArray.PushBack(i);
+				}
+				return R::OK;
 			}
-		Error:
-			return;
-		}).get<1, size_t>();
+	));
 
-		// Case 2 - Check front insertion
-		intArray = EPVector<int>();
+	CBM(intArray.size() == TEST_INT_ARRAY_LENGTH,
+		"Size %zu differs from expected size %d", 
+			intArray.size(), TEST_INT_ARRAY_LENGTH);
 
-		size_t nsEPInsertFrontTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-			for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
-				intArray.PushFront(i);
+	pEPTest->RegisterAndRunTC(kCheck, kEPVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+					if (intArray[i] != i) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+						return R::FAIL;
+					}
+				}
+				return R::OK;
 			}
-		}).get<1, size_t>();
+	));
 
-		CBM(intArray.size() == TEST_INT_ARRAY_LENGTH,
-			"Size %zu differs from expected size %d", intArray.size(), TEST_INT_ARRAY_LENGTH);
+	// Case 2 - Check front insertion
+	intArray = EPVector<int>();
 
-		for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-			CBM(intArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
-		}
-
-		// Case 3 - Test performance against std::vector
-
-		size_t nsSTDConstructTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-			stdIntArray = std::vector<int>();
-		}).get<1, size_t>();
-
-		CLTDM(nsEPConstructTime, nsSTDConstructTime,
-			"construct: std::vector faster",
-			"construct: std::vector: %zu ns EPVector: %zu ns",
-			nsSTDConstructTime, nsEPConstructTime);
-
-		size_t nsSTDPushBackTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-			for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-				stdIntArray.push_back(i);
+	pEPTest->RegisterAndRunTC(kPushFront, kEPVector, EPTestCase::expected::FASTEST,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
+					intArray.PushFront(i);
+				}
+				return R::OK;
 			}
-		}).get<1, size_t>();
+	));
 
-		CLTDM(nsEPPushTime, nsSTDPushBackTime,
-			"pushback: std::vector faster",
-			"pushback: std::vector: %zu ns EPVector: %zu ns",
-			nsSTDPushBackTime, nsEPPushTime);
+	CBM(intArray.size() == TEST_INT_ARRAY_LENGTH,
+		"Size %zu differs from expected size %d", 
+			intArray.size(), TEST_INT_ARRAY_LENGTH);
 
-		size_t nsSTDCheckTime = EPTimedFunction<void()>::MakeAndRun([&]() -> void {
-			for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-				CBM(stdIntArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
-			}
-		Error:
-			return;
-		}).get<1, size_t>();
-
-		CLTDM(nsEPCheckTime, nsSTDCheckTime,
-			"check: std::vector faster",
-			"check: std::vector: %zu ns EPVector: %zu ns",
-			nsSTDCheckTime, nsEPCheckTime);
+	for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+		CBM(intArray[i] == i, 
+			"intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
 	}
 
+	// Case 3 - Test performance against std::vector
+
+	pEPTest->RegisterAndRunTC(kConstruct, kSTLVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				stdIntArray = std::vector<int>();
+			return R::OK;
+			}
+	));
+
+	pEPTest->RegisterAndRunTC(kPushBack, kSTLVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+					stdIntArray.push_back(i);
+				}
+				return R::OK;
+			}
+	));
+
+	pEPTest->RegisterAndRunTC(kCheck, kSTLVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+					if (stdIntArray[i] != i) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+						return R::FAIL;
+					}
+				}			
+				return R::OK;
+			}
+	));
+
+	stdIntArray = std::vector<int>();
+
+	pEPTest->RegisterAndRunTC(kPushFront, kSTLVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
+					stdIntArray.insert(stdIntArray.begin(), i);
+				}
+				return R::OK;
+			}
+	));
+
+	for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+		CBM(stdIntArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+	}
+	
 Error:
 	return r;
 }

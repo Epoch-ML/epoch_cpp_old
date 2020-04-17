@@ -12,7 +12,8 @@ int main(int argc, char* argv[]) {
 	RESULT r = R::SUCCESS;
 
 	TypesTestSuite *pTypesTestSuite = TypesTestSuite::make();
-	CRM(pTypesTestSuite->RunAllTests(), "Failed to run all tests");
+	CNM(pTypesTestSuite, "Failed to create TypesTestSuite");
+	CRM(pTypesTestSuite->RunAllTests(), "Not all tests passed");
 
 Success:
 	return 0;

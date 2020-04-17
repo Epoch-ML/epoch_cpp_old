@@ -64,6 +64,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 
     message("epoch/src/cmakelists.txt apple clang")
 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOCONCEPTS")
+
 	#SET(CMAKE_CXX_FLAGS -pthread)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
@@ -79,9 +81,12 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	
 	message("epoch/src/cmakelists.txt GNU")
 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOCONCEPTS")
+
 	#SET(CMAKE_CXX_FLAGS -pthread)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors")
 
 	# Debug Configuration
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++17 -Wall -Wextra -Werror -fpermissive -stdlib=libc++ -Wno-reorder -fdeclspec")
@@ -94,6 +99,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 else()
 
 	message("epoch/src/cmakelists.txt other")
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOCONCEPTS")
 
 	#SET(CMAKE_CXX_FLAGS -pthread)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

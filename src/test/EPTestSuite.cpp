@@ -2,7 +2,7 @@
 
 #include <string>
 
-RESULT EPTestSuiteBase::Add(std::string strTestName, EPTest<RESULT()> eptest) {
+RESULT EPTestSuiteBase::Add(std::string strTestName, EPTest<RESULT(EPTestBase*)> eptest) {
 	RESULT r = R::OK;
 	
 	// TODO: build own printf fn support c strings or use different string class 
@@ -16,16 +16,20 @@ Error:
 
 RESULT EPTestSuiteBase::Run(std::string strTestName) {
 	RESULT r = R::OK;
+	EPTestBase* pEpTestBase = nullptr;
 
 	CBM((m_tests.find(strTestName) != m_tests.end()), "Test %s not found", strTestName.c_str());
 
-	CRM(m_tests[strTestName].Run(), "Test %s failed", strTestName.c_str());
+	pEpTestBase = dynamic_cast<EPTestBase*>(&(m_tests[strTestName]));
+	CNM(pEpTestBase, "Failed to retrieve EPTestBase handle");
+
+	CRM(m_tests[strTestName].Run(pEpTestBase), "Test %s failed", strTestName.c_str());
 
 Error:
 	return r;
 }
 
-EPTest<RESULT()> EPTestSuiteBase::FindTest(std::string strTestName) {
+EPTest<RESULT(EPTestBase *)> EPTestSuiteBase::FindTest(std::string strTestName) {
 	auto epTest_it = m_tests.find(strTestName);
 
 	if (epTest_it != m_tests.end()) {
@@ -45,9 +49,13 @@ RESULT EPTestSuiteBase::RunAllTests() {
 	// this required for the compiler
 
 	for (auto& epTest : m_tests) {
-		r = epTest.second.Run();
 
-		EPTest<RESULT()> test = epTest.second;
+		EPTestBase* pEpTestBase = dynamic_cast<EPTestBase*>(&(epTest.second));
+		CNM(pEpTestBase, "Failed to retrieve EPTestBase handle");
+
+		r = epTest.second.Run(pEpTestBase);
+
+		EPTest<RESULT(EPTestBase *)> test = epTest.second;
 		EPString<char> strName = test.GetName();
 		const char* pszName = strName.c_str();
 
@@ -55,7 +63,7 @@ RESULT EPTestSuiteBase::RunAllTests() {
 
 		DEBUG_LINEOUT("Test: %s : %s with code 0x%x", 
 			pszName, 
-			RSUCCESS(test.GetResult()) ? "\x1B[32mSUCCEEDED\033[0m" : "\x1B[31mFAILED\033[0m", 
+			RSUCCESS(test.GetResult()) ? C_GREEN("SUCCEEDED") : C_RED("FAILED"), 
 			test.GetResult()
 		);
 
@@ -64,7 +72,7 @@ RESULT EPTestSuiteBase::RunAllTests() {
 			fAnyFailedTests = true;
 	}
 
-	CBM(fAnyFailedTests, "Not all tests passed");
+	CBM(fAnyFailedTests == false, "Not all tests passed");
 
 Error:
 	return r;

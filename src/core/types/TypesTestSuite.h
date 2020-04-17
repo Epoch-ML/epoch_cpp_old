@@ -16,8 +16,8 @@ class TypesTestSuite :
 
 public:
 	// EPDynamicStorage
-	RESULT TestEPDynamicStorage();
-	RESULT TestEPString();
+	RESULT TestEPDynamicStorage(EPTestBase* pEPTestBase);
+	RESULT TestEPString(EPTestBase* pEPTestBase);
 
 	EP_TESTS_START {
 

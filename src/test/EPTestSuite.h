@@ -15,13 +15,15 @@
 #define EP_TESTS_START RESULT AddTests() override {				\
 	RESULT r = R::OK;												
 
-#define EP_ADD_TEST(test_name) do {													\
-	EPTest<RESULT()> pfnTest = nullptr;												\
-	CBM(FindTest(#test_name) == nullptr, "Test " #test_name " already exists");		\
-	pfnTest = EPTest<RESULT()>(#test_name, [&]() -> RESULT {							\
-		return this->##test_name();													\
-	});																				\
-	CRM(Add(#test_name, pfnTest), "Failed to add test " #test_name);					\
+#define EP_TEST_FN_NAME(test_name) test_name
+
+#define EP_ADD_TEST(test_name) do {																	\
+	EPTest<RESULT(EPTestBase *)> pfnTest = nullptr;													\
+	CBM(FindTest(#test_name) == nullptr, "Test " #test_name " already exists");						\
+	pfnTest = EPTest<RESULT(EPTestBase *)>(#test_name, [&](EPTestBase *pEpTestBase) -> RESULT {		\
+		return this->EP_TEST_FN_NAME(test_name)(pEpTestBase);										\
+	});																								\
+	CRM(Add(#test_name, pfnTest), "Failed to add test " #test_name);									\
 } while (0);
 
 
@@ -40,10 +42,10 @@ public:
 	virtual ~EPTestSuiteBase() = default;
 
 public:
-	RESULT Add(std::string strTestName, EPTest<RESULT()> eptest);
+	RESULT Add(std::string strTestName, EPTest<RESULT(EPTestBase*)> eptest);
 	RESULT Run(std::string strTestName);
 
-	EPTest<RESULT()> FindTest(std::string strTestName);
+	EPTest<RESULT(EPTestBase*)> FindTest(std::string strTestName);
 
 	RESULT RunAllTests();
 
@@ -51,7 +53,7 @@ protected:
 	virtual RESULT AddTests() = 0;
 
 private:
-	std::map<std::string, EPTest<RESULT()>> m_tests;
+	std::map<std::string, EPTest<RESULT(EPTestBase*)>> m_tests;
 };
 
 template <typename TTestSuite>

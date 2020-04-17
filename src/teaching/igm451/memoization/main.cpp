@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <string>
-#include <windows.h>
 #include <chrono>
 
 using namespace std;

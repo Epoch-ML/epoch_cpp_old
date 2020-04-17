@@ -18,11 +18,22 @@ template <typename TReturn, typename... TArgs>
 class EPTimedFunction<TReturn(TArgs...)> : public EPObj
 {
 public:
-	EPTimedFunction() :
-		EPFunction()
-	{
-		//
-	}
+	// TODO: This should go into a more general utility area
+	enum class duration_type : uint8_t {
+		//years
+		//months,
+		//days,
+		hours,
+		minutes,
+		seconds,
+		milliseconds,
+		microseconds,
+		nanoseconds
+	};
+
+public:
+	EPTimedFunction() = default;
+	virtual ~EPTimedFunction() = default;
 
 public:
 	EPTuple<RESULT, size_t> operator()(TArgs&& ... args) {
@@ -33,7 +44,7 @@ public:
 		CR(Run(static_cast<TArgs&&>(args)...));
 
 	Error:
-		return EPTuple<RESULT, size_t>(m_fnResult, m_nsTimeRun);
+		return EPTuple<RESULT, size_t>(m_fnResult, m_nsDuration);
 	}
 
 	template <class Callable, class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
@@ -49,6 +60,12 @@ public:
 		//
 	}
 
+	EPTimedFunction(std::nullptr_t) noexcept :
+		m_pfnFunction(nullptr)
+	{
+		//
+	}
+
 	explicit operator bool() const noexcept {
 		return m_pfnFunction != nullptr;
 	}
@@ -57,9 +74,14 @@ public:
 		return (m_pfnFunction == nullptr);
 	}
 
+	EPTimedFunction& operator=(std::nullptr_t) noexcept {
+		m_pfnFunction = nullptr;
+		return *this;
+	}
+
 	RESULT GetResult() { return m_fnResult; }
-	bool Failed() { return RSUCCESS(m_fnResult); }
-	bool Succeeded() { return (m_fnResult); }
+	bool Failed() { return RFAILED(m_fnResult); }
+	bool Succeeded() { return RSUCCESS(m_fnResult); }
 
 	template <class Callable, 
 		class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
@@ -68,24 +90,35 @@ public:
 		return epTimedFunction(static_cast<TArgs&&>(args)...);
 	}
 
+	size_t GetDuration() {
+		return m_nsDuration;
+	}
+
 private:
 	template <typename... CArgs>
 	RESULT Run(CArgs... args) {
 		RESULT r = R::OK;
 
-		auto timeStart = std::chrono::high_resolution_clock::now();
-			m_pfnFunction->call(static_cast<CArgs&&>(args)...);
-		auto timeEnd = std::chrono::high_resolution_clock::now();
+		{
 
-		m_nsTimeRun = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart).count();
+			CNM(m_pfnFunction, "Cannot run null EPTest");
+
+			auto timeStart = std::chrono::high_resolution_clock::now();
+			m_pfnFunction->call(static_cast<CArgs&&>(args)...);
+			auto timeEnd = std::chrono::high_resolution_clock::now();
+
+			m_fnResult = R::NO_RESULT;
+			m_nsDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart).count();
+			 
+		}
 
 	Error:
 		return r;
 	}
 
 	functor_base<TReturn, TArgs...>* m_pfnFunction = nullptr;
-	RESULT m_fnResult = R::NOT_RESULT;
-	size_t m_nsTimeRun = 0;
+	RESULT m_fnResult = R::NO_RESULT;
+	size_t m_nsDuration = 0;
 };
 
 #endif // ! EP_TIMED_FUNCTION_H_

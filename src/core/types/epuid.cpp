@@ -70,7 +70,8 @@ RESULT epuid::GetGlobalEPUIDValue() {
 #if defined(_WIN32) || defined(_WIN64)
 
 #else
-	#error GUID functionality not implemented for this platform
+	// TODO: this
+	//#error GUID functionality not implemented for this platform
 	CBRM(false, R::PLATFORM_NOT_SUPPORTED, "GetGlobalEPUIDValue not supported on this platfom");
 #endif
 

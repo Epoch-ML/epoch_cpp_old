@@ -16,6 +16,14 @@
 template <typename TChar>
 class EPString : public EPObj {
 public:
+	// TODO: Maybe make this more general
+	struct compare_LT {
+		bool operator()(const EPString& lhs, const EPString& rhs) const {
+			return lhs < rhs;
+		}
+	};
+
+public:
 	EPString() :
 		m_stringStorage()
 	{
@@ -63,6 +71,39 @@ public:
 		rhs.m_stringStorage.clear(true);
 		return *this;
 	}
+
+	inline bool operator==(const EPString& rhs) {
+		return strcmp(c_str(), rhs.c_str());
+	}
+
+	inline bool operator<(const EPString& rhs) const {
+		for (int i = 0; i < std::min(length(), rhs.length()); i++) {
+			TChar cLeft = m_stringStorage[i];
+			TChar cRight = rhs[i];
+
+			if (cLeft != cRight) {
+				if (cLeft < cRight) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	TChar& operator[](size_t idx) {
+		return m_stringStorage[idx];
+	}
+
+	const TChar& operator[](size_t idx) const {
+		return m_stringStorage[idx];
+	}
+
+	const size_t length() const { return m_stringStorage.size(); }
+	const size_t size() const { return m_stringStorage.size(); }
 
 	const TChar* c_str() {
 		return m_stringStorage.GetCBuffer();
