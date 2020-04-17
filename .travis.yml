@@ -30,7 +30,7 @@ before_script:
   - which $CC
   - $CXX --version
   - cmake --version
-  - choco install visualstudio2019community
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; choco install visualstudio2019community
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
