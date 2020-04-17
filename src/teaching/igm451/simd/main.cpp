@@ -10,6 +10,8 @@
 short int a[SIZE], b[SIZE], c[SIZE];
 short int a2[SIZE], b2[SIZE], c2[SIZE];
 
+float a3[SIZE], b3[SIZE], c3[SIZE];
+
 float vec1[3] = { 1.0f, 2.0f, 3.0f };
 float vec2[3] = { 1.0f, 2.0f, 3.0f };
 
@@ -26,10 +28,17 @@ void dot_product(float v1[], float v2[], float& result, int size) {
 	}
 }
 
-void automaticVectorizationExample() {
+void AutomaticVectorizationExampleInt() {
 	// This will auto vectorize with most compilers
 	for (int i = 0; i < SIZE; i++) {
 		a[i] = b[i] + 2;
+	}
+}
+
+void AutomaticVectorizationExampleFloat() {
+	// This will auto vectorize with most compilers
+	for (int i = 0; i < SIZE; i++) {
+		a3[i] = b3[i] + 2.0f;
 	}
 }
 
@@ -146,8 +155,6 @@ void AddAVX(float v1[], float v2[], float& result, int size) {
 		(results[4] + results[5]) + (results[6] + results[7]);
 }
 
-
-
 void fillArrays() {
 	for (int j = 0; j < SIZE; j++) {
 		a[j] = rand() % 100;
@@ -157,10 +164,14 @@ void fillArrays() {
 		c[j] = rand() % 100;
 		c2[j] = c2[j];
 
-		simdAddVec1[j] = 1.f;
-		simdAddVec2[j] = 1.f;
-		simdAddVec3[j] = 1.f;
-		simdAddVec4[j] = 1.f;
+		simdAddVec1[j] = 1.0f;
+		simdAddVec2[j] = 1.0f;
+		simdAddVec3[j] = 1.0f;
+		simdAddVec4[j] = 1.0f;
+
+		a3[j] = (float)(a[j]) / 100.0f;
+		b3[j] = (float)(b[j]) / 100.0f;
+		c3[j] = (float)(c[j]) / 100.0f;
 	}
 }
 
@@ -169,7 +180,10 @@ int main(int argc, char* argv[]) {
 
 	fillArrays();
 
-	automaticVectorizationExample();
+	AutomaticVectorizationExampleInt();
+
+	fillArrays();
+	AutomaticVectorizationExampleFloat();
 
 	fillArrays();
 
@@ -189,14 +203,16 @@ int main(int argc, char* argv[]) {
 		float result = 0;
 		AddNoSIMD(simdAddVec1, simdAddVec2, result, SIZE);
 		//printf("%f\r\n", result);
+
 		AddSSE(simdAddVec1, simdAddVec2, result, SIZE);
 		//printf("%f\r\n", result);
+
 		//addNoSimd(simdAddVec3, simdAddVec4, result, SIZE);
 		//printf("%f\r\n", result);
+
 		AddAVX(simdAddVec3, simdAddVec4, result, SIZE);
 		//printf("%f\r\n", result);
 	}
-
 
 	//dot_product(vec1, vec2, result, 3);
 
