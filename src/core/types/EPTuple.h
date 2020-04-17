@@ -27,7 +27,7 @@ public:
 	}
 
 	// Defaults
-	~tuple_implementation() = default;
+	virtual ~tuple_implementation() = default;
 	tuple_implementation& operator= (const tuple_implementation&) = default;
 	tuple_implementation& operator= (tuple_implementation&&) = default;
 
