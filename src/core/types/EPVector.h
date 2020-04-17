@@ -14,6 +14,36 @@
 
 template <typename TStorage>
 class EPVector {
+
+public:
+	class iterator {
+	public:
+		iterator(TStorage* pValue) noexcept : m_pValue(pValue) {}
+		TStorage& operator*() { return (*m_pValue); }
+		TStorage* operator->() { return m_pValue; }
+		bool operator==(const iterator& rhs) { return m_pValue == rhs.m_pValue; }
+		bool operator!=(const iterator& rhs) { return m_pValue != rhs.m_pValue; }
+		iterator	 &operator++() { 
+			++m_pValue; 
+			return *this;
+		}
+	protected:
+		TStorage* m_pValue = nullptr;
+	};
+
+	//class const_iterator : public iterator {
+	//public:
+	//	const_iterator(TStorage* pValue) : iterator(pValue) {}
+	//};
+
+	iterator begin() { 
+		return iterator(&m_pBuffer[0]); 
+	}
+
+	iterator end() { 
+		return iterator(&m_pBuffer[m_pBuffer_c]);
+	}
+
 public:
 	EPVector() :
 		m_pBuffer_n(0),

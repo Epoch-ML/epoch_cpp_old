@@ -18,6 +18,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	const char *kPushBack = "pushback";
 	const char *kCheck = "check";
 	const char *kPushFront = "pushfront";
+	const char* kForEach = "foreach";
 
 	const char* kEPVector = "EPVector";
 	const char* kSTLVector = "std::vector";
@@ -36,7 +37,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 			}
 	));
 
-	pEPTest->RegisterAndRunTC(kPushBack, kEPVector, EPTestCase::expected::FASTEST,
+	pEPTest->RegisterAndRunTC(kPushBack, kEPVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
@@ -63,10 +64,25 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 			}
 	));
 
+	pEPTest->RegisterAndRunTC(kForEach, kEPVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				int count = 0;
+				for (auto &val : intArray) {
+					if (val != count) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", count, val, count);
+						return R::FAIL;
+					}
+					count++;
+				}
+				return R::OK;
+			}
+	));
+
 	// Case 2 - Check front insertion
 	intArray = EPVector<int>();
 
-	pEPTest->RegisterAndRunTC(kPushFront, kEPVector, EPTestCase::expected::FASTEST,
+	pEPTest->RegisterAndRunTC(kPushFront, kEPVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
 				for (int i = TEST_INT_ARRAY_LENGTH - 1; i >= 0; i--) {
@@ -114,6 +130,21 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 						return R::FAIL;
 					}
 				}			
+				return R::OK;
+			}
+	));
+
+	pEPTest->RegisterAndRunTC(kForEach, kSTLVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				int count = 0;
+				for (auto& val : stdIntArray) {
+					if (val != count) {
+						DEBUG_LINEOUT("stdIntArray[%d]:%d differed from value %d expected", count, val, count);
+						return R::FAIL;
+					}
+					count++;
+				}
 				return R::OK;
 			}
 	));
