@@ -72,52 +72,52 @@ class EPTest<TReturn(TArgs...)> :
 public:
 	EPTest() :
 		EPTestBase(),
-		EPFunction()
+		EPFunction<TReturn(TArgs...)>()
 	{
 		//
 	}
 
 	EPTest(const EPTest&& rhs) :
-		EPFunction(rhs)
+		EPFunction<TReturn(TArgs...)>(rhs)
 	{}
 
 	EPTest(const EPTest& rhs) :
 		EPTestBase(rhs.m_strName, rhs.m_testResult, rhs.m_fTestRun),
-		EPFunction(rhs.m_pfnFunction)
+		EPFunction<TReturn(TArgs...)>(rhs.m_pfnFunction)
 	{}
 	
-	EPTest(EPFunction& rhs) :
+	EPTest(EPFunction<TReturn(TArgs...)>& rhs) :
 		EPTestBase(rhs.m_strName, rhs.m_testResult, rhs.m_fTestRun),
-		EPFunction(rhs.m_pfnFunction)
+		EPFunction<TReturn(TArgs...)>(rhs.m_pfnFunction)
 	{}
 
-	EPTest(const EPFunction& rhs) :
+	EPTest(const EPFunction<TReturn(TArgs...)>& rhs) :
 		EPTestBase(rhs.m_strName, rhs.m_testResult, rhs.m_fTestRun),
-		EPFunction(rhs.m_pfnFunction)
+		EPFunction<TReturn(TArgs...)>(rhs.m_pfnFunction)
 	{}
 
 
-	EPTest(EPFunction&& rhs) noexcept :
+	EPTest(EPFunction<TReturn(TArgs...)>&& rhs) noexcept :
 		EPTestBase(rhs.m_strName, rhs.m_testResult, rhs.m_fTestRun),
-		EPFunction(rhs.m_pfnFunction),
+		EPFunction<TReturn(TArgs...)>(rhs.m_pfnFunction)
 	{
 		rhs.reset();
 	}
 
 	EPTest(std::nullptr_t) noexcept :
 		EPTestBase(),
-		EPFunction(nullptr)
+		EPFunction<TReturn(TArgs...)>(nullptr)
 	{}
 
 	template <class Callable, 
 		class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
 	EPTest(const char szName[], Callable&& object) :
 		EPTestBase(szName),
-		EPFunction(object)
+		EPFunction<TReturn(TArgs...)>(object)
 	{}
 	
 	EPTest& operator=(std::nullptr_t) noexcept {
-		m_pfnFunction = nullptr;
+		this->m_pfnFunction = nullptr;
 		return *this;
 	}
 
@@ -126,17 +126,19 @@ public:
 	RESULT Run(TArgs... args) {
 		RESULT r = R::OK;
 
-		std::chrono::steady_clock::time_point timeStart;
-		std::chrono::steady_clock::time_point timeEnd;
+		//std::chrono::steady_clock::time_point timeStart;
+		//std::chrono::steady_clock::time_point timeEnd;
 
-		CNM(m_pfnFunction, "Cannot run null EPTest");
+		CNM(this->m_pfnFunction, "Cannot run null EPTest");
 
-		timeStart = std::chrono::high_resolution_clock::now();
-			m_testResult = m_pfnFunction->call(static_cast<TArgs&&>(args)...);
-		timeEnd = std::chrono::high_resolution_clock::now();
+		{
+			auto timeStart = std::chrono::high_resolution_clock::now();
+			this->m_testResult = this->m_pfnFunction->call(static_cast<TArgs&&>(args)...);
+			auto timeEnd = std::chrono::high_resolution_clock::now();
 
-		m_usTimeRun = std::chrono::duration_cast<std::chrono::microseconds>(timeEnd - timeStart).count();
-		m_fTestRun = true;
+			m_usTimeRun = std::chrono::duration_cast<std::chrono::microseconds>(timeEnd - timeStart).count();
+			m_fTestRun = true;
+		}
 
 		CRM(CompareTestCases(), "Not all test cases passed");
 
@@ -176,36 +178,36 @@ public:
 		class = decltype(TReturn(std::declval<typename std::decay<Callable>::type>()(std::declval<TArgs>()...)))>
 	EPTest& operator=(Callable&& object) {
 		m_strName = "anonymous function";
-		m_pfnFunction = new functor_impl<typename std::decay<Callable>::type, TReturn, TArgs...>(static_cast<Callable&&>(object));
+		this->m_pfnFunction = new functor_impl<typename std::decay<Callable>::type, TReturn, TArgs...>(static_cast<Callable&&>(object));
 		return *this;
 	}
 
 	EPTest& operator=(EPTest& rhs) {
 		m_strName = rhs.m_strName;
-		m_pfnFunction = (rhs.m_pfnFunction ? rhs.m_pfnFunction->clone() : nullptr);
+		this->m_pfnFunction = (rhs.m_pfnFunction ? rhs.m_pfnFunction->clone() : nullptr);
 		return *this;
 	}
 
 	EPTest& operator=(const EPTest& rhs) {
 		m_strName = rhs.m_strName;
-		m_pfnFunction = (rhs.m_pfnFunction ? rhs.m_pfnFunction->clone() : nullptr);
+		this->m_pfnFunction = (rhs.m_pfnFunction ? rhs.m_pfnFunction->clone() : nullptr);
 		return *this;
 	}
 
 	EPTest& operator=(EPTest&& rhs) {
 		m_strName = rhs.m_strName;
-		m_pfnFunction = rhs.m_pfnFunction;
+		this->m_pfnFunction = rhs.m_pfnFunction;
 		rhs.m_pfnFunction = nullptr;
 
 		return *this;
 	}
 
 	explicit operator bool() const noexcept {
-		return m_pfnFunction != nullptr;
+		return (this->m_pfnFunction != nullptr);
 	}
 
 	bool operator==(std::nullptr_t) const noexcept {
-		return (m_pfnFunction == nullptr);
+		return (this->m_pfnFunction == nullptr);
 	}
 
 	RESULT GetResult() { return m_testResult; }

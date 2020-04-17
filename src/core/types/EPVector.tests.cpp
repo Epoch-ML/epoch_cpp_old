@@ -53,12 +53,13 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	pEPTest->RegisterAndRunTC(kCheck, kEPVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
-				RESULT r = R::OK;
 				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-					CBM(intArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+					if (intArray[i] != i) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+						return R::FAIL;
+					}
 				}
-			Error:
-				return r;
+				return R::OK;
 			}
 	));
 
@@ -107,13 +108,13 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	pEPTest->RegisterAndRunTC(kCheck, kSTLVector, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
 			[&]() -> RESULT {
-				RESULT r = R::OK;
 				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-					CBM(stdIntArray[i] == i,
-						"intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
-				}
-			Error:
-				return r;
+					if (stdIntArray[i] != i) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+						return R::FAIL;
+					}
+				}			
+				return R::OK;
 			}
 	));
 
@@ -132,12 +133,6 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
 		CBM(stdIntArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
 	}
-
-	// Comparisons and output
-	//CR(EPTestCase::CompareTestCases(tcEPVectorConstruct, tcSTDVectorConstruct, EPTestCase::expected::COMPARE));
-	//CR(EPTestCase::CompareTestCases(tcEPVectorPushBack, tcSTDVectorPushBack, EPTestCase::expected::FASTEST));
-	//CR(EPTestCase::CompareTestCases(tcEPVectorCheck, tcSTDVectorCheck, EPTestCase::expected::COMPARE));
-	//CR(EPTestCase::CompareTestCases(tcEPVectorPushFront, tcSTDVectorInsertFront, EPTestCase::expected::FASTEST));
 	
 Error:
 	return r;

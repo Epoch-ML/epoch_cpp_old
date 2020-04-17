@@ -32,11 +32,8 @@ public:
 	};
 
 public:
-	EPTimedFunction() :
-		EPFunction()
-	{
-		//
-	}
+	EPTimedFunction() = default;
+	virtual ~EPTimedFunction() = default;
 
 public:
 	EPTuple<RESULT, size_t> operator()(TArgs&& ... args) {
@@ -102,17 +99,18 @@ private:
 	RESULT Run(CArgs... args) {
 		RESULT r = R::OK;
 
-		std::chrono::steady_clock::time_point timeStart;
-		std::chrono::steady_clock::time_point timeEnd;
+		{
 
-		CNM(m_pfnFunction, "Cannot run null EPTest");
+			CNM(m_pfnFunction, "Cannot run null EPTest");
 
-		timeStart = std::chrono::high_resolution_clock::now();
+			auto timeStart = std::chrono::high_resolution_clock::now();
 			m_pfnFunction->call(static_cast<CArgs&&>(args)...);
-		timeEnd = std::chrono::high_resolution_clock::now();
+			auto timeEnd = std::chrono::high_resolution_clock::now();
 
-		m_fnResult = R::NO_RESULT;
-		m_nsDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart).count();
+			m_fnResult = R::NO_RESULT;
+			m_nsDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(timeEnd - timeStart).count();
+			 
+		}
 
 	Error:
 		return r;

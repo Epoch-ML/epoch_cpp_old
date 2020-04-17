@@ -74,7 +74,7 @@ public:
 	// TODO: Double check this when we actually flesh out the ref count lib
 	template <class TOther>
 	epref<TEPObj>& operator=(const TOther &otherObj) const {
-		if (m_pEPObj != pOther) {
+		if (m_pEPObj != otherObj) {
 			m_pEPObj = (TEPObj*)(otherObj);
 		}
 

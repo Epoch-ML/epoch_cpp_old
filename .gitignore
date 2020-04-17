@@ -33,6 +33,7 @@
 
 # CMake
 **/out/
+**/out_*/
 
 # Visual Studio
 **/.vs/

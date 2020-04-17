@@ -32,7 +32,7 @@ public:
 
 		EPObjectPackage(RESULT r, epref<TEPObj> pEPObj) :
 			r(r),
-			pEPObj(p)
+			pEPObj(pEPObj)
 		{}
 
 		~EPObjectPackage() {

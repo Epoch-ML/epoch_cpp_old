@@ -119,8 +119,9 @@ public:
 	}
 
 	EPFunction& operator=(EPFunction&& rhs) {
-		m_strName = rhs.m_strName;
-		m_pfnFunction = rhs.m_pfnFunction;
+		this->m_strName = rhs.m_strName;
+		this->m_pfnFunction = rhs.m_pfnFunction;
+
 		rhs.m_pfnFunction = nullptr;
 
 		return *this;
