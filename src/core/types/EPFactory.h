@@ -54,7 +54,7 @@ public:
 	static EPObjectPackage make() {
 		RESULT r = R::OK;
 
-		epref<TEPObj> pEPObj = InternalMake();
+		epref<TEPObj> pEPObj = TEPObj::InternalMake();
 		CNM(pEPObj, "Failed to create factory object");
 
 	Error:
@@ -62,7 +62,7 @@ public:
 	}
 
 private:
-	virtual epref<TEPObj> InternalMake() = 0;
+	//virtual epref<TEPObj> InternalMake() = 0;
 };
 
 #endif // EP_FACTORY_H_
