@@ -2,13 +2,13 @@ sudo: required
 language: cpp
 
 os: 
-  - windows
+# - windows
   - linux
 # - osx
 
 compiler: 
-  - gcc
-  #- clang
+  - clang
+  #- gcc
 
 #before_install:
 #  - sudo apt-get -y install ninja-build
