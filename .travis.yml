@@ -7,8 +7,8 @@ os:
 # - osx
 
 compiler: 
-  - clang
-# # - gcc
+  - gcc
+  #- clang
 
 #before_install:
 #  - sudo apt-get -y install ninja-build
@@ -19,8 +19,8 @@ compiler:
 #    update: true
 
 env:
-  - MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
-  #- MSBUILD2019_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin"
+  #- MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+  - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin"
 
 before_script:
   - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
@@ -30,8 +30,7 @@ before_script:
   - which $CC
   - $CXX --version
   - cmake --version
-  # TODO: Support VS2019
-  #- choco install visualstudio2019community
+  - choco install visualstudio2019community
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
