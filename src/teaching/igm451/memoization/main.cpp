@@ -95,6 +95,10 @@ int main() {
 	
 	DEBUG_LINEOUT("%d", value);
 
+	value = factorial(13);
+	DEBUG_LINEOUT("%d", value);
+
+
 	value = factorial(MAX_ALLOWED);
 	DEBUG_LINEOUT("%d", value); // should be -1
 	fibArray[0] = 0;

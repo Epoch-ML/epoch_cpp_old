@@ -5,3 +5,4 @@
 
 # Projects
 add_subdirectory(memoization)
+add_subdirectory(simd)
