@@ -128,6 +128,8 @@ void AddSSE(float v1[], float v2[], float& result, int size) {
 	result = (results[0] + results[1]) + (results[2] + results[3]);
 
 }
+
+/*
 // addition function with SIMD AVX
 void AddAVX(float v1[], float v2[], float& result, int size) {
 	// Make a results vector since the above memory is 
@@ -154,6 +156,7 @@ void AddAVX(float v1[], float v2[], float& result, int size) {
 	result = (results[0] + results[1]) + (results[2] + results[3]) +
 		(results[4] + results[5]) + (results[6] + results[7]);
 }
+*/
 
 void fillArrays() {
 	for (int j = 0; j < SIZE; j++) {
@@ -210,7 +213,7 @@ int main(int argc, char* argv[]) {
 		//addNoSimd(simdAddVec3, simdAddVec4, result, SIZE);
 		//printf("%f\r\n", result);
 
-		AddAVX(simdAddVec3, simdAddVec4, result, SIZE);
+		//AddAVX(simdAddVec3, simdAddVec4, result, SIZE);
 		//printf("%f\r\n", result);
 	}
 
