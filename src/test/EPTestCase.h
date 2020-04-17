@@ -85,7 +85,7 @@ public:
 	}
 
 	// Compare test cases
-	static RESULT CompareTestCases(EPVector<EPTestCase> cases) {
+	static RESULT CompareTestCases(const EPVector<EPTestCase> &cases) {
 		RESULT r = R::OK;
 
 		EPTestCase* pLHS = nullptr;
@@ -94,11 +94,11 @@ public:
 		CBM(cases.size() != 0, "No test cases registered");
 		CBM(cases.size() <= 2, "CompareTestCases doesn't yet support more han two comparable test cases");
 
-		pLHS = &cases[0];
+		pLHS = const_cast<EPTestCase*>(&(cases[0]));
 		if (cases.size() == 1) {
 			return pLHS->PrintTestCase();
 		}
-		pRHS = &cases[1];
+		pRHS = const_cast<EPTestCase*>(&(cases[1]));
 
 		CRM(pLHS->GetResult(), "lhs failed");
 		CRM(pRHS->GetResult(), "rhs failed");

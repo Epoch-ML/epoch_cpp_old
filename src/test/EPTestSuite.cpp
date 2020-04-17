@@ -72,7 +72,7 @@ RESULT EPTestSuiteBase::RunAllTests() {
 			fAnyFailedTests = true;
 	}
 
-	CBM(fAnyFailedTests, "Not all tests passed");
+	CBM(fAnyFailedTests == false, "Not all tests passed");
 
 Error:
 	return r;

@@ -29,9 +29,8 @@
 	#pragma GCC diagnostic ignored "-Wunused-label"
 #endif
 
-#define RFAILED(res) ((res&0x80000000) != 0)
+#define RFAILED(res) (res & 0x80000000)
 #define RSUCCESS(res) (!RFAILED(res))
-#define RCHECK(res) ((res & 0x80000000) == 0)
 
 typedef enum class RESULT : uint32_t {
 	// Success codes

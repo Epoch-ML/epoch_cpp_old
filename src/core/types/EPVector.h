@@ -24,23 +24,25 @@ public:
 	}
 
 	~EPVector() {
-		delete[] m_pBuffer;
+		if (m_pBuffer != nullptr) {
+			free(m_pBuffer);
+			m_pBuffer = nullptr;
+		}
 
 		m_pBuffer_c = 0;
 		m_pBuffer_n = 0;
-		m_pBuffer = nullptr;
 	}
 
 	EPVector(size_t initialSize, const TStorage& initValue) :
 		m_pBuffer_n(initialSize),
 		m_pBuffer_c(m_pBuffer_n)
 	{
-		m_pBuffer = new TStorage[m_pBuffer_n];
+		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
 	}
 
 	EPVector(const TStorage staticValueArray[], size_t staticValueArray_n) {
 		m_pBuffer_n = staticValueArray_n;
-		m_pBuffer = new TStorage[m_pBuffer_n];
+		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
 
 		memset(m_pBuffer, 0, m_pBuffer_n);
 		memcpy(m_pBuffer, staticValueArray, m_pBuffer_n);
@@ -50,7 +52,7 @@ public:
 
 	EPVector(const EPVector& rhs) {
 		m_pBuffer_n = rhs.m_pBuffer_n;
-		m_pBuffer = new TStorage[m_pBuffer_n];
+		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
 		m_pBuffer_c = rhs.m_pBuffer_c;
 		
 		memset(m_pBuffer, 0, m_pBuffer_n);
@@ -59,7 +61,7 @@ public:
 
 	EPVector& operator=(const EPVector& rhs) {
 		m_pBuffer_n = rhs.m_pBuffer_n;
-		m_pBuffer = new TStorage[m_pBuffer_n];
+		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
 		m_pBuffer_c = rhs.m_pBuffer_c;
 
 		memset(m_pBuffer, 0, m_pBuffer_n);
@@ -88,7 +90,7 @@ public:
 		RESULT r = R::OK;
 
 		size_t pTempBuffer_n = newSize;
-		TStorage* pTempBuffer = new TStorage[pTempBuffer_n];
+		TStorage* pTempBuffer = (TStorage*)malloc(pTempBuffer_n * sizeof(TStorage));
 		CNR(pTempBuffer, R::MEMORY_ALLOCATION_FAILED);
 
 		// set to zero and swap
@@ -99,14 +101,15 @@ public:
 
 	Error:
 		if (pTempBuffer != nullptr) {
-			delete[] pTempBuffer;
+			free(pTempBuffer);		
 			pTempBuffer = nullptr;
 		}
 
 		return r;
 	}
 
-	RESULT PushBack(const TStorage& value) noexcept  {
+	//RESULT PushBack(const TStorage& value) noexcept  {	
+	RESULT PushBack(TStorage value) noexcept {
 		RESULT r = R::OK;
 
 		if (m_pBuffer == nullptr) {
@@ -160,7 +163,7 @@ public:
 	inline void clear(bool fDeallocate = true) {
 		if (fDeallocate) {
 			if (m_pBuffer != nullptr) {
-				delete[] m_pBuffer;
+				free(m_pBuffer);
 				m_pBuffer = nullptr;
 			}
 			m_pBuffer_c = 0;
@@ -177,16 +180,9 @@ private:
 			if (DoubleSize() != R::OK)
 				return R::MEMORY_ALLOCATION_FAILED;
 		}
-		
-		TStorage tempVal;
-		TStorage lastValue = m_pBuffer[0];
-		m_pBuffer[0] = 0;
 
-		for (size_t i = 1; i <= m_pBuffer_c; i++) {
-			tempVal = m_pBuffer[i];
-			m_pBuffer[i] = lastValue;
-			lastValue = tempVal;
-		}
+		memcpy(&m_pBuffer[1], m_pBuffer, m_pBuffer_c * sizeof(TStorage));
+		m_pBuffer[0] = 0;
 
 		m_pBuffer_c++;
 
@@ -195,7 +191,7 @@ private:
 
 	inline RESULT DoubleSize() noexcept {
 		size_t pTempBuffer_n = m_pBuffer_n << 1;
-		TStorage* pTempBuffer = new TStorage[pTempBuffer_n];
+		TStorage* pTempBuffer = (TStorage*)malloc(pTempBuffer_n * sizeof(TStorage));  
 
 		if(pTempBuffer == nullptr)
 			return R::MEMORY_ALLOCATION_FAILED;
@@ -208,7 +204,7 @@ private:
 		std::swap(pTempBuffer_n, m_pBuffer_n);
 
 		if (pTempBuffer != nullptr) {
-			delete[] pTempBuffer;
+			free(pTempBuffer);  
 			pTempBuffer = nullptr;
 		}
 
