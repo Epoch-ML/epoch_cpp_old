@@ -32,6 +32,17 @@
 }		
 
 
+#define EP_TEST_SUITE_MAIN(test_suite_name) int main(int argc, char* argv[]) {	\
+	RESULT r = R::SUCCESS;														\
+	##test_suite_name* pTestSuite = ##test_suite_name::make();					\
+	CNM(pTestSuite, "Failed to create " #test_suite_name);						\
+	CRM(pTestSuite->RunAllTests(), "Not all tests passed");						\
+	return 0;																	\
+Error:																			\
+	return -1;																	\
+}
+
+
 class EPTestSuiteBase :
 	public EPObj
 {
