@@ -28,9 +28,9 @@ public:
 	class EPObjectPackage {
 	public:
 		RESULT r;
-		epref<TEPObj> pEPObj;
+		EPRef<TEPObj> pEPObj;
 
-		EPObjectPackage(RESULT r, epref<TEPObj> pEPObj) :
+		EPObjectPackage(RESULT r, EPRef<TEPObj> pEPObj) :
 			r(r),
 			pEPObj(pEPObj)
 		{}
@@ -54,7 +54,7 @@ public:
 	static EPObjectPackage make() {
 		RESULT r = R::OK;
 
-		epref<TEPObj> pEPObj = TEPObj::InternalMake();
+		EPRef<TEPObj> pEPObj = TEPObj::InternalMake();
 		CNM(pEPObj, "Failed to create factory object");
 
 	Error:

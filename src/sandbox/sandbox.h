@@ -3,16 +3,24 @@
 
 #include "core/ehm/result.h"
 
-// epoch Windows 64 Sandbox
-// epoch/src/sandbox/win64/Win64Sandbox.h
+// epoch sandbox
+// epoch/src/sandbox/sandbox.h
 
 #include "core/types/EPObj.h"
+#include "core/types/EPRef.h"
 
-class sandbox : public EPObj {
+class sandbox : 
+    public EPObj 
+{
 
 protected:
     sandbox();
     ~sandbox();
+
+public:
+    static EPRef<sandbox> make() {
+
+    }
 
 private:
     // 

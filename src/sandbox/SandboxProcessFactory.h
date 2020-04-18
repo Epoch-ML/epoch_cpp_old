@@ -24,7 +24,7 @@ public:
 	}
 
 private:
-	epref<SandboxProcess> InternalMake();
+	EPRef<SandboxProcess> InternalMake();
 };
 
 #endif // ! SANDBOX_PROCESS_FACTORY_H_
