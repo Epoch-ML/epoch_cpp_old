@@ -11,6 +11,8 @@
 #include "core/types/EPObj.h"
 #include "core/types/EPVector.h"
 
+#include <string.h>
+
 // TODO: expand to wide string as well
 
 template <typename TChar>
@@ -72,8 +74,12 @@ public:
 		return *this;
 	}
 
-	inline bool operator==(const EPString& rhs) {
-		return strcmp(c_str(), rhs.c_str());
+	inline bool operator==(const EPString& rhs) const {
+		return strcmp(c_str(), rhs.c_str()) == 0;
+	}
+
+	inline bool operator==(EPString& rhs) {
+		return strcmp(c_str(), rhs.c_str()) == 0;
 	}
 
 	inline bool operator<(const EPString& rhs) const {
@@ -105,7 +111,7 @@ public:
 	const size_t length() const { return m_stringStorage.size(); }
 	const size_t size() const { return m_stringStorage.size(); }
 
-	const TChar* c_str() {
+	const TChar* c_str() const {
 		return m_stringStorage.GetCBuffer();
 	}
 

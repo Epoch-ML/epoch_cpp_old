@@ -38,6 +38,7 @@ public:
 		unsigned get() { return m_count; }
 
 		void operator++() { m_count++; }
+
 		void operator--() { m_count--; }
 
 	private:
@@ -82,6 +83,17 @@ public:
 			m_pRefCounter = pEPObj.m_pRefCounter;
 			m_pRefCounter->operator++();
 
+		}
+
+		return *this;
+	}
+
+	EPRef<TEPObj>& operator=(EPRef& pEPObj) {
+		if (m_pEPObj != pEPObj.m_pEPObj) {
+
+			m_pEPObj = pEPObj.m_pEPObj;
+			m_pRefCounter = pEPObj.m_pRefCounter;
+			m_pRefCounter->operator++();
 		}
 
 		return *this;

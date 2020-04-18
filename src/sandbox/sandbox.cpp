@@ -50,3 +50,52 @@ Success:
 Error:
 	return nullptr;
 }
+
+RESULT sandbox::CreateSandboxProcess(EPString<char> strProcessName, SandboxProcess::type procType) {
+	RESULT r = R::OK;
+
+	// TODO: 
+	//m_sandboxProcesses
+
+Error:
+	return r;
+}
+
+EPRef<SandboxProcess> sandbox::GetSandboxProcess(EPString<char> strProcessName) {
+	EPRef<SandboxProcess> pSandboxProcess = nullptr;
+
+	auto it = m_sandboxProcesses.begin();
+
+	for(auto &pProcess : m_sandboxProcesses) {
+		if (pProcess->GetName() == strProcessName) {
+			pSandboxProcess = pProcess;
+			break;
+		}
+	}
+
+	return pSandboxProcess;
+}
+
+RESULT sandbox::RunSandboxProcess(EPString<char> strProcessName) {
+	RESULT r = R::OK;
+
+	auto pSandboxProcess = GetSandboxProcess(strProcessName);
+	CNM(pSandboxProcess, "%s sandbox process not found", strProcessName.c_str());
+
+	CRM(pSandboxProcess->Run(), "Failed to run Sandbox Process");
+
+Error:
+	return r;
+}
+
+RESULT sandbox::KillSandboxProcess(EPString<char> strProcessName) {
+	RESULT r = R::OK;
+
+	auto pSandboxProcess = GetSandboxProcess(strProcessName);
+	CNM(pSandboxProcess, "%s sandbox process not found", strProcessName.c_str());
+
+	CRM(pSandboxProcess->Kill(), "Failed to run Sandbox Process");
+
+Error:
+	return r;
+}

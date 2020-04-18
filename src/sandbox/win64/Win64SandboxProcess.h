@@ -18,7 +18,7 @@ protected:
 
 public:
 	virtual SandboxProcess::type GetType() override {
-		return SandboxProcess::type::OS_WINDOW;
+		return SandboxProcess::type::window;
 	}
 
 private:

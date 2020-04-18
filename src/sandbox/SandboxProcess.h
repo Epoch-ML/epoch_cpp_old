@@ -10,15 +10,16 @@
 // a window or run an event loop / pump etc
 
 #include "core/types/EPProcess.h"
+#include "core/types/EPString.h"
 
-
-
-class SandboxProcess : public EPProcess {
-
+class SandboxProcess : 
+	public EPProcess 
+{
 public:
 	typedef enum class type : uint32_t {
-		OS_WINDOW,
-		CUSTOM
+		window,
+		console,
+		custom
 	} SandboxProcessType;
 
 public:
@@ -27,8 +28,16 @@ public:
 
 	virtual SandboxProcess::type GetType() = 0;
 
-private:
+	// Process control
+	virtual RESULT Run() = 0;
+	virtual RESULT Kill() = 0;
 
+	const EPString<char>& GetName() {
+		return m_strProcessName;
+	}
+
+private:
+	EPString<char> m_strProcessName;
 };
 
 #endif // ! SANDBOX_PROCESS_H_
