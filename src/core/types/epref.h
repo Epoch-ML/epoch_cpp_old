@@ -38,14 +38,14 @@ public:
 		unsigned get() { return m_count; }
 
 		void operator++() { m_count++; }
-		void operator--() { m_count++; }
+		void operator--() { m_count--; }
 
 	private:
 		unsigned int m_count = 0;
 	};
 
 public:
-	explicit EPRef(TEPObj* pObject = nullptr) :
+	EPRef(TEPObj* pObject) :
 		m_pEPObj(pObject),
 		m_pRefCounter(new ref_counter())
 	{
@@ -54,10 +54,55 @@ public:
 		}
 	}
 
+	// copy
 	EPRef(const EPRef& pEPObj) {
+		m_pEPObj = pEPObj.m_pEPObj;
+		m_pRefCounter = pEPObj.m_pRefCounter;
+		m_pRefCounter->operator++();
+	}
+
+	// move
+	EPRef(EPRef&& pEPObj) {
+		m_pEPObj = pEPObj.m_pEPObj;
+		m_pRefCounter = pEPObj.m_pRefCounter;
+
+		// We're adding and then deleting a reference 
+		// so I guess they cancel each other out
+		m_pRefCounter->operator++();
+		//pEPObj.DecrementCount();
+			
+		pEPObj.m_pEPObj = nullptr;
+	}
+
+	// Copy assignment
+	EPRef<TEPObj>& operator=(const EPRef& pEPObj) const {
+		if (m_pEPObj != pEPObj.m_pEPObj) {
+
+			m_pEPObj = pEPObj.m_pEPObj;
+			m_pRefCounter = pEPObj.m_pRefCounter;
+			m_pRefCounter->operator++();
+
+		}
+
+		return *this;
+	}
+
+	// move assignment
+	
+	EPRef<TEPObj>& operator=(EPRef&& pEPObj) const {
 		if (m_pEPObj != pEPObj.m_pEPObj) {
 			m_pEPObj = pEPObj.m_pEPObj;
+			m_pRefCounter = pEPObj.m_pRefCounter;
+
+			// This seems needed since the decrement is being called regardless
+			m_pRefCounter->operator++();
+
+			//pEPObj.DecrementCount();
+
+			pEPObj.m_pEPObj = nullptr;
 		}
+
+		return *this;
 	}
 
 	EPRef(std::nullptr_t) noexcept :
@@ -78,6 +123,8 @@ public:
 
 	~EPRef() {
 		DecrementCount();
+		m_pEPObj = nullptr;
+		m_pRefCounter = nullptr;
 	}
 
 	inline RESULT DecrementCount() {
@@ -93,22 +140,28 @@ public:
 			if (m_pEPObj != nullptr) {
 				delete m_pEPObj;
 			}
-		}
 
-		m_pEPObj = nullptr;
-		m_pRefCounter = nullptr;
+			m_pEPObj = nullptr;
+			m_pRefCounter = nullptr;
+		}
 
 	Error:
 		return r;
 	}
 
-	TEPObj* get() {
-		return m_pEPObj;
-	}
+	TEPObj* get() { return m_pEPObj; }
+	const TEPObj* get() const { return m_pEPObj; }
+
+	TEPObj* operator->() { return m_pEPObj; }
+	const TEPObj* operator->() const { return m_pEPObj; }
 
 public:
 	bool operator==(const TEPObj* pEPObj) const {
 		return m_pEPObj == pEPObj;
+	}
+
+	bool operator==(std::nullptr_t) noexcept {
+		return (m_pEPObj == nullptr);
 	}
 
 	bool operator!=(const TEPObj* pEPObj) const {
