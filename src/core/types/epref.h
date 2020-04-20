@@ -69,7 +69,9 @@ public:
 
 		// We're adding and then deleting a reference 
 		// so I guess they cancel each other out
-		m_pRefCounter->operator++();
+		if(m_pRefCounter != nullptr)
+			m_pRefCounter->operator++();
+
 		//pEPObj.DecrementCount();
 			
 		pEPObj.m_pEPObj = nullptr;

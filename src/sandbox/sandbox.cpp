@@ -1,5 +1,18 @@
 #include "sandbox.h"
 
+#include "SandboxProcessFactory.h"
+
+const char* kPlatformNames[] = {
+	"win64",
+	"osx",
+	"linux",
+	"android",
+	"ios",
+	"unix",
+	"posix",
+	"none"
+};
+
 sandbox::sandbox() {
 	// empty
 }
@@ -54,8 +67,9 @@ Error:
 RESULT sandbox::CreateSandboxProcess(EPString<char> strProcessName, SandboxProcess::type procType) {
 	RESULT r = R::OK;
 
-	// TODO: 
-	//m_sandboxProcesses
+	EPRef<SandboxProcess> pSandboxProcess = SandboxProcessFactory::make(strProcessName, procType, m_platform);
+	CNM(pSandboxProcess, "Failed to create procType: %d process:%s on platform: %s",
+		procType, strProcessName.c_str(), GetPlatformName(m_platform));
 
 Error:
 	return r;

@@ -12,12 +12,14 @@
 
 #include "SandboxProcess.h"
 
-class sandbox :  
-    public EPObj 
+extern const char* kPlatformNames[];
+
+class sandbox :
+    public EPObj
 {
 
 public:
-    enum class platform {
+    enum class platform : uint8_t {
         win64,
         osx,
         linux,
@@ -38,6 +40,10 @@ public:
     EPRef<SandboxProcess> GetSandboxProcess(EPString<char> strProcessName);
     RESULT RunSandboxProcess(EPString<char> strProcessName);
     RESULT KillSandboxProcess(EPString<char> strProcessName);
+
+    static const char* GetPlatformName(sandbox::platform plat) {
+        return kPlatformNames[static_cast<uint8_t>(plat)];
+    }
 
 private:
     RESULT SetPlatform(sandbox::platform plat) {
