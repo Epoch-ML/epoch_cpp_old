@@ -26,7 +26,10 @@ public:
 	}
 
 protected:
-	static EPRef<SandboxProcess> InternalMake(EPString<char>, SandboxProcess::type, sandbox::platform);
+	static EPRef<SandboxProcess> InternalMake(const EPString<char>&, SandboxProcess::type, sandbox::platform);
+
+private:
+	static EPRef<SandboxProcess> SandboxProcessFactory::InternalMakeWin64(const EPString<char>&, SandboxProcess::type);
 };
 
 #endif // ! SANDBOX_PROCESS_FACTORY_H_

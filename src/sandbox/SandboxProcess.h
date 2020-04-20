@@ -12,21 +12,25 @@
 #include "core/types/EPProcess.h"
 #include "core/types/EPString.h"
 
+
+
 class SandboxProcess : 
 	public EPProcess 
 {
 public:
-	typedef enum class type : uint32_t {
+	enum class type : uint32_t {
 		window,
 		console,
 		custom
-	} SandboxProcessType;
+	};
+	static const char* kSandboxProcessTypes[];
 
 public:
 	SandboxProcess();
-	~SandboxProcess();
+	virtual ~SandboxProcess() override;
 
 	virtual SandboxProcess::type GetType() = 0;
+	virtual RESULT Initialize() = 0;
 
 	// Process control
 	virtual RESULT Run() = 0;
@@ -34,6 +38,10 @@ public:
 
 	const EPString<char>& GetName() {
 		return m_strProcessName;
+	}
+
+	static const char* GetProcessTypeName(SandboxProcess::type procType) {
+		return kSandboxProcessTypes[static_cast<uint8_t>(procType)];
 	}
 
 private:

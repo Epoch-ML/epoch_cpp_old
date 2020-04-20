@@ -12,8 +12,6 @@
 
 #include "SandboxProcess.h"
 
-extern const char* kPlatformNames[];
-
 class sandbox :
     public EPObj
 {
@@ -29,6 +27,7 @@ public:
         posix,
         none
     };
+    static const char* kPlatformNames[];
 
 protected:
     sandbox();

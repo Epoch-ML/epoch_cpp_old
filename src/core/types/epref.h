@@ -200,7 +200,16 @@ public:
 	}
 
 	template <class TOther>
-	EPRef<TEPObj>& operator=(const TOther &otherObj) const {
+	EPRef<TEPObj>& operator=(const TOther &otherObj) {
+		if (m_pEPObj != otherObj) {
+			m_pEPObj = (TEPObj*)(otherObj);
+		}
+
+		return *this;
+	}
+
+	template <class TOther>
+	EPRef<TEPObj>& operator=(TOther& otherObj) {
 		if (m_pEPObj != otherObj) {
 			m_pEPObj = (TEPObj*)(otherObj);
 		}

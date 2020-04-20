@@ -16,7 +16,7 @@ public:
 		// 
 	}
 
-	~EPProcess() {
+	virtual ~EPProcess() {
 		// 
 	}
 };

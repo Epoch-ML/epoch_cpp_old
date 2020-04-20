@@ -2,7 +2,7 @@
 
 #include "SandboxProcessFactory.h"
 
-const char* kPlatformNames[] = {
+const char* sandbox::kPlatformNames[] = {
 	"win64",
 	"osx",
 	"linux",
