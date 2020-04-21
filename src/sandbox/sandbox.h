@@ -37,6 +37,7 @@ public:
 
     RESULT CreateSandboxProcess(EPString<char> strProcessName, SandboxProcess::type procType);
     EPRef<SandboxProcess> GetSandboxProcess(EPString<char> strProcessName);
+    EPVector<EPRef<SandboxProcess>> GetRunningProcesses();
     RESULT RunSandboxProcess(EPString<char> strProcessName);
     RESULT KillSandboxProcess(EPString<char> strProcessName);
 

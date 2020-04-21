@@ -1,6 +1,7 @@
 #include "SandboxProcessFactory.h"
 
-#include "sandbox/win64/Win64SandboxProcess.h"
+#include "sandbox/win64/Win64SandboxWindowProcess.h"
+#include "sandbox/win64/Win64SandboxConsoleProcess.h"
 
 EPRef<SandboxProcess> SandboxProcessFactory::InternalMakeWin64(const EPString<char>& strName, SandboxProcess::type procType) {
 	RESULT r = R::OK;
@@ -10,22 +11,24 @@ EPRef<SandboxProcess> SandboxProcessFactory::InternalMakeWin64(const EPString<ch
 
 	switch (procType) {
 		case SandboxProcess::type::window: {
-			pSandboxProcess = new Win64SandboxProcess();
-			CNM(pSandboxProcess, "Failed to allocate Win64SandboxProcess");
+			pSandboxProcess = new Win64SandboxWindowProcess();
+			CNM(pSandboxProcess, "Failed to allocate Win64SandboxWindowProcess");
 
 			// Initialize is handled in the process itself
-			//CRM(pSandboxProcess->Initialize(), "Failed to initialize Win64SandboxProcess");
+			//CRM(pSandboxProcess->Initialize(), "Failed to initialize Win64SandboxWindowProcess");
 
-			CRM(pSandboxProcess->SetName(strName), "Failed to set name of Win64SandboxProcess");
+			CRM(pSandboxProcess->SetName(strName), "Failed to set name of Win64SandboxWindowProcess");
 
 		} break;
 
 		case SandboxProcess::type::console: {
+			pSandboxProcess = new Win64SandboxConsoleProcess();
+			CNM(pSandboxProcess, "Failed to allocate Win64SandboxConsoleProcess");
 
-			CRM(R::NOT_IMPLEMENTED, 
-				"Console not supported for %s", 
-					sandbox::GetPlatformName(sandbox::platform::win64));
+			// Initialize is handled in the process itself
+			//CRM(pSandboxProcess->Initialize(), "Failed to initialize Win64SandboxConsoleProcess");
 
+			CRM(pSandboxProcess->SetName(strName), "Failed to set name of Win64SandboxConsoleProcess");
 		} break;
 	}
 

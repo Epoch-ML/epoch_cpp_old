@@ -1,5 +1,5 @@
-#ifndef WIN64_SANDBOX_H_
-#define WIN64_SANDBOX_H_
+#ifndef WIN64_SANDBOX_WINDOW_PROCESS_H_
+#define WIN64_SANDBOX_WINDOW_PROCESS_H_
 
 #include "core/ehm/ehm.h"
 
@@ -12,15 +12,15 @@
 
 #include "core/math/math.types.h"
 
-class Win64SandboxProcess : 
+class Win64SandboxWindowProcess : 
 	public SandboxWindowProcess
 {
 
 public:
-	Win64SandboxProcess();
+	Win64SandboxWindowProcess();
 
 protected:
-	virtual ~Win64SandboxProcess() override;
+	virtual ~Win64SandboxWindowProcess() override;
 
 public:
 	virtual RESULT Initialize() override;
@@ -45,9 +45,7 @@ private:
 	DWORD m_dwWindowStyle = 0;
 
 	EPString<char> m_strHardwareID;
-
-	bool m_fVisible = true;
 };
 
 
-#endif // ! WIN64_SANDBOX_H_
+#endif // ! WIN64_SANDBOX_WINDOW_PROCESS_H_

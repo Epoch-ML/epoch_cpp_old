@@ -1,14 +1,14 @@
-#include "Win64SandboxProcess.h"
+#include "Win64SandboxWindowProcess.h"
 
-Win64SandboxProcess::Win64SandboxProcess() {
+Win64SandboxWindowProcess::Win64SandboxWindowProcess() {
     // empty
 }
 
-Win64SandboxProcess::~Win64SandboxProcess() {
+Win64SandboxWindowProcess::~Win64SandboxWindowProcess() {
     // empty
 }
 
-RESULT Win64SandboxProcess::Initialize() {
+RESULT Win64SandboxWindowProcess::Initialize() {
     RESULT r = R::OK;
 
 	// Grab the instance for good measure
@@ -18,7 +18,7 @@ RESULT Win64SandboxProcess::Initialize() {
 	m_windowsClassExt = { 0 };
 	m_windowsClassExt.cbSize = sizeof(WNDCLASSEX);
 	m_windowsClassExt.style = CS_HREDRAW | CS_VREDRAW;
-	m_windowsClassExt.lpfnWndProc = (WNDPROC)(Win64SandboxProcess::StaticWndProc);
+	m_windowsClassExt.lpfnWndProc = (WNDPROC)(Win64SandboxWindowProcess::StaticWndProc);
 	m_windowsClassExt.hInstance = m_hInstance;
 	m_windowsClassExt.lpszClassName = "Win64 Sandbox Process";
 	m_windowsClassExt.hCursor = LoadCursor(nullptr, IDC_ARROW);
@@ -82,7 +82,7 @@ Error:
 }
 
 // This will actually run the code
-RESULT Win64SandboxProcess::Process() {
+RESULT Win64SandboxWindowProcess::Process() {
 	RESULT r = R::OK;
 
 	CRM(Initialize(), "Failed to initialize win64 window");
@@ -112,7 +112,7 @@ Error:
 	return r;
 }
 
-RESULT Win64SandboxProcess::Show() {
+RESULT Win64SandboxWindowProcess::Show() {
 	RESULT r = R::OK;
 
 	m_fVisible = true;
@@ -122,7 +122,7 @@ Error:
 	return r;
 }
 
-RESULT Win64SandboxProcess::Hide() {
+RESULT Win64SandboxWindowProcess::Hide() {
 	RESULT r = R::OK;
 
 	m_fVisible = false;
@@ -132,24 +132,24 @@ Error:
 	return r;
 }
 
-rectangle<int> Win64SandboxProcess::GetScreenDimensions() {
+rectangle<int> Win64SandboxWindowProcess::GetScreenDimensions() {
 	return rectangle<int> {
 		GetSystemMetrics(SM_CXSCREEN),
 		GetSystemMetrics(SM_CYSCREEN)
 	};
 }
 
-LRESULT CALLBACK Win64SandboxProcess::StaticWndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam) {
-	Win64SandboxProcess* pWin64SandboxProcess = nullptr;
+LRESULT CALLBACK Win64SandboxWindowProcess::StaticWndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam) {
+	Win64SandboxWindowProcess* pWin64SandboxProcess = nullptr;
 
 	if (msg == WM_CREATE) {
 		// Save our object to USERDATA
-		pWin64SandboxProcess = (Win64SandboxProcess*)((LPCREATESTRUCT)lParam)->lpCreateParams;
+		pWin64SandboxProcess = (Win64SandboxWindowProcess*)((LPCREATESTRUCT)lParam)->lpCreateParams;
 		SetWindowLongPtr(hWindow, GWLP_USERDATA, (LONG_PTR)(pWin64SandboxProcess));
 	}
 	else {
 		// Retrieve our object from USERDATA
-		pWin64SandboxProcess = (Win64SandboxProcess*)GetWindowLongPtr(hWindow, GWLP_USERDATA);
+		pWin64SandboxProcess = (Win64SandboxWindowProcess*)GetWindowLongPtr(hWindow, GWLP_USERDATA);
 		if (!pWin64SandboxProcess) {
 			return DefWindowProc(hWindow, msg, wParam, lParam);
 		}
@@ -158,7 +158,7 @@ LRESULT CALLBACK Win64SandboxProcess::StaticWndProc(HWND hWindow, UINT msg, WPAR
 	return pWin64SandboxProcess->WndProc(hWindow, msg, wParam, lParam);
 }
 
-LRESULT CALLBACK Win64SandboxProcess::WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK Win64SandboxWindowProcess::WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam) {
 	RESULT r = R::OK;
 
 	switch (msg) {
@@ -203,7 +203,7 @@ Error:
 	return DefWindowProc(hWindow, msg, wParam, lParam);
 }
 
-RESULT Win64SandboxProcess::HandleWin64Messages() {
+RESULT Win64SandboxWindowProcess::HandleWin64Messages() {
 	RESULT r = R::OK;
 
 	MSG msg;
