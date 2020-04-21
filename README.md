@@ -8,4 +8,4 @@ Development: [![Build Status](https://travis-ci.com/idanbeck/epoch.svg?branch=de
 
 ## Project 
 
-Project Planning: [https://trello.com/b/KbZGF6UH/%E2%98%A0-epoch](%E2%98%A0-epoch Trello Board)
+Project Planning:  [☠-epoch Trello Board](https://trello.com/b/KbZGF6UH/%E2%98%A0-epoch)
