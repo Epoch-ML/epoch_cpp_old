@@ -76,6 +76,7 @@ add_library(sandbox
 
 add_executable(sandbox.tests
     "sandbox.tests.cpp"
+    "win64/Win64Sandbox.tests.cpp"
 )
 
 target_link_libraries(sandbox.tests

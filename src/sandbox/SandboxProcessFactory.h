@@ -8,11 +8,13 @@
 
 # include "core/types/EPFactory.h"
 
+#include "sandbox/sandbox.h"
 #include "sandbox/SandboxProcess.h"
 
 class SandboxProcessFactory : 
-	public EPFactory<SandboxProcess> 
+	public EPFactory<SandboxProcessFactory, SandboxProcess, EPString<char>, SandboxProcess::type, sandbox::platform> 
 {
+	friend EPFactory;
 
 public:
 	SandboxProcessFactory() {
@@ -23,8 +25,11 @@ public:
 		//
 	}
 
+protected:
+	static EPRef<SandboxProcess> InternalMake(const EPString<char>&, SandboxProcess::type, sandbox::platform);
+
 private:
-	epref<SandboxProcess> InternalMake();
+	static EPRef<SandboxProcess> SandboxProcessFactory::InternalMakeWin64(const EPString<char>&, SandboxProcess::type);
 };
 
 #endif // ! SANDBOX_PROCESS_FACTORY_H_

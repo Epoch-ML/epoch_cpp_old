@@ -21,20 +21,32 @@ public:
 		iterator(TStorage* pValue) noexcept : m_pValue(pValue) {}
 		TStorage& operator*() { return (*m_pValue); }
 		TStorage* operator->() { return m_pValue; }
+		
 		bool operator==(const iterator& rhs) { return m_pValue == rhs.m_pValue; }
 		bool operator!=(const iterator& rhs) { return m_pValue != rhs.m_pValue; }
-		iterator	 &operator++() { 
-			++m_pValue; 
+		
+		iterator& operator++() { 
+			m_pValue = (TStorage*)((ptrdiff_t)(m_pValue) + sizeof(TStorage));
 			return *this;
 		}
+
+		iterator operator++(int) {
+			m_pValue = (TStorage*)((ptrdiff_t)(m_pValue)+sizeof(TStorage));
+			return *this;
+		}
+
 	protected:
-		TStorage* m_pValue = nullptr;
+		TStorage *m_pValue = nullptr;
 	};
 
-	//class const_iterator : public iterator {
-	//public:
-	//	const_iterator(TStorage* pValue) : iterator(pValue) {}
-	//};
+	class const_iterator : public iterator {
+	public:
+		const_iterator(TStorage* pValue) noexcept : m_pValue(pValue) {}
+		TStorage& operator*() { return (*m_pValue); }
+		TStorage* operator->() { return m_pValue; }
+		bool operator==(const iterator& rhs) { return m_pValue == rhs.m_pValue; }
+		bool operator!=(const iterator& rhs) { return m_pValue != rhs.m_pValue; }
+	};
 
 	iterator begin() { 
 		return iterator(&m_pBuffer[0]); 

@@ -19,6 +19,7 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 	const char *kCheck = "check";
 	const char *kPushFront = "pushfront";
 	const char* kForEach = "foreach";
+	const char* kForIterator = "foriterator";
 
 	const char* kEPVector = "EPVector";
 	const char* kSTLVector = "std::vector";
@@ -69,6 +70,22 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 			[&]() -> RESULT {
 				int count = 0;
 				for (auto &val : intArray) {
+					if (val != count) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", count, val, count);
+						return R::FAIL;
+					}
+					count++;
+				}
+				return R::OK;
+			}
+	));
+
+	pEPTest->RegisterAndRunTC(kForIterator, kEPVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				int count = 0;
+				for (auto it = intArray.begin(); it != intArray.end(); it++) {
+					int val = *it;
 					if (val != count) {
 						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", count, val, count);
 						return R::FAIL;
@@ -141,6 +158,22 @@ RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
 				for (auto& val : stdIntArray) {
 					if (val != count) {
 						DEBUG_LINEOUT("stdIntArray[%d]:%d differed from value %d expected", count, val, count);
+						return R::FAIL;
+					}
+					count++;
+				}
+				return R::OK;
+			}
+	));
+
+	pEPTest->RegisterAndRunTC(kForIterator, kSTLVector, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				int count = 0;
+				for (auto it = stdIntArray.begin(); it != stdIntArray.end(); it++) {
+					int val = *it;
+					if (val != count) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", count, val, count);
 						return R::FAIL;
 					}
 					count++;

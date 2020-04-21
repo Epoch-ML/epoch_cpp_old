@@ -10,36 +10,17 @@
 
 #include <type_traits>
 
+#include "core/types/EPTuple.h"
+
 #include "core/types/EPObj.h"
 #include "core/types/epref.h"
 
-// TODO: Fix this, C++20!!
-#ifndef NOCONCEPTS
-	template <typename TEPObj> requires EPObjectDerived<TEPObj>
-#else
-	template <typename TEPObj>
-#endif
+template <typename TEPFactory, typename TEPObj, typename ... MArgs>
 class EPFactory : 
 	public EPObj
 	// TODO: singleton?
 	
 {
-public:
-	class EPObjectPackage {
-	public:
-		RESULT r;
-		epref<TEPObj> pEPObj;
-
-		EPObjectPackage(RESULT r, epref<TEPObj> pEPObj) :
-			r(r),
-			pEPObj(pEPObj)
-		{}
-
-		~EPObjectPackage() {
-			pEPObj = nullptr;
-		}
-	};
-
 protected:
 	EPFactory() {
 		// 
@@ -50,19 +31,27 @@ protected:
 	}
 
 public:
-	// TODO: Might make more sense to return "object package"
-	static EPObjectPackage make() {
+	static EPRef<TEPObj> make(MArgs... args) {
 		RESULT r = R::OK;
 
-		epref<TEPObj> pEPObj = TEPObj::InternalMake();
+		EPRef<TEPObj> pEPObj = TEPFactory::InternalMake(args...);
 		CNM(pEPObj, "Failed to create factory object");
 
+	Success:
+		return pEPObj;
+
 	Error:
-		return EPObjectPackage(r, pEPObj);
+		return nullptr;
 	}
 
-private:
-	//virtual epref<TEPObj> InternalMake() = 0;
+protected:
+	static EPRef<TEPObj> InternalMake(MArgs...) {
+
+		// This needs to be overridden, but this is a 
+		// syntax hack since it's not possible to virtualize static functions
+
+		return nullptr;
+	}
 };
 
 #endif // EP_FACTORY_H_
