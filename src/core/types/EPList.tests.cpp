@@ -204,7 +204,7 @@ RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 		int count = 0;
 		for (auto it = stdIntArray.begin(); it != stdIntArray.end(); it++) {
 			int val = *it;
-			CBM((val != count), "intArray[%d]:%d differed from value %d expected", count, val, count);
+			CBM((val == count), "intArray[%d]:%d differed from value %d expected", count, val, count);
 			count++;
 		}
 	}

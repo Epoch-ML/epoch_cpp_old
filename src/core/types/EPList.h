@@ -13,7 +13,7 @@ public:
 	public:
 		node(const TValue& value, EPList::node *pNext = nullptr) :
 			m_value(value),
-			m_pNext(nullptr)
+			m_pNext(pNext)
 		{}
 
 		~node() = default;
@@ -223,6 +223,8 @@ public:
 
 private:
 	EPList::node* m_pRootNode = nullptr;
+	//EPList::node* m_pLastNode = nullptr;
+
 	size_t m_listLength = 0;
 };
 
