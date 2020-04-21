@@ -80,8 +80,6 @@ Error:
 EPRef<SandboxProcess> sandbox::GetSandboxProcess(EPString<char> strProcessName) {
 	EPRef<SandboxProcess> pSandboxProcess = nullptr;
 
-	auto it = m_sandboxProcesses.begin();
-
 	for(auto &pProcess : m_sandboxProcesses) {
 		if (pProcess->GetName() == strProcessName) {
 			pSandboxProcess = pProcess;
@@ -90,6 +88,18 @@ EPRef<SandboxProcess> sandbox::GetSandboxProcess(EPString<char> strProcessName) 
 	}
 
 	return pSandboxProcess;
+}
+
+EPVector<EPRef<SandboxProcess>> sandbox::GetRunningProcesses() {
+	EPVector<EPRef<SandboxProcess>> runningProcesses; 
+
+	for (auto& pProcess : m_sandboxProcesses) {
+		if (pProcess->IsRunning()) {
+			runningProcesses.PushBack(pProcess);
+		}
+	}
+
+	return runningProcesses;
 }
 
 RESULT sandbox::RunSandboxProcess(EPString<char> strProcessName) {

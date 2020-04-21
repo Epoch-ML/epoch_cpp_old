@@ -21,13 +21,13 @@ RESULT SandboxTestSuite::TestWin64Sandbox(EPTestBase* pEPTestBase) {
 	CRM(pSBProcess->Run(), "Failed to run Win64 Window Sandbox Process");
 
 	// Create a win64 sandbox console process
-	//CRM(pSandbox->CreateSandboxProcess(kWin64Console, SandboxProcess::type::console), "Failed to create win64 sandbox console");
-	//CNM((pSBProcess = pSandbox->GetSandboxProcess(kWin64Console)), "Failed to create win64 sandbox console");
-	//CRM(pSBProcess->Run(), "Failed to run Win64 Window Console Process");
+	CRM(pSandbox->CreateSandboxProcess(kWin64Console, SandboxProcess::type::console), "Failed to create win64 sandbox console");
+	CNM((pSBProcess = pSandbox->GetSandboxProcess(kWin64Console)), "Failed to create win64 sandbox console");
+	CRM(pSBProcess->Run(), "Failed to run Win64 Window Console Process");
 
 
 	// Don't quit while thread is running
-	while (pSBProcess->IsRunning()) {
+	while (pSandbox->GetRunningProcesses().size() != 0) {
 		// 
 	}
 

@@ -1,28 +1,29 @@
-#ifndef SANDBOX_WINDOW_PROCESS_H_
-#define SANDBOX_WINDOW_PROCESS_H_
+#ifndef SANDBOX_CONSOLE_PROCESS_H_
+#define SANDBOX_CONSOLE_PROCESS_H_
 
 #include "core/ehm/ehm.h"
 
-// epoch Windows 64 Sandbox
-// epoch/src/sandbox/win64/Win64Sandbox.h
+// epoch console process
+// epoch/src/sandbox/SandboxConsoleProcess.h
 
 #include "sandbox/SandboxProcess.h"
 
 #include "core/math/rectangle.h"
 #include "core/math/point.h"
 
-#define DEFAULT_WINDOW_WIDTH 1920 / 2
-#define DEFAULT_WINDOW_HEIGHT 1080 / 2
+#define DEFAULT_CONSOLE_WIDTH 1920 / 2
+#define DEFAULT_CONSOLE_HEIGHT 1080 / 2
+#define DEFAULT_MAX_CONSOLE_LINES 500
 
-class SandboxWindowProcess :
+class SandboxConsoleProcess :
 	public SandboxProcess
 {
 public:
-	SandboxWindowProcess() = default;
-	virtual ~SandboxWindowProcess() override = default;
+	SandboxConsoleProcess() = default;
+	virtual ~SandboxConsoleProcess() override = default;
 
 	virtual SandboxProcess::type GetType() override {
-		return SandboxProcess::type::window;
+		return SandboxProcess::type::console;
 	}
 
 	virtual RESULT Show() = 0;
@@ -36,13 +37,12 @@ public:
 
 protected:
 	rectangle<int> m_rectDimensions = {
-		DEFAULT_WINDOW_WIDTH,
-		DEFAULT_WINDOW_HEIGHT
+		DEFAULT_CONSOLE_WIDTH,
+		DEFAULT_CONSOLE_HEIGHT
 	};
 
 	point<int, 2> m_ptPosition;
 
-	bool m_fFullscreen = false;
 	bool m_fVisible = true;
 };
 
