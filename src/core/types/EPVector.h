@@ -3,10 +3,10 @@
 
 #include "core/ehm/ehm.h"
 
-// epoch dynamic storage class
-// epoch/src/core/types/EPDynamicStorage.h
+// epoch vector (storage) class
+// epoch/src/core/types/EPVector.h
 
-// Dynamic storage (similar to vector) class that works the way WE FUCKING WANT IT TO
+// EP Vector storage class that works the way WE FUCKING WANT IT TO
 
 #include "core/types/EPObj.h"
 
