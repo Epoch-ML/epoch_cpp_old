@@ -7,10 +7,12 @@
 #include "test/EPTest.h"
 #include "test/EPTestCase.h"
 
+#include "core/types/EPList.h"
+
 RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 	RESULT r = R::OK;
 
-	EPVector<int> intArray;
+	EPList<int> intArray;
 	std::list<int> stdIntArray;
 
 	// EPVector test case labels
@@ -20,6 +22,8 @@ RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 	const char* kPushFront = "pushfront";
 	const char* kForEach = "foreach";
 	const char* kForIterator = "foriterator";
+	const char* kPopBack = "popback";
+	const char* kPopFront = "popfront";
 
 	const char* kEPList = "EPList";
 	const char* kSTLList = "std::list";
@@ -138,18 +142,19 @@ RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 			}
 	));
 
-	pEPTest->RegisterAndRunTC(kCheck, kSTLList, EPTestCase::expected::COMPARE,
-		EPTimedFunction<RESULT(void)>(
-			[&]() -> RESULT {
-				for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-					if (stdIntArray[i] != i) {
-						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
-						return R::FAIL;
-					}
-				}
-				return R::OK;
-			}
-	));
+	// Not supported by std::list
+	//pEPTest->RegisterAndRunTC(kCheck, kSTLList, EPTestCase::expected::COMPARE,
+	//	EPTimedFunction<RESULT(void)>(
+	//		[&]() -> RESULT {
+	//			for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
+	//				if (stdIntArray[i] != i) {
+	//					DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+	//					return R::FAIL;
+	//				}
+	//			}
+	//			return R::OK;
+	//		}
+	//));
 
 	pEPTest->RegisterAndRunTC(kForEach, kSTLList, EPTestCase::expected::COMPARE,
 		EPTimedFunction<RESULT(void)>(
@@ -194,8 +199,14 @@ RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 			}
 	));
 
-	for (int i = 0; i < TEST_INT_ARRAY_LENGTH; i++) {
-		CBM(stdIntArray[i] == i, "intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
+	// Check values (square bracket operator not supported)
+	{
+		int count = 0;
+		for (auto it = stdIntArray.begin(); it != stdIntArray.end(); it++) {
+			int val = *it;
+			CBM((val != count), "intArray[%d]:%d differed from value %d expected", count, val, count);
+			count++;
+		}
 	}
 
 Error:

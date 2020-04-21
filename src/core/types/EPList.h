@@ -45,10 +45,55 @@ public:
 			return *this;
 		}
 
-	private:
+	public:
 		TValue m_value;
 		EPList::node* m_pNext = nullptr;
 	};
+
+	class iterator {
+	public:
+		iterator(EPList::node* pNode) noexcept : m_pNode(pNode) {}
+		TValue& operator*() { return (m_pNode->m_value); }
+		//TValue* operator->() { return m_pNode; }
+
+		bool operator==(const iterator& rhs) { return m_pNode->m_value == rhs.m_pNode->m_value; }
+		bool operator!=(const iterator& rhs) { return m_pNode->m_value != rhs.m_pNode->m_value; }
+
+		iterator& operator++() {
+			m_pNode = m_pNode->m_pNext;
+			return *this;
+		}
+
+		iterator operator++(int) {
+			m_pNode = m_pNode->m_pNext;
+			return *this;
+		}
+
+	protected:
+		EPList::node* m_pNode = nullptr;
+	};
+
+	class const_iterator : public iterator {
+	public:
+		const_iterator(EPList::node* pNode) noexcept : m_pNode(pNode) {}
+		TValue& operator*() { return (m_pNode->m_value); }
+		//TValue* operator->() { return m_pValue; }
+		bool operator==(const iterator& rhs) { return m_pNode->m_value == rhs.m_pNode->m_value; }
+		bool operator!=(const iterator& rhs) { return m_pNode->m_value != rhs.m_pNode->m_value; }
+	};
+
+	iterator begin() {
+		return iterator(m_pRootNode);
+	}
+
+	iterator end() {
+		node* pEnd = m_pRootNode;
+
+		while (pEnd->m_pNext != nullptr)
+			pEnd = pEnd->m_pNext;
+
+		return iterator(pEnd);
+	}
 
 public:
 	EPList() :
@@ -91,7 +136,6 @@ public:
 
 	RESULT PushFront(const TValue& value) {
 		RESULT r = R::OK;
-		TValue retVal;
 
 		node* pTemp = m_pRootNode;
 
@@ -135,7 +179,6 @@ public:
 
 	RESULT PushBack(const TValue& value) {
 		RESULT r = R::OK;
-		TValue retVal;
 
 		if (m_pRootNode == nullptr) {
 			m_pRootNode = new EPList::node(value, nullptr);
@@ -154,6 +197,28 @@ public:
 
 	Error:
 		return r;
+	}
+
+	const size_t size() const {
+		return m_listLength;
+	}
+
+	const TValue& operator[](size_t index) const {
+		node* pTemp = m_pRootNode;
+		
+		for (int i = 0; i < index; i++)  
+			pTemp = pTemp->m_pNext;
+
+		return pTemp->m_value;
+	}
+
+	TValue& operator [](size_t index) {
+		node* pTemp = m_pRootNode;
+
+		for (int i = 0; i < index; i++)
+			pTemp = pTemp->m_pNext;
+
+		return pTemp->m_value;
 	}
 
 private:

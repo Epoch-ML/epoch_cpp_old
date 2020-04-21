@@ -31,7 +31,17 @@ public:
 		}
 
 		iterator operator++(int) {
-			m_pValue = (TStorage*)((ptrdiff_t)(m_pValue)+sizeof(TStorage));
+			m_pValue = (TStorage*)((ptrdiff_t)(m_pValue) + sizeof(TStorage));
+			return *this;
+		}
+
+		iterator& operator--() {
+			m_pValue = (TStorage*)((ptrdiff_t)(m_pValue) - sizeof(TStorage));
+			return *this;
+		}
+
+		iterator operator--(int) {
+			m_pValue = (TStorage*)((ptrdiff_t)(m_pValue) - sizeof(TStorage));
 			return *this;
 		}
 
