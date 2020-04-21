@@ -6,14 +6,14 @@
 // epoch Windows 64 Sandbox
 // epoch/src/sandbox/win64/Win64Sandbox.h
 
-#include "sandbox/SandboxProcess.h"
+#include "sandbox/SandboxWindowProcess.h"
 
 #include <windows.h>
 
-#include "core/math/rectangle.h"
+#include "core/math/math.types.h"
 
 class Win64SandboxProcess : 
-	public SandboxProcess 
+	public SandboxWindowProcess
 {
 
 public:
@@ -27,24 +27,20 @@ public:
 	virtual RESULT Run() override;
 	virtual RESULT Kill() override;
 
-	virtual SandboxProcess::type GetType() override {
-		return SandboxProcess::type::window;
-	}
-
-public:
-	RESULT SetDimensions(int pxWidth, int pxHeight);
+	rectangle<int> GetScreenDimensions();
 
 private:
 	LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK StaticWndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
+	WNDCLASSEX m_windowsClassExt;
+	HINSTANCE m_hInstance = nullptr;
 	HDC m_hDeviceContext = nullptr;
+	HWND m_hWindowHandle = nullptr;
+	DWORD m_dwWindowStyle = 0;
 
-	int m_pxWidth;
-	int m_pxHeight;
-
-	rectangle<int> m_dimensions;
+	EPString<char> m_strHardwareID;
 };
 
 

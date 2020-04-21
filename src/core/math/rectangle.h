@@ -10,54 +10,57 @@ template <typename T>
 class rectangle {
 public:
 	rectangle() :
-		m_width(0),
-		m_height(0)
+		width(0),
+		height(0)
 	{}
 
 	rectangle(const T& width, const T& height) :
-		m_width(width),
-		m_height(height)
+		w(width),
+		h(height)
 	{}
 
-	rectangle(const rectangle& rhs) :
-		m_width(rhs.m_width),
-		m_height(rhs.m_height)
-	{}
+	rectangle(const rectangle& rhs)  {
+		memcpy(data, rhs.data, sizeof(T) * 2);
+	}
 
 	rectangle& operator=(const rectangle& rhs) {
-		m_width = rhs.m_width;
-		m_height = rhs.m_height;
+		memcpy(data, rhs.data, sizeof(T) * 2);
 		return *this;
 	}
 
-	rectangle(rectangle&& rhs) :
-		m_width(rhs.m_width),
-		m_height(rhs.m_height)
-	{
+	rectangle(rectangle&& rhs) {
+		memcpy(data, rhs.data, sizeof(T) * 2);
 		rhs.zero();
 	}
 
 	rectangle& operator=(rectangle&& rhs) {
-		m_width = rhs.m_width;
-		m_height = rhs.m_height;
+		memcpy(data, rhs.data, sizeof(T) * 2);
 		
 		rhs.zero();
 		
 		return *this;
 	}
 
+	inline T& width() { return w; }
+	inline T& height() { return h; }
+
+	inline T& width(const T& val) { return (w = val); }
+	inline T& height(const T& val) { return (h = val); }
 
 public:
 	RESULT zero() {
-		m_width = 0;
-		m_height = 0;
-
+		memset(data, 0, sizeof(T) * 2);
 		return R::OK;
 	}
 
-private:
-	T m_width;
-	T m_height;
+public:
+	union {
+		T data[2];
+		struct {
+			T w;
+			T h;
+		};
+	};
 };
 
 #endif // ! RECTANGLE_H_
