@@ -103,7 +103,7 @@ public:
 
 	// move assignment
 	
-	EPRef<TEPObj>& operator=(EPRef&& pEPObj) const {
+	EPRef<TEPObj>& operator=(EPRef&& pEPObj) {
 		if (m_pEPObj != pEPObj.m_pEPObj) {
 			m_pEPObj = pEPObj.m_pEPObj;
 			m_pRefCounter = pEPObj.m_pRefCounter;
@@ -202,7 +202,18 @@ public:
 	template <class TOther>
 	EPRef<TEPObj>& operator=(const TOther &otherObj) {
 		if (m_pEPObj != otherObj) {
+
+			if (m_pEPObj != nullptr) {
+				DecrementCount();
+			}
+
 			m_pEPObj = (TEPObj*)(otherObj);
+			
+			m_pRefCounter = new ref_counter();
+
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
 		}
 
 		return *this;
@@ -211,7 +222,17 @@ public:
 	template <class TOther>
 	EPRef<TEPObj>& operator=(TOther& otherObj) {
 		if (m_pEPObj != otherObj) {
+			if (m_pEPObj != nullptr) {
+				DecrementCount();
+			}
+
 			m_pEPObj = (TEPObj*)(otherObj);
+			
+			m_pRefCounter = new ref_counter();
+
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
 		}
 
 		return *this;
@@ -221,6 +242,9 @@ public:
 		if (m_pEPObj != nullptr) {
 			DecrementCount();
 		}
+
+		m_pEPObj = nullptr;
+		m_pRefCounter = nullptr;
 
 		return *this;
 	}

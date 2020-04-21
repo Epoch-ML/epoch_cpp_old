@@ -13,7 +13,10 @@ EPRef<SandboxProcess> SandboxProcessFactory::InternalMakeWin64(const EPString<ch
 			pSandboxProcess = new Win64SandboxProcess();
 			CNM(pSandboxProcess, "Failed to allocate Win64SandboxProcess");
 
-			CRM(pSandboxProcess->Initialize(), "Failed to initialize Win64SandboxProcess");
+			// Initialize is handled in the process itself
+			//CRM(pSandboxProcess->Initialize(), "Failed to initialize Win64SandboxProcess");
+
+			CRM(pSandboxProcess->SetName(strName), "Failed to set name of Win64SandboxProcess");
 
 		} break;
 

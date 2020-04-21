@@ -71,6 +71,8 @@ RESULT sandbox::CreateSandboxProcess(EPString<char> strProcessName, SandboxProce
 	CNM(pSandboxProcess, "Failed to create procType: %d process:%s on platform: %s",
 		procType, strProcessName.c_str(), GetPlatformName(m_platform));
 
+	m_sandboxProcesses.PushBack(pSandboxProcess);
+
 Error:
 	return r;
 }

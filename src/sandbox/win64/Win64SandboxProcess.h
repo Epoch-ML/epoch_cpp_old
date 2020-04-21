@@ -24,14 +24,18 @@ protected:
 
 public:
 	virtual RESULT Initialize() override;
-	virtual RESULT Run() override;
-	virtual RESULT Kill() override;
+	virtual RESULT Process() override;
+
+	virtual RESULT Show() override;
+	virtual RESULT Hide() override;
 
 	rectangle<int> GetScreenDimensions();
 
 private:
 	LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK StaticWndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	RESULT HandleWin64Messages();
 
 private:
 	WNDCLASSEX m_windowsClassExt;
@@ -41,6 +45,8 @@ private:
 	DWORD m_dwWindowStyle = 0;
 
 	EPString<char> m_strHardwareID;
+
+	bool m_fVisible = true;
 };
 
 

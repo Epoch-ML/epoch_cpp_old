@@ -11,11 +11,15 @@ Win64SandboxProcess::~Win64SandboxProcess() {
 RESULT Win64SandboxProcess::Initialize() {
     RESULT r = R::OK;
 
+	// Grab the instance for good measure
+	m_hInstance = GetModuleHandle(NULL);
+	CNM(m_hInstance, "Failed to retrieve instance handle");
+
 	m_windowsClassExt = { 0 };
 	m_windowsClassExt.cbSize = sizeof(WNDCLASSEX);
 	m_windowsClassExt.style = CS_HREDRAW | CS_VREDRAW;
 	m_windowsClassExt.lpfnWndProc = (WNDPROC)(Win64SandboxProcess::StaticWndProc);
-	m_windowsClassExt.hInstance = nullptr;
+	m_windowsClassExt.hInstance = m_hInstance;
 	m_windowsClassExt.lpszClassName = "Win64 Sandbox Process";
 	m_windowsClassExt.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	m_windowsClassExt.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
@@ -56,9 +60,11 @@ RESULT Win64SandboxProcess::Initialize() {
 		m_rectDimensions.height(), 					// height of the window
 		nullptr,										// // hWndParent
 		nullptr,										// hMenu
-		nullptr,										// hInstance
+		m_hInstance,									// hInstance
 		this											// lpParam
 	);
+
+	CNM(m_hWindowHandle, "Failed to create window");
 
 	// Get hardware ID from profile
 	HW_PROFILE_INFO hwProfInfo;
@@ -70,25 +76,57 @@ RESULT Win64SandboxProcess::Initialize() {
 	// High priority is where things like Task List reside, ignoring load on the operating system.
 	// Use extreme care when using the high-priority class, because a high-priority class application can use nearly all available CPU time.
 	SetPriorityClass(GetCurrentProcess(), ABOVE_NORMAL_PRIORITY_CLASS);	
-																		
-	// TODO: Prob good to get a hInstance
-
-	// TODO: This should go into a show window call
-	ShowWindow(m_hWindowHandle, SW_RESTORE);
 
 Error:
     return r;
 }
 
-RESULT Win64SandboxProcess::Run() {
-	RESULT r = R::NOT_IMPLEMENTED;
+// This will actually run the code
+RESULT Win64SandboxProcess::Process() {
+	RESULT r = R::OK;
+
+	CRM(Initialize(), "Failed to initialize win64 window");
+
+	CRM(Show(), "Failed to show win64 window");
+
+	while (IsRunning()) {
+		CRM(HandleWin64Messages(), "Failed to handle win64 messages");
+
+		// TODO: Swap buffers
+		// CBM(SwapBuffers(m_hDeviceContext), "Failed to swap buiffers");
+
+		//DreamConsole::GetConsole()->OnFrameRendered();
+#ifdef _DEBUG
+		if (IsShuttingDown() || GetAsyncKeyState(VK_ESCAPE)) {
+#else
+		if (IsShuttingDown()) {
+#endif
+			Sleep(1000);
+			Kill();
+		}
+	}
+
+Error:
+	Kill();
+
+	return r;
+}
+
+RESULT Win64SandboxProcess::Show() {
+	RESULT r = R::OK;
+
+	m_fVisible = true;
+	bool fPreviousVisible = ShowWindow(m_hWindowHandle, SW_SHOWDEFAULT);
 
 Error:
 	return r;
 }
 
-RESULT Win64SandboxProcess::Kill() {
-	RESULT r = R::NOT_IMPLEMENTED;
+RESULT Win64SandboxProcess::Hide() {
+	RESULT r = R::OK;
+
+	m_fVisible = false;
+	bool fPreviousVisible = ShowWindow(m_hWindowHandle, SW_HIDE);
 
 Error:
 	return r;
@@ -163,4 +201,28 @@ LRESULT CALLBACK Win64SandboxProcess::WndProc(HWND hWindow, UINT msg, WPARAM wPa
 Error:
 	// Fall through for all messages for now
 	return DefWindowProc(hWindow, msg, wParam, lParam);
+}
+
+RESULT Win64SandboxProcess::HandleWin64Messages() {
+	RESULT r = R::OK;
+
+	MSG msg;
+
+	if (PeekMessage(&msg, nullptr, NULL, NULL, PM_REMOVE)) {
+		if (msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST) {
+			// Handle mouse event
+		}
+		else if (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST) {
+			// Handle key event
+		}
+		else if (WM_QUIT == msg.message) {
+			CRM(Kill(), "Failed to kill win64 window process: %d", (int)(RESULT)(msg.wParam));
+		}
+
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+Error:
+	return r;
 }
