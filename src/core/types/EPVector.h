@@ -3,10 +3,10 @@
 
 #include "core/ehm/ehm.h"
 
-// epoch dynamic storage class
-// epoch/src/core/types/EPDynamicStorage.h
+// epoch vector (storage) class
+// epoch/src/core/types/EPVector.h
 
-// Dynamic storage (similar to vector) class that works the way WE FUCKING WANT IT TO
+// EP Vector storage class that works the way WE FUCKING WANT IT TO
 
 #include "core/types/EPObj.h"
 
@@ -21,17 +21,27 @@ public:
 		iterator(TStorage* pValue) noexcept : m_pValue(pValue) {}
 		TStorage& operator*() { return (*m_pValue); }
 		TStorage* operator->() { return m_pValue; }
-		
+
 		bool operator==(const iterator& rhs) { return m_pValue == rhs.m_pValue; }
 		bool operator!=(const iterator& rhs) { return m_pValue != rhs.m_pValue; }
-		
-		iterator& operator++() { 
-			m_pValue = (TStorage*)((ptrdiff_t)(m_pValue) + sizeof(TStorage));
+
+		iterator& operator++() {
+			++m_pValue;
 			return *this;
 		}
 
 		iterator operator++(int) {
-			m_pValue = (TStorage*)((ptrdiff_t)(m_pValue)+sizeof(TStorage));
+			++m_pValue;
+			return *this;
+		}
+
+		iterator& operator--() {
+			--m_pValue;
+			return *this;
+		}
+
+		iterator operator--(int) {
+			--m_pValue;
 			return *this;
 		}
 
@@ -48,12 +58,20 @@ public:
 		bool operator!=(const iterator& rhs) { return m_pValue != rhs.m_pValue; }
 	};
 
-	iterator begin() { 
+	iterator begin() noexcept { 
 		return iterator(&m_pBuffer[0]); 
 	}
 
-	iterator end() { 
+	const_iterator begin() const noexcept {
+		return const_iterator(&m_pBuffer[0]);
+	}
+
+	iterator end() noexcept { 
 		return iterator(&m_pBuffer[m_pBuffer_c]);
+	}
+
+	const_iterator end() const noexcept {
+		return const_iterator(&m_pBuffer[m_pBuffer_c]);
 	}
 
 public:
