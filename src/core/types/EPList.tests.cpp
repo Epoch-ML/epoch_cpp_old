@@ -100,6 +100,25 @@ RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 			}
 	));
 
+	pEPTest->RegisterAndRunTC(kPopFront, kEPList, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				int count = 0;
+				while(intArray.size() != 0) {
+					
+					int val = intArray[0];
+					intArray.PopFront();
+
+					if (val != count) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", count, val, count);
+						return R::FAIL;
+					}
+					count++;
+				}
+				return R::OK;
+			}
+	));
+
 	// Case 2 - Check front insertion
 	intArray = EPList<int>();
 
@@ -121,6 +140,24 @@ RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 		CBM(intArray[i] == i,
 			"intArray[%d]:%d differed from value %d expected", i, intArray[i], i);
 	}
+
+	pEPTest->RegisterAndRunTC(kPopBack, kEPList, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				int count = TEST_INT_ARRAY_LENGTH - 1;
+				while (intArray.size() != 0) {
+					int val = intArray[intArray.size() - 1];
+					intArray.PopBack();
+
+					if (val != count) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", count, val, count);
+						return R::FAIL;
+					}
+					count--;
+				}
+				return R::OK;
+			}
+	));
 
 	// Case 3 - Test performance against std::vector
 
@@ -187,6 +224,26 @@ RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 			}
 	));
 
+	pEPTest->RegisterAndRunTC(kPopFront, kSTLList, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				int count = 0;
+				while (stdIntArray.size() != 0) {
+
+					int val = stdIntArray.front();
+
+					stdIntArray.pop_front();
+
+					if (val != count) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", count, val, count);
+						return R::FAIL;
+					}
+					count++;
+				}
+				return R::OK;
+			}
+	));
+
 	stdIntArray = std::list<int>();
 
 	pEPTest->RegisterAndRunTC(kPushFront, kSTLList, EPTestCase::expected::COMPARE,
@@ -208,6 +265,24 @@ RESULT TypesTestSuite::TestEPList(EPTestBase* pEPTestBase) {
 			count++;
 		}
 	}
+
+	pEPTest->RegisterAndRunTC(kPopBack, kSTLList, EPTestCase::expected::COMPARE,
+		EPTimedFunction<RESULT(void)>(
+			[&]() -> RESULT {
+				int count = TEST_INT_ARRAY_LENGTH - 1;
+				while (stdIntArray.size() != 0) {
+					int val = stdIntArray.back();
+					stdIntArray.pop_back();
+
+					if (val != count) {
+						DEBUG_LINEOUT("intArray[%d]:%d differed from value %d expected", count, val, count);
+						return R::FAIL;
+					}
+					count--;
+				}
+				return R::OK;
+			}
+	));
 
 Error:
 	return r;

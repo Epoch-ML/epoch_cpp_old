@@ -103,10 +103,14 @@ public:
 		CRM(pLHS->GetResult(), "lhs failed");
 		CRM(pRHS->GetResult(), "rhs failed");
 
+		size_t lhsDuration = pLHS->GetTestCaseDuration();
+		size_t rhsDuration = pRHS->GetTestCaseDuration();
+		int pctFaster = (int)(((float)(rhsDuration) / (float)(lhsDuration)) * 100.0f);
+
 		// Print the comparison
 		DEBUG_CMP(pLHS->m_strTestCaseName.c_str(),
-			pLHS->m_strTestCaseFlavor.c_str(), pLHS->GetTestCaseDuration(),
-			pRHS->m_strTestCaseFlavor.c_str(), pRHS->GetTestCaseDuration());
+			pLHS->m_strTestCaseFlavor.c_str(), lhsDuration,
+			pRHS->m_strTestCaseFlavor.c_str(), rhsDuration, pctFaster);
 
 		expected lhsExpected;
 
@@ -122,6 +126,7 @@ public:
 			lhsExpected = expected::COMPARE;
 		}
 
+
 		switch (lhsExpected) {
 			case expected::COMPARE: {
 				//// Print the comparison
@@ -131,22 +136,22 @@ public:
 			} break;
 
 			case expected::FASTEST: {
-				CLTDM(pLHS->GetTestCaseDuration(), pRHS->GetTestCaseDuration(),
+				CLTDM(lhsDuration, rhsDuration,
 					pLHS->m_strTestCaseName.c_str(),
-					"%s: %s: %zu ns %s: %zu ns",
+					"%s: %s: %zu ns %s: %zu ns - %d%%",
 						pLHS->m_strTestCaseName.c_str(), 
-						pLHS->m_strTestCaseFlavor.c_str(), pLHS->GetTestCaseDuration(),
-					pRHS->m_strTestCaseFlavor.c_str(), pRHS->GetTestCaseDuration()
+						pLHS->m_strTestCaseFlavor.c_str(), lhsDuration,
+						pRHS->m_strTestCaseFlavor.c_str(), rhsDuration, pctFaster
 				);
 			} break;
 
 			case expected::SLOWEST: {
-				CGTDM(pLHS->GetTestCaseDuration(), pRHS->GetTestCaseDuration(),
+				CGTDM(lhsDuration, rhsDuration,
 					pLHS->m_strTestCaseName.c_str(),
-					"%s: %s: %zu ns %s: %zu ns",
+					"%s: %s: %zu ns %s: %zu ns - %d%%",
 					pLHS->m_strTestCaseName.c_str(),
-					pLHS->m_strTestCaseFlavor.c_str(), pLHS->GetTestCaseDuration(),
-					pRHS->m_strTestCaseFlavor.c_str(), pRHS->GetTestCaseDuration()
+					pLHS->m_strTestCaseFlavor.c_str(), lhsDuration,
+					pRHS->m_strTestCaseFlavor.c_str(), rhsDuration, pctFaster
 				);
 			} break;	
 		}
