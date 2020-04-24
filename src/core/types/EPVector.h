@@ -111,6 +111,11 @@ public:
 	}
 
 	EPVector(const EPVector& rhs) {
+		if (m_pBuffer != nullptr) {
+			delete[] m_pBuffer;
+			m_pBuffer = nullptr;
+		}
+
 		m_pBuffer_n = rhs.m_pBuffer_n;
 		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
 		m_pBuffer_c = rhs.m_pBuffer_c;
@@ -120,6 +125,11 @@ public:
 	}
 
 	EPVector& operator=(const EPVector& rhs) {
+		if (m_pBuffer != nullptr) {
+			delete[] m_pBuffer;
+			m_pBuffer = nullptr;
+		}
+
 		m_pBuffer_n = rhs.m_pBuffer_n;
 		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
 		m_pBuffer_c = rhs.m_pBuffer_c;
@@ -138,9 +148,15 @@ public:
 	}
 
 	EPVector& operator=(EPVector&& rhs) {
+		if (m_pBuffer != nullptr) {
+			delete[] m_pBuffer;
+			m_pBuffer = nullptr;
+		}
+
 		m_pBuffer_n = rhs.m_pBuffer_n;
 		m_pBuffer = rhs.m_pBuffer;
 		m_pBuffer_c = rhs.m_pBuffer_c;
+
 		rhs.m_pBuffer = nullptr;
 
 		return *this;
