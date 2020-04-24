@@ -125,6 +125,7 @@ add_subdirectory(logger)
 add_subdirectory(core)
 add_subdirectory(test)
 add_subdirectory(sandbox)
+add_subdirectory(hal)
 
 # Adds junk repos
 add_subdirectory(junk)
