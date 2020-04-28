@@ -10,13 +10,29 @@ file(GLOB VULKAN_SOURCES
   "vulkan/*.cpp"
   "vulkan/*.h"
 )
-source_group("vulkan" FILES ${ANDROID_SOURCES})
+source_group("vulkan" FILES ${VULKAN_SOURCES})
 
 # TODO: Switch to the below
 add_library(hal
     ${SOURCES}
     ${VULKAN_SOURCES}
 )
+
+target_link_libraries(hal
+  Vulkan::Vulkan
+)
+
+# Vulkan
+# TODO: Might want to move this to the actual vulkan hal
+find_package(Vulkan REQUIRED)
+
+message(${Vulkan_INCLUDE_DIR})
+
+#add_executable(vulkaninfo ${Vulkan_INCLUDE_DIR}\..\Demos\vulkaninfo.cpp)
+#target_compile_definitions(vulkaninfo PRIVATE VK_USE_PLATFORM_WIN32_KHR)
+#target_include_directories(vulkaninfo PRIVATE Vulkan::Vulkan)
+#target_link_libraries(vulkaninfo Vulkan::Vulkan)
+include_directories(${Vulkan_INCLUDE_DIR})
 
 #IF(APPLE
 #   Mac OS X specific code
@@ -61,6 +77,7 @@ target_link_libraries(hal.tests
   sandbox
   eptest
   hal
+  Vulkan::Vulkan
 )
 
 add_test(

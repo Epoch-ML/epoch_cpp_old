@@ -40,9 +40,9 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 
 
 	// Don't quit while thread is running
-	while (pSandbox->GetRunningProcesses().size() != 0) {
-		// 
-	}
+	//while (pSandbox->GetRunningProcesses().size() != 0) {
+	//	// 
+	//}
 
 
 Error:
