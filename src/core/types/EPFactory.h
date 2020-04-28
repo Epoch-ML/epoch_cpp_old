@@ -26,7 +26,7 @@ protected:
 		// 
 	}
 
-	~EPFactory() {
+	virtual ~EPFactory() {
 		// 
 	}
 

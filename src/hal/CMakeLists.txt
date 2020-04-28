@@ -60,6 +60,7 @@ target_link_libraries(hal.tests
   logger
   sandbox
   eptest
+  hal
 )
 
 add_test(

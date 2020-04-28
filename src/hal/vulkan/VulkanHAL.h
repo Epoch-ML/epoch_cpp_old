@@ -19,12 +19,14 @@ protected:
 	virtual ~VulkanHAL() override;
 
 public:
-	virtual RESULT Initialize() override;
+	virtual RESULT Initialize(const EPRef<SandboxProcess>& pSBProcess) override;
+
+	virtual HAL::type GetType() override {
+		return HAL::type::vulkan;
+	}
 
 private:
 
-private:
-	
 };
 
 
