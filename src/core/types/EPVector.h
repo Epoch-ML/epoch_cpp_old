@@ -98,6 +98,16 @@ public:
 		m_pBuffer_c(m_pBuffer_n)
 	{
 		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
+		for (int i = 0; i < m_pBuffer_c; i++)
+			m_pBuffer[i] = initValue;
+	}
+
+	EPVector(size_t initialSize) :
+		m_pBuffer_n(initialSize),
+		m_pBuffer_c(0)
+	{
+		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
+		memset(m_pBuffer, 0, m_pBuffer_n * sizeof(TStorage));
 	}
 
 	EPVector(const TStorage staticValueArray[], size_t staticValueArray_n) {
@@ -222,6 +232,10 @@ public:
 	const TStorage* GetCBuffer() const {
 		const TStorage* pData = (const TStorage*)m_pBuffer;
 		return pData;
+	}
+
+	TStorage* data() {
+		return m_pBuffer;
 	}
 
 	const TStorage& operator[](size_t index) const { 

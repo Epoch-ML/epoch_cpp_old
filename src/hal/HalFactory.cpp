@@ -2,7 +2,7 @@
 
 #include "hal/vulkan/VulkanHAL.h"
 
-EPRef<HAL> HALFactory::InternalMakeVulkan(EPRef<SandboxProcess> pSBProcess) {
+EPRef<HAL> HALFactory::InternalMakeVulkan(EPRef<SandboxWindowProcess> pSBWindowProcess) {
 	RESULT r = R::OK;
 
 	EPRef<HAL> pHAL = nullptr;
@@ -10,19 +10,21 @@ EPRef<HAL> HALFactory::InternalMakeVulkan(EPRef<SandboxProcess> pSBProcess) {
 	pHAL = new VulkanHAL();
 	CNM(pHAL, "Failed to allocate VulkanHAL");
 
+	CRM(pHAL->SetSBWindowProcess(pSBWindowProcess), "Failed to set sandbox window process for HAL");
+
 	// Initialize is handled in the process itself
-	CRM(pHAL->Initialize(pSBProcess), "Failed to initialize Win64SandboxWindowProcess");
+	CRM(pHAL->Initialize(), "Failed to initialize Win64SandboxWindowProcess");
 
 Error:
 	return pHAL;
 }
 
-EPRef<HAL> HALFactory::InternalMake(HAL::type halType, EPRef<SandboxProcess> pSBProcess) {
+EPRef<HAL> HALFactory::InternalMake(HAL::type halType, EPRef<SandboxWindowProcess> pSBWindowProcess) {
 	RESULT r = R::OK;
 
 	switch (halType) {
 	case HAL::type::vulkan: {
-			return HALFactory::InternalMakeVulkan(pSBProcess);
+			return HALFactory::InternalMakeVulkan(pSBWindowProcess);
 		} break;
 
 		default: {

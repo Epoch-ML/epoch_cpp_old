@@ -35,7 +35,8 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 	//CNM((pSBProcess = pSandbox->GetSandboxProcess(kWin64Console)), "Failed to create win64 sandbox console");
 	//CRM(pSBProcess->Run(), "Failed to run Win64 Window Console Process");
 
-	pVulkanHAL = HALFactory::make(halType, pSBProcess);
+	// TODO: 
+	pVulkanHAL = HALFactory::make(halType, EPRef<SandboxWindowProcess>(pSBProcess));
 	CNM(pVulkanHAL, "Failed to create VulkanHAL");
 
 

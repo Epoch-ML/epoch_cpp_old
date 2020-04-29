@@ -7,6 +7,7 @@
 // epoch/src/hal/vulkan/VulkanHAL.h
 
 #include "hal/hal.h"
+#include <vulkan/vulkan.h>
 
 class VulkanHAL :
 	public HAL
@@ -19,13 +20,20 @@ protected:
 	virtual ~VulkanHAL() override;
 
 public:
-	virtual RESULT Initialize(const EPRef<SandboxProcess>& pSBProcess) override;
+	virtual RESULT Initialize() override;
 
 	virtual HAL::type GetType() override {
 		return HAL::type::vulkan;
 	}
 
 private:
+	RESULT EnumerateInstanceExtensions();
+
+private:
+	VkInstance m_vkInstance;
+
+	uint32_t m_extensionCount = 0;
+	EPVector<VkExtensionProperties> m_extensions;
 
 };
 

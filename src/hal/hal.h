@@ -12,7 +12,7 @@
 #include "core/types/EPString.h"
 #include "core/types/EPRef.h"
 
-class SandboxProcess;
+class SandboxWindowProcess;
 
 class HAL : 
 	public EPObj
@@ -28,16 +28,31 @@ public:
 		return kHALTypes[static_cast<uint8_t>(halType)];
 	}
 
+	RESULT SetSBWindowProcess(const EPRef<SandboxWindowProcess>& pSBWindowProcess) {
+		RESULT r = R::OK;
+
+		CNM(pSBWindowProcess, "Setting a nullptr sandbox window process")
+
+		m_pSBWindowProcess = pSBWindowProcess;
+
+	Error:
+		return r;
+	}
+
+	const EPRef<SandboxWindowProcess>& GetSBWindowProcess() {
+		return const_cast<const EPRef<SandboxWindowProcess>&>(m_pSBWindowProcess);
+	}
+
 public:
 	HAL();
 	virtual ~HAL() override;
 
 	virtual HAL::type GetType() = 0;
-	virtual RESULT Initialize(const EPRef<SandboxProcess>&) = 0;
+	virtual RESULT Initialize() = 0;
 
 
 private:
-	// 
+	EPRef<SandboxWindowProcess> m_pSBWindowProcess = nullptr;
 };
 
 #endif // ! HAL_H_

@@ -6,16 +6,16 @@
 // epoch hal factory
 // epoch/src/sandbox/HALFactory.h
 
+#include "core/types/EPRef.h"
 # include "core/types/EPFactory.h"
 
 #include "sandbox/sandbox.h"
-#include "sandbox/SandboxProcess.h"
-#include "core/types/EPRef.h"
+#include "sandbox/SandboxWindowProcess.h"
 
 #include "hal/hal.h"
 
 class HALFactory :
-	public EPFactory<HALFactory, HAL, HAL::type, EPRef<SandboxProcess>>
+	public EPFactory<HALFactory, HAL, HAL::type, EPRef<SandboxWindowProcess>>
 {
 	friend EPFactory;
 
@@ -29,10 +29,10 @@ public:
 	}
 
 protected:
-	static EPRef<HAL> InternalMake(HAL::type halType, EPRef<SandboxProcess> pSBProcess);
+	static EPRef<HAL> InternalMake(HAL::type halType, EPRef<SandboxWindowProcess> pSBWindowProcess);
 
 private:
-	static EPRef<HAL> InternalMakeVulkan(EPRef<SandboxProcess> pSBProcess);
+	static EPRef<HAL> InternalMakeVulkan(EPRef<SandboxWindowProcess> pSBWindowProcess);
 };
 
 #endif // ! HAL_FACTORY_H_
