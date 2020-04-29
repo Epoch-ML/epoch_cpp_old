@@ -23,7 +23,9 @@ RESULT VulkanHAL::EnumerateInstanceExtensions() {
 	CBM(m_extensionCount != 0, "vkEnumerateInstanceExtensionProperties resulted in zero extensions");
 
 	m_extensions = EPVector<VkExtensionProperties>(m_extensionCount);
-	vkEnumerateInstanceExtensionProperties(nullptr, &m_extensionCount, m_extensions.data());
+	vkr = vkEnumerateInstanceExtensionProperties(nullptr, &m_extensionCount, m_extensions.data());
+	CBRM(RSUCCESS(vkr), (RESULT)(vkr), "vkEnumerateInstanceExtensionProperties failed: %s", VkErrorString(vkr));
+	CBM(m_extensionCount != 0, "vkEnumerateInstanceExtensionProperties resulted in zero extensions");
 
 Error:
 	return r;

@@ -50,20 +50,36 @@ public:
 		m_pEPObj(pObject),
 		m_pRefCounter(new ref_counter())
 	{
-		if (pObject != nullptr) {
+		if (m_pEPObj != nullptr) {
+			m_pRefCounter->operator++();
+		}
+	}
+
+	template <typename TOther>
+	explicit EPRef(TOther* pObject) :
+		m_pEPObj(dynamic_cast<TEPObj*>(pObject)),
+		m_pRefCounter(new ref_counter())
+	{
+		if (m_pEPObj != nullptr) {
 			m_pRefCounter->operator++();
 		}
 	}
 
 	// copy
-	EPRef(const EPRef& pEPObj) {
+	explicit EPRef(const EPRef& pEPObj) {
+		m_pEPObj = pEPObj.m_pEPObj;
+		m_pRefCounter = pEPObj.m_pRefCounter;
+		m_pRefCounter->operator++();
+	}
+
+	explicit EPRef(EPRef& pEPObj) {
 		m_pEPObj = pEPObj.m_pEPObj;
 		m_pRefCounter = pEPObj.m_pRefCounter;
 		m_pRefCounter->operator++();
 	}
 
 	// move
-	EPRef(EPRef&& pEPObj) {
+	explicit EPRef(EPRef&& pEPObj) {
 		m_pEPObj = pEPObj.m_pEPObj;
 		m_pRefCounter = pEPObj.m_pRefCounter;
 
@@ -78,7 +94,7 @@ public:
 	}
 
 	// Copy assignment
-	EPRef<TEPObj>& operator=(const EPRef& pEPObj) const {
+	EPRef<TEPObj>& operator=(const EPRef& pEPObj) {
 		if (m_pEPObj != pEPObj.m_pEPObj) {
 
 			m_pEPObj = pEPObj.m_pEPObj;
@@ -122,17 +138,17 @@ public:
 	// To other EPRef
 	template <class TOther>
 	EPRef(const EPRef<TOther>& pEPObj) {
-		m_pEPObj = static_cast<TEPObj>(pEPObj.m_pEPObj);
-		m_pRefCounter = pEPObj.m_pRefCounter;
+		m_pEPObj = (TEPObj*)(pEPObj.get());
+		m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
 		m_pRefCounter->operator++();
 	}
 
 	template <class TOther>
 	EPRef<TEPObj>& operator=(const EPRef<TOther>& pEPObj) const {
-		if (static_cast<ptrdiff_t>(m_pEPObj) != static_cast<ptrdiff_t>(pEPObj.m_pEPObj)) {
+		if ((ptrdiff_t)(m_pEPObj) != (ptrdiff_t)(pEPObj.m_pEPObj)) {
 
-			m_pEPObj = static_cast<TEPObj>(pEPObj.m_pEPObj);
-			m_pRefCounter = pEPObj.m_pRefCounter;
+			m_pEPObj = (TEPObj*)(pEPObj.get());
+			m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
 			m_pRefCounter->operator++();
 
 		}
@@ -142,10 +158,10 @@ public:
 
 	template <class TOther>
 	EPRef<TEPObj>& operator=(EPRef<TOther>& pEPObj) {
-		if (static_cast<ptrdiff_t>(m_pEPObj) != static_cast<ptrdiff_t>(pEPObj.m_pEPObj)) {
+		if ((ptrdiff_t)(m_pEPObj) != (ptrdiff_t)(pEPObj.m_pEPObj)) {
 
-			m_pEPObj = static_cast<TEPObj>(pEPObj.m_pEPObj);
-			m_pRefCounter = pEPObj.m_pRefCounter;
+			m_pEPObj = (TEPObj*)(pEPObj.get());
+			m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
 			m_pRefCounter->operator++();
 
 		}
@@ -155,9 +171,9 @@ public:
 
 	template <class TOther>
 	EPRef<TEPObj>& operator=(EPRef<TOther>&& pEPObj) {
-		if (static_cast<ptrdiff_t>(m_pEPObj) != static_cast<ptrdiff_t>(pEPObj.m_pEPObj)) {
-			m_pEPObj = static_cast<TEPObj>(pEPObj.m_pEPObj);
-			m_pRefCounter = pEPObj.m_pRefCounter;
+		if ((ptrdiff_t)(m_pEPObj) != (ptrdiff_t)(pEPObj.m_pEPObj)) {
+			m_pEPObj = (TEPObj*)(pEPObj.get());
+			m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
 
 			// This seems needed since the decrement is being called regardless
 			m_pRefCounter->operator++();
@@ -172,8 +188,8 @@ public:
 
 	template <class TOther>
 	EPRef(EPRef<TOther>&& pEPObj) {
-		m_pEPObj = static_cast<TEPObj>(pEPObj.m_pEPObj);
-		m_pRefCounter = pEPObj.m_pRefCounter;
+		m_pEPObj = (TEPObj*)(pEPObj.get());
+		m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
 
 		// We're adding and then deleting a reference 
 		// so I guess they cancel each other out
@@ -185,6 +201,25 @@ public:
 		pEPObj.m_pEPObj = nullptr;
 	}
 
+	template <class TOther>
+	EPRef<TEPObj>& operator=(TOther* pOther) {
+		if ((ptrdiff_t)(m_pEPObj) != (ptrdiff_t)(pOther)) {
+
+			m_pEPObj = dynamic_cast<TEPObj*>(pOther);
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter = new ref_counter(1);
+			}
+			else {
+				if (m_pRefCounter != nullptr) {
+					delete m_pRefCounter;
+					m_pRefCounter = nullptr;
+				}
+			}
+		}
+
+		return *this;
+	}
+
 	EPRef(std::nullptr_t) noexcept :
 		m_pEPObj(nullptr),
 		m_pRefCounter(nullptr)
@@ -192,22 +227,64 @@ public:
 		//
 	}
 
-	// TODO: Double check this
+	/*
+	// TODO: Double check these - do we ever really need to handle a TOther object
+	// that's not a TEPObj or EPRef<TOther> type scenario?
 	template <class TOther>
-	EPRef(const TOther &otherObj) {
-		if (m_pEPObj != otherObj) {
-			m_pEPObj = const_cast<TEPObj*>(otherObj);
-			m_pRefCounter = new ref_counter(1);
-		}
-	}
-
-	template <class TOther>
-	EPRef(TOther& otherObj) {
+	explicit EPRef(const TOther &otherObj) {
 		if (m_pEPObj != otherObj) {
 			m_pEPObj = static_cast<TEPObj*>(otherObj);
 			m_pRefCounter = new ref_counter(1);
 		}
 	}
+
+	template <class TOther>
+	explicit EPRef(TOther& otherObj) {
+		if (m_pEPObj != otherObj) {
+			m_pEPObj = static_cast<TEPObj*>(otherObj);
+			m_pRefCounter = new ref_counter(1);
+		}
+	}
+
+	template <class TOther>
+	EPRef<TEPObj>& operator=(const TOther &otherObj) {
+		if (m_pEPObj != (TEPObj*)(otherObj)) {
+
+			if (m_pEPObj != nullptr) {
+				DecrementCount();
+			}
+
+			m_pEPObj = static_cast<TEPObj*>(otherObj);
+
+			m_pRefCounter = new ref_counter();
+
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
+		}
+
+		return *this;
+	}
+
+	template <class TOther>
+	EPRef<TEPObj>& operator=(TOther& otherObj) {
+		if ((ptrdiff_t)(m_pEPObj) != (ptrdiff_t)(otherObj)) {
+			if (m_pEPObj != nullptr) {
+				DecrementCount();
+			}
+
+			m_pEPObj = (TEPObj*)(otherObj);
+
+			m_pRefCounter = new ref_counter();
+
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
+		}
+
+		return *this;
+	}
+	//*/
 
 	~EPRef() {
 		DecrementCount();
@@ -236,6 +313,9 @@ public:
 	Error:
 		return r;
 	}
+
+	ref_counter* get_ref_counter() { return m_pRefCounter; }
+	const ref_counter* get_ref_counter() const { return m_pRefCounter; }
 
 	TEPObj* get() { return m_pEPObj; }
 	const TEPObj* get() const { return m_pEPObj; }
@@ -284,45 +364,6 @@ public:
 		return *this;
 	}
 
-	template <class TOther>
-	EPRef<TEPObj>& operator=(const TOther &otherObj) {
-		if ((ptrdiff_t)(m_pEPObj) != const_cast<ptrdiff_t>(otherObj)) {
-
-			if (m_pEPObj != nullptr) {
-				DecrementCount();
-			}
-
-			m_pEPObj = static_cast<TEPObj*>(otherObj);
-			
-			m_pRefCounter = new ref_counter();
-
-			if (m_pEPObj != nullptr) {
-				m_pRefCounter->operator++();
-			}
-		}
-
-		return *this;
-	}
-
-	template <class TOther>
-	EPRef<TEPObj>& operator=(TOther& otherObj) {
-		if ((ptrdiff_t)(m_pEPObj) != (ptrdiff_t)(otherObj)) {
-			if (m_pEPObj != nullptr) {
-				DecrementCount();
-			}
-
-			m_pEPObj = (TEPObj*)(otherObj);
-			
-			m_pRefCounter = new ref_counter();
-
-			if (m_pEPObj != nullptr) {
-				m_pRefCounter->operator++();
-			}
-		}
-
-		return *this;
-	}
-
 	EPRef& operator=(std::nullptr_t) noexcept {
 		if (m_pEPObj != nullptr) {
 			DecrementCount();
@@ -334,7 +375,7 @@ public:
 		return *this;
 	}
 
-private:
+protected:
 	ref_counter* m_pRefCounter = nullptr;
 	TEPObj* m_pEPObj = nullptr;
 };

@@ -3,8 +3,10 @@
 
 #include "core/ehm/ehm.h"
 
-// epoch string class
-// epoch/src/core/types/EPString.h
+// epoch vulkan utilities
+// epoch/src/hal/vulkan/VulkanUtilities.h
+
+#include <vulkan/vulkan.h>
 
 const char* VkErrorString(VkResult vkr);
 

@@ -12,7 +12,7 @@
 #include "core/types/EPString.h"
 #include "core/types/EPRef.h"
 
-class SandboxWindowProcess;
+#include "sandbox/SandboxWindowProcess.h"
 
 class HAL : 
 	public EPObj
