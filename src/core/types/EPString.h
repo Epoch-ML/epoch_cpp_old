@@ -102,8 +102,36 @@ public:
 		}
 
 		return strcmp(pLeft, pRight) == 0;
+	}
 
-		return strcmp(c_str(), rhs.c_str()) == 0;
+	inline bool operator==(const TChar* pszCString) const {
+		auto pLeft = c_str();
+		auto pRight = pszCString;
+
+		if (pLeft == nullptr && pRight == nullptr) {
+			return false;
+		}
+		else if (pLeft == nullptr || pRight == nullptr) {
+			// One is nullptr but the other is not
+			return true;
+		}
+
+		return strcmp(pLeft, pRight) == 0;
+	}
+
+	inline bool operator==(TChar* pszCString) {
+		auto pLeft = c_str();
+		auto pRight = pszCString;
+
+		if (pLeft == nullptr && pRight == nullptr) {
+			return false;
+		}
+		else if (pLeft == nullptr || pRight == nullptr) {
+			// One is nullptr but the other is not
+			return true;
+		}
+
+		return strcmp(pLeft, pRight) == 0;
 	}
 
 	inline bool operator<(const EPString& rhs) const {

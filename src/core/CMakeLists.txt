@@ -39,6 +39,7 @@ add_executable(types.tests
   types/types.tests.cpp
   types/EPVector.tests.cpp
   types/EPString.tests.cpp
+  types/EPRef.tests.cpp
 )
 
 target_link_libraries(types.tests
