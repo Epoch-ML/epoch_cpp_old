@@ -17,15 +17,20 @@ VulkanHAL::~VulkanHAL() {
 RESULT VulkanHAL::EnumerateInstanceExtensions() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
+	int i = 0;
 
 	vkr = vkEnumerateInstanceExtensionProperties(nullptr, &m_extensionCount, nullptr);
 	CBRM(RSUCCESS(vkr), (RESULT)(vkr), "vkEnumerateInstanceExtensionProperties failed: %s", VkErrorString(vkr));
 	CBM(m_extensionCount != 0, "vkEnumerateInstanceExtensionProperties resulted in zero extensions");
 
 	m_extensions = EPVector<VkExtensionProperties>(m_extensionCount);
-	vkr = vkEnumerateInstanceExtensionProperties(nullptr, &m_extensionCount, m_extensions.data());
+	vkr = vkEnumerateInstanceExtensionProperties(nullptr, &m_extensionCount, m_extensions.data(m_extensionCount));
 	CBRM(RSUCCESS(vkr), (RESULT)(vkr), "vkEnumerateInstanceExtensionProperties failed: %s", VkErrorString(vkr));
 	CBM(m_extensionCount != 0, "vkEnumerateInstanceExtensionProperties resulted in zero extensions");
+
+	for (auto& extension : m_extensions) {
+		DEBUG_LINEOUT("%d: v%d %s", ++i, extension.specVersion, extension.extensionName);
+	}
 
 Error:
 	return r;
@@ -61,8 +66,10 @@ RESULT VulkanHAL::Initialize() {
 	vkInstanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	vkInstanceCreateInfo.pApplicationInfo = &vkApplicationInfo;
 	
-	vkInstanceCreateInfo.enabledExtensionCount = m_extensionCount;
-	//vkInstanceCreateInfo.ppEnabledExtensionNames = (const char **)(m_extensions.GetCBuffer());
+	// TODO: 
+	vkInstanceCreateInfo.enabledExtensionCount = 0;
+	vkInstanceCreateInfo.ppEnabledExtensionNames = nullptr;
+
 	vkInstanceCreateInfo.ppEnabledExtensionNames = nullptr;
 	
 	vkInstanceCreateInfo.enabledLayerCount = 0;

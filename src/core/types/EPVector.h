@@ -238,6 +238,14 @@ public:
 		return m_pBuffer;
 	}
 
+	TStorage* data(size_t counterSetValue) {
+		if (counterSetValue > m_pBuffer_n)
+			return nullptr;
+
+		m_pBuffer_c = counterSetValue;
+		return m_pBuffer;
+	}
+
 	const TStorage& operator[](size_t index) const { 
 		return m_pBuffer[index]; 
 	}
