@@ -8,11 +8,6 @@
 
 #include <string>
 
-// Require Extensions
-EPTuple<int, const char*> VulkanHAL::k_requiredVKExtensions[] = {
-	{VK_KHR_surface, VK_KHR_SURFACE_EXTENSION_NAME}
-};
-
 VulkanHAL::VulkanHAL() {
 	//
 }
@@ -26,6 +21,7 @@ RESULT VulkanHAL::EnumerateInstanceExtensions() {
 	VkResult vkr = VK_SUCCESS;
 
 	int i = 0;
+	int count = 0;
 
 	CVKRM(vkEnumerateInstanceExtensionProperties(nullptr, &m_vkEnumeratedExtensionCount, nullptr), 
 		"vkEnumerateInstanceExtensionProperties failed: %s", VkErrorString(vkr));
@@ -40,15 +36,7 @@ RESULT VulkanHAL::EnumerateInstanceExtensions() {
 		DEBUG_LINEOUT("%d: v%d %s", ++i, extension.specVersion, extension.extensionName);
 	}
 
-Error:
-	return r;
-}
-
-RESULT VulkanHAL::AddRequiredInstanceExtensions() {
-	RESULT r = R::OK;
-	int count = 0;
-
-	for (auto& reqExtension : k_requiredVKExtensions) {
+	for (auto& reqExtension : m_RequiredExtensions) {
 		bool fFound = false;
 		for (auto& extension : m_vkEnumeratedExtensions) {
 			if (strcmp(reqExtension.get<1, const char*>(), extension.extensionName) == 0) {
@@ -67,6 +55,37 @@ Error:
 	return r;
 }
 
+RESULT VulkanHAL::EnumerateValidationLayers() {
+	RESULT r = R::OK;
+
+	if (m_fEnableValidationLayers == false)
+		return R::OK;
+
+	CVKRM(vkEnumerateInstanceLayerProperties(&m_vkValidationLayerCount, nullptr), 
+		"vkEnumerateInstanceLayerProperties failed");
+
+	m_vkAvailableValidationLayers = EPVector<VkLayerProperties>(m_vkValidationLayerCount);
+	CVKRM(vkEnumerateInstanceLayerProperties(&m_vkValidationLayerCount, m_vkAvailableValidationLayers.data()),
+		"vkEnumerateInstanceLayerProperties failed");
+
+	// Ensure all layers are there
+	for (auto& szLayerName : m_vkRequiredValidationLayers) {
+		bool fFound = false;
+
+		for (const auto& layerProperties : m_vkAvailableValidationLayers) {
+			if (strcmp(szLayerName, layerProperties.layerName) == 0) {
+				fFound = true;
+				break;
+			}
+		}
+
+		CBM(fFound, "Failed to find validation layer %s", szLayerName);
+	}
+
+Error:
+	return r;
+}
+
 RESULT VulkanHAL::Initialize() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
@@ -77,7 +96,7 @@ RESULT VulkanHAL::Initialize() {
 	CNM(pSBWindowProcess, "Initialization needs a valid sandbox window process");
 
 	CRM(EnumerateInstanceExtensions(), "Failed to enumerate VK extensions");
-	CRM(AddRequiredInstanceExtensions(), "Failed to add required VK extensions");
+	CRM(EnumerateValidationLayers(), "Failed to Enumerate Validation Layers");
 
 	DEBUG_LINEOUT("Extensions Supported: %d", m_vkEnumeratedExtensionCount);
 

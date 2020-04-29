@@ -30,22 +30,42 @@ public:
 	}
 
 private:
-	static EPTuple<int, const char*> k_requiredVKExtensions[];
+// Instance Extensions
+	const EPVector<EPTuple<int, const char*>> m_RequiredExtensions = {
+		{VK_KHR_surface, VK_KHR_SURFACE_EXTENSION_NAME}
+	};
 
 	RESULT EnumerateInstanceExtensions();
-	RESULT AddRequiredInstanceExtensions();
+
+// Validation Layers
+	const EPVector<const char*> m_vkRequiredValidationLayers = {
+		"VK_LAYER_KHRONOS_validation"
+	};
+
+	RESULT EnumerateValidationLayers();
+
 
 private:
 	VkInstance m_vkInstance;
+	VkApplicationInfo m_vkApplicationInfo = {};
+	VkInstanceCreateInfo m_vkInstanceCreateInfo = {};
 
+// Instance Extensions
 	uint32_t m_vkEnumeratedExtensionCount = 0;
 	EPVector<VkExtensionProperties> m_vkEnumeratedExtensions;
 
 	EPVector<VkExtensionProperties> m_vkExtensions;
 	const char* m_vkExtensionNames[64] = { 0 };		// TODO: not a huge fan of the duplication here
 
-	VkApplicationInfo m_vkApplicationInfo = {};
-	VkInstanceCreateInfo m_vkInstanceCreateInfo = {};
+// Validation Layers
+	uint32_t m_vkValidationLayerCount;
+	EPVector<VkLayerProperties> m_vkAvailableValidationLayers;
+
+#ifdef NDEBUG
+	const bool m_fEnableValidationLayers = false;
+#else
+	const bool m_fEnableValidationLayers = true;
+#endif
 };
 
 
