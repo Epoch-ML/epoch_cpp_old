@@ -146,6 +146,9 @@ inline const char* CMP_STR(size_t lhs, size_t rhs) {
 	else return C_ORANGE("greater than");
 }
 
+#define CSTR(X) #X
+#define WSTR(X) L"##X"
+
 #define DEBUG_CMP(label, lhsname, lhs, rhsname, rhs, pct) do{ DEBUG_LINEOUT("%s: %s: %zu %s %s: %zu - %d%%", label, lhsname, lhs, CMP_STR(lhs, rhs), rhsname, rhs, pct); } while(0);
 
 // check result value

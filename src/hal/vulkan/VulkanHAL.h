@@ -9,6 +9,8 @@
 #include "hal/hal.h"
 #include <vulkan/vulkan.h>
 
+#include "core/types/EPTuple.h"
+
 class VulkanHAL :
 	public HAL
 {
@@ -21,20 +23,29 @@ protected:
 
 public:
 	virtual RESULT Initialize() override;
+	virtual RESULT Kill() override;
 
 	virtual HAL::type GetType() override {
 		return HAL::type::vulkan;
 	}
 
 private:
+	static EPTuple<int, const char*> k_requiredVKExtensions[];
+
 	RESULT EnumerateInstanceExtensions();
+	RESULT AddRequiredInstanceExtensions();
 
 private:
 	VkInstance m_vkInstance;
 
-	uint32_t m_extensionCount = 0;
-	EPVector<VkExtensionProperties> m_extensions;
+	uint32_t m_vkEnumeratedExtensionCount = 0;
+	EPVector<VkExtensionProperties> m_vkEnumeratedExtensions;
 
+	EPVector<VkExtensionProperties> m_vkExtensions;
+	const char* m_vkExtensionNames[64] = { 0 };		// TODO: not a huge fan of the duplication here
+
+	VkApplicationInfo m_vkApplicationInfo = {};
+	VkInstanceCreateInfo m_vkInstanceCreateInfo = {};
 };
 
 

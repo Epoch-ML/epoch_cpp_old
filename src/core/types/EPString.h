@@ -16,7 +16,7 @@
 // TODO: expand to wide string as well
 
 template <typename TChar>
-class EPString : public EPObj {
+class EPString {
 public:
 	// TODO: Maybe make this more general
 	struct compare_LT {

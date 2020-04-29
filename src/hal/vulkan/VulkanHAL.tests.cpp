@@ -46,6 +46,8 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 	//}
 
 
+	CRM(pVulkanHAL->Kill(), "Failed to kill VulkanHAL");
+
 Error:
 	return r;
 }

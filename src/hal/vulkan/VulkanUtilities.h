@@ -8,6 +8,11 @@
 
 #include <vulkan/vulkan.h>
 
+// Extend the EHM for VK a bit
+
+#define CVKR(vkr) CR((RESULT)(vkr))
+#define CVKRM(vkr, msg, ...) CRM((RESULT)(vkr), msg, ##__VA_ARGS__)
+
 const char* VkErrorString(VkResult vkr);
 
 #endif // !VULKAN_UTILITIES_H_

@@ -51,11 +51,11 @@ public:
 
 	class const_iterator : public iterator {
 	public:
-		const_iterator(TStorage* pValue) noexcept : m_pValue(pValue) {}
+		const_iterator(TStorage* pValue) noexcept : iterator(pValue) {}
 		TStorage& operator*() { return (*m_pValue); }
 		TStorage* operator->() { return m_pValue; }
-		bool operator==(const iterator& rhs) { return m_pValue == rhs.m_pValue; }
-		bool operator!=(const iterator& rhs) { return m_pValue != rhs.m_pValue; }
+		bool operator==(const const_iterator& rhs) { return m_pValue == rhs.m_pValue; }
+		bool operator!=(const const_iterator& rhs) { return m_pValue != rhs.m_pValue; }
 	};
 
 	iterator begin() noexcept { 
@@ -280,7 +280,7 @@ private:
 		}
 
 		memcpy(&m_pBuffer[1], m_pBuffer, m_pBuffer_c * sizeof(TStorage));
-		m_pBuffer[0] = 0;
+		memset(&m_pBuffer[0], 0, sizeof(TStorage));
 
 		m_pBuffer_c++;
 

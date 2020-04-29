@@ -49,6 +49,7 @@ public:
 
 	virtual HAL::type GetType() = 0;
 	virtual RESULT Initialize() = 0;
+	virtual RESULT Kill() = 0;
 
 
 private:
