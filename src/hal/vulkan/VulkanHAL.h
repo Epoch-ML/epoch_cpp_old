@@ -99,11 +99,12 @@ private:
 	VkPhysicalDeviceProperties m_vkPhysicalDeviceProperties;
 
 // Logical Device
-	VkDeviceQueueCreateInfo m_vkDeviceQueueCreateInfo{};
+	EPVector<VkDeviceQueueCreateInfo> m_vkDeviceQueueCreateInfos;
 	VkDeviceCreateInfo m_vkDeviceCreateInfo{};
 
 	VkDevice m_vkLogicalDevice = nullptr;
-	VkQueue m_vkQueueHandle = nullptr;
+	VkQueue m_vkGraphicsQueueHandle = nullptr;
+	VkQueue m_vkPresentationQueueHandle = nullptr;
 
 // Window Surface
 	VkSurfaceKHR m_vkSurface = nullptr;

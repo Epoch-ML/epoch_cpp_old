@@ -305,8 +305,11 @@ RESULT VulkanHAL::InitializeLogicalDevice() {
 	// TODO: Wrap up in LogicalDevice object or something like that
 
 	EPVector<VkQueueFamilyProperties> vkQueueFamilyProperties;
-	uint32_t graphicsFamilyQueueIndex = 0;
+	uint32_t familyQueueIndex = 0;
+	int32_t graphicsFamilyQueueIndex = -1;
+	int32_t presentFamilyQueueIndex = -1;
 	bool fFoundQueueFamily = false;
+	EPVector<int32_t> familyQueueIndexes;
 
 	CNM(m_vkPhysicalDevice, "Cannot initialize logical device without a valid physical device");
 
@@ -315,27 +318,50 @@ RESULT VulkanHAL::InitializeLogicalDevice() {
 
 	for (auto& family : vkQueueFamilyProperties) {
 		if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			fFoundQueueFamily = true;
-			break;
+			if (graphicsFamilyQueueIndex == -1)
+				graphicsFamilyQueueIndex = familyQueueIndex;
 		}
-		graphicsFamilyQueueIndex++;
+
+		VkBool32 fPresentationSupport = false;
+		CVKRM(vkGetPhysicalDeviceSurfaceSupportKHR(m_vkPhysicalDevice, graphicsFamilyQueueIndex, m_vkSurface, &fPresentationSupport),
+			"Failed to get PhysicalDeviceSurfaceSupport");
+
+		if (fPresentationSupport == (VkBool32)(true)) {
+			if(presentFamilyQueueIndex == -1)
+				presentFamilyQueueIndex = familyQueueIndex;
+		}
+
+		familyQueueIndex++;
 	}
 
-	CBM(fFoundQueueFamily, "Failed to find graphics queue");
+	CBM(graphicsFamilyQueueIndex >= 0, "Failed to find graphics queue");
+	CBM(presentFamilyQueueIndex >= 0, "Failed to find surface presentation queue");
 
-	m_vkDeviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	m_vkDeviceQueueCreateInfo.queueFamilyIndex = graphicsFamilyQueueIndex;
-	m_vkDeviceQueueCreateInfo.queueCount = 1;
+	// TODO: this should be more dynamic (above in particular)
+	familyQueueIndexes.PushBack(graphicsFamilyQueueIndex);
+	if(graphicsFamilyQueueIndex != presentFamilyQueueIndex)
+		familyQueueIndexes.PushBack(presentFamilyQueueIndex);
+	 
+	for (auto& queueFamilyIndex : familyQueueIndexes) {
+
+		VkDeviceQueueCreateInfo vkDeviceQueueCreateInfo = {};
+
+		vkDeviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		vkDeviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
+		vkDeviceQueueCreateInfo.queueCount = 1;
+		
+		float queuePriority;
+		queuePriority = 1.0f;
+		vkDeviceQueueCreateInfo.pQueuePriorities = &queuePriority;
+
+		m_vkDeviceQueueCreateInfos.PushBack(vkDeviceQueueCreateInfo);
+	}
 	
-	float queuePriority;
-	queuePriority = 1.0f;
-	m_vkDeviceQueueCreateInfo.pQueuePriorities = &queuePriority;
-
 	// VkDeviceCreateInfo
 
 	m_vkDeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	m_vkDeviceCreateInfo.pQueueCreateInfos = &m_vkDeviceQueueCreateInfo;
-	m_vkDeviceCreateInfo.queueCreateInfoCount = 1;
+	m_vkDeviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(m_vkDeviceQueueCreateInfos.size());
+	m_vkDeviceCreateInfo.pQueueCreateInfos = m_vkDeviceQueueCreateInfos.data();
 	m_vkDeviceCreateInfo.pEnabledFeatures = &m_vkPhysicalDeviceFeatures;
 
 	m_vkDeviceCreateInfo.enabledExtensionCount = 0;
@@ -353,8 +379,12 @@ RESULT VulkanHAL::InitializeLogicalDevice() {
 		"Failed to create logitcal device");
 	CNM(m_vkLogicalDevice, "Failed to create logical vulkan device");
 
-	vkGetDeviceQueue(m_vkLogicalDevice, graphicsFamilyQueueIndex, 0, &m_vkQueueHandle);
-	CNM(m_vkQueueHandle, "Failed to retrieve queue handle");
+	// TODO: If the family queue index is the same the handle is equivalent
+	vkGetDeviceQueue(m_vkLogicalDevice, graphicsFamilyQueueIndex, 0, &m_vkGraphicsQueueHandle);
+	CNM(m_vkGraphicsQueueHandle, "Failed to retrieve graphics queue handle");
+
+	vkGetDeviceQueue(m_vkLogicalDevice, presentFamilyQueueIndex, 0, &m_vkPresentationQueueHandle);
+	CNM(m_vkPresentationQueueHandle, "Failed to retrieve presentation queue handle");
 
 Error:
 	return r;
