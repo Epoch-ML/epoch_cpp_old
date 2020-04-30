@@ -88,8 +88,15 @@ private:
 	EPVector<VkPhysicalDevice> m_vkAvailablePhysicalDevices;
 	EPVector<VkPhysicalDevice> m_vkSuitablePhysicalDevices;
 	VkPhysicalDevice m_vkPhysicalDevice = VK_NULL_HANDLE;
+	VkPhysicalDeviceFeatures m_vkPhysicalDeviceFeatures{};
+	VkPhysicalDeviceProperties m_vkPhysicalDeviceProperties;
 
 // Logical Device
+	VkDeviceQueueCreateInfo m_vkDeviceQueueCreateInfo{};
+	VkDeviceCreateInfo m_vkDeviceCreateInfo{};
+
+	VkDevice m_vkLogicalDevice = VK_NULL_HANDLE;
+	VkQueue m_vkQueueHandle = VK_NULL_HANDLE;
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

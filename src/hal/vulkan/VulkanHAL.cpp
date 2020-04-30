@@ -122,8 +122,15 @@ RESULT VulkanHAL::Kill() {
 			"Failed to destroy debug messenger");
 	}
 
-	vkDestroyInstance(m_vkInstance, nullptr);
-	m_vkInstance = nullptr;
+	if (m_vkLogicalDevice != nullptr) {
+		vkDestroyDevice(m_vkLogicalDevice, nullptr);
+		m_vkLogicalDevice = nullptr;
+	}
+
+	if (m_vkInstance != nullptr) {
+		vkDestroyInstance(m_vkInstance, nullptr);
+		m_vkInstance = nullptr;
+	}
 
 Error:
 	return r;
@@ -275,6 +282,10 @@ RESULT VulkanHAL::InitializePhysicalDevice() {
 	// or choose more wisely
 	m_vkPhysicalDevice = m_vkSuitablePhysicalDevices[0];
 
+	CNM(m_vkPhysicalDevice, "Physical device cannot be null");
+	
+	vkGetPhysicalDeviceProperties(m_vkPhysicalDevice, &m_vkPhysicalDeviceProperties);
+	vkGetPhysicalDeviceFeatures(m_vkPhysicalDevice, &m_vkPhysicalDeviceFeatures);
 
 Error:
 	return r;
@@ -283,6 +294,60 @@ Error:
 RESULT VulkanHAL::InitializeLogicalDevice() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
+	
+	// TODO: Wrap up in LogicalDevice object or something like that
+
+	EPVector<VkQueueFamilyProperties> vkQueueFamilyProperties;
+	uint32_t graphicsFamilyQueueIndex = 0;
+	bool fFoundQueueFamily = false;
+
+	CNM(m_vkPhysicalDevice, "Cannot initialize logical device without a valid physical device");
+
+	vkQueueFamilyProperties = EnumerateVKPhysicalDeviceQueueFamilies(m_vkPhysicalDevice);
+	CBM(vkQueueFamilyProperties.size() != 0, "Failed to enumerate physical device queue families");
+
+	for (auto& family : vkQueueFamilyProperties) {
+		if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			fFoundQueueFamily = true;
+			break;
+		}
+		graphicsFamilyQueueIndex++;
+	}
+
+	CBM(fFoundQueueFamily, "Failed to find graphics queue");
+
+	m_vkDeviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	m_vkDeviceQueueCreateInfo.queueFamilyIndex = graphicsFamilyQueueIndex;
+	m_vkDeviceQueueCreateInfo.queueCount = 1;
+	
+	float queuePriority;
+	queuePriority = 1.0f;
+	m_vkDeviceQueueCreateInfo.pQueuePriorities = &queuePriority;
+
+	// VkDeviceCreateInfo
+
+	m_vkDeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	m_vkDeviceCreateInfo.pQueueCreateInfos = &m_vkDeviceQueueCreateInfo;
+	m_vkDeviceCreateInfo.queueCreateInfoCount = 1;
+	m_vkDeviceCreateInfo.pEnabledFeatures = &m_vkPhysicalDeviceFeatures;
+
+	m_vkDeviceCreateInfo.enabledExtensionCount = 0;
+
+	if (m_fEnableValidationLayers) {
+		m_vkDeviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_vkValidationLayers.size());
+		m_vkDeviceCreateInfo.ppEnabledLayerNames = m_vkValidationLayerNames;
+	}
+	else {
+		m_vkDeviceCreateInfo.enabledLayerCount = 0;
+		m_vkDeviceCreateInfo.ppEnabledLayerNames = nullptr;
+	}
+
+	CVKRM(vkCreateDevice(m_vkPhysicalDevice, &m_vkDeviceCreateInfo, nullptr, &m_vkLogicalDevice),
+		"Failed to create logitcal device");
+	CNM(m_vkLogicalDevice, "Failed to create logical vulkan device");
+
+	vkGetDeviceQueue(m_vkLogicalDevice, graphicsFamilyQueueIndex, 0, &m_vkQueueHandle);
+	CNM(m_vkQueueHandle, "Failed to retrieve queue handle");
 
 Error:
 	return r;
