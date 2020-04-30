@@ -35,6 +35,7 @@ public:
 		ref_counter& operator=(ref_counter&&) = delete;
 
 		void reset() { m_count = 0; }
+		const unsigned get() const { return m_count; }
 		unsigned get() { return m_count; }
 
 		void operator++() { m_count++; }

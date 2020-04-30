@@ -35,6 +35,10 @@ public:
 		return m_value;
 	}
 
+	//const T& get() const {
+	//	return m_value;
+	//}
+
 private:
 	T m_value;
 };
@@ -89,6 +93,11 @@ public:
 	GType& get() {
 		return static_cast<tuple_implementation<index, GType>*>(this)->get();
 	}
+
+	//template <size_t index, typename GType>
+	//GType& get() const {
+	//	return static_cast<tuple_implementation<index, GType>*>(this)->get();
+	//}
 
 private:
 	

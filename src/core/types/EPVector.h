@@ -243,6 +243,10 @@ public:
 		return pData;
 	}
 
+	bool empty() {
+		return (m_pBuffer_c == 0);
+	}
+
 	TStorage* data() {
 		return m_pBuffer;
 	}

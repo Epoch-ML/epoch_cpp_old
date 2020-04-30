@@ -36,7 +36,7 @@ RESULT VulkanHAL::EnumerateInstanceExtensions() {
 		DEBUG_LINEOUT("%d: v%d %s", ++i, extension.specVersion, extension.extensionName);
 	}
 
-	for (auto& reqExtension : m_RequiredExtensions) {
+	for (auto& reqExtension : m_RequiredInstanceExtensions) {
 		bool fFound = false;
 		for (auto& extension : m_vkEnumeratedExtensions) {
 			if (strcmp(reqExtension.get<1, const char*>(), extension.extensionName) == 0) {
@@ -215,6 +215,48 @@ Error:
 	return vkPhysicalDeviceQueueFamilies;
 }
 
+bool VulkanHAL::CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice) {
+	RESULT r = R::OK;
+
+	uint32_t vkPhysicalDeviceExtensionCount;
+	CVKRM(vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, nullptr, &vkPhysicalDeviceExtensionCount, nullptr),
+		"Failed to enumerate physical device extensions");
+
+	EPVector<VkExtensionProperties> vkAvailablePhysicaDeviceExtensions(vkPhysicalDeviceExtensionCount);
+
+	CVKRM(vkEnumerateDeviceExtensionProperties(
+		vkPhysicalDevice,
+		nullptr,
+		&vkPhysicalDeviceExtensionCount,
+		vkAvailablePhysicaDeviceExtensions.data(vkPhysicalDeviceExtensionCount)),
+	"Failed to enumerate physical device extensions");
+
+	// Make sure all required extensions are in the supported physical device extensions
+	EPVector<VkExtensionProperties> vkRequiredPhyscalDeviceExtensions = m_vkExtensions;
+	for (auto& vkRequiredPhysicalDeviceExtension : m_RequiredPhysicalDeviceExtensions) {
+		bool fFound = false;
+
+		for (auto& vkPhysicalDeviceExtension : vkAvailablePhysicaDeviceExtensions) {
+			if (strcmp(vkPhysicalDeviceExtension.extensionName, vkRequiredPhysicalDeviceExtension.get<1, const char*>()) == 0) {
+				fFound = true;
+				break;
+			}
+		}
+
+		if (fFound == false) {
+			DEBUG_LINEOUT("Required extension: %s not found in physical device", 
+				vkRequiredPhysicalDeviceExtension.get<1, const char*>());
+			return false;
+		}
+	}
+
+Success:
+	return true;
+
+Error:
+	return false;
+}
+
 // TODO: We might want to keep this data 
 bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 	VkPhysicalDeviceProperties vkPhysicalDeviceProperties;
@@ -222,7 +264,6 @@ bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 
 	vkGetPhysicalDeviceProperties(vkPhysicalDevice, &vkPhysicalDeviceProperties);
 	vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
-
 
 	if (vkPhysicalDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 		return false;
@@ -244,6 +285,10 @@ bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 	}
 
 	if (fFoundQueueGraphicsBit == false)
+		return false;
+
+	// Check extension support
+	if (CheckPhysicalDeviceExtensionSupport(vkPhysicalDevice) == false) 
 		return false;
 
 	return true;

@@ -33,10 +33,10 @@ public:
 	}
 
 private:
-// Instance Extensions
+// Instance 
 	RESULT InitializeInstance();
 
-	const EPVector<EPTuple<int, const char*>> m_RequiredExtensions = {
+	const EPVector<EPTuple<int, const char*>> m_RequiredInstanceExtensions = {
 		{VK_KHR_surface, VK_KHR_SURFACE_EXTENSION_NAME},
 		{VK_KHR_win32_surface, VK_KHR_WIN32_SURFACE_EXTENSION_NAME},
 		{VK_EXT_debug_utils, VK_EXT_DEBUG_UTILS_EXTENSION_NAME}
@@ -52,8 +52,14 @@ private:
 	RESULT EnumerateValidationLayers();
 
 // Physical Device
+	const EPVector<EPTuple<int, const char*>> m_RequiredPhysicalDeviceExtensions = {
+		{VK_KHR_swapchain, VK_KHR_SWAPCHAIN_EXTENSION_NAME}
+	};
+
 	RESULT EnumeratePhysicalDevices();
 	RESULT InitializePhysicalDevice();
+
+	bool CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
 	bool IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice);
 	EPVector<VkQueueFamilyProperties> EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
 
