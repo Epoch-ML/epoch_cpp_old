@@ -106,6 +106,8 @@ RESULT VulkanHAL::Initialize() {
 
 	CRM(InitializeDebugMessenger(true), "Failed to initialize Debug Messenger");
 
+	CRM(InitializeWindowSurface(), "Failed to initialize window surface");
+
 	CRM(InitializePhysicalDevice(), "Failed to initialize physical device");
 
 	CRM(InitializeLogicalDevice(), "Failed to initialize physical device");
@@ -125,6 +127,11 @@ RESULT VulkanHAL::Kill() {
 	if (m_vkLogicalDevice != nullptr) {
 		vkDestroyDevice(m_vkLogicalDevice, nullptr);
 		m_vkLogicalDevice = nullptr;
+	}
+
+	if (m_vkSurface != nullptr) {
+		vkDestroySurfaceKHR(m_vkInstance, m_vkSurface, nullptr);
+		m_vkSurface = nullptr;
 	}
 
 	if (m_vkInstance != nullptr) {
@@ -348,6 +355,21 @@ RESULT VulkanHAL::InitializeLogicalDevice() {
 
 	vkGetDeviceQueue(m_vkLogicalDevice, graphicsFamilyQueueIndex, 0, &m_vkQueueHandle);
 	CNM(m_vkQueueHandle, "Failed to retrieve queue handle");
+
+Error:
+	return r;
+}
+
+RESULT VulkanHAL::InitializeWindowSurface() {
+	RESULT r = R::OK;
+	VkResult vkr = VK_SUCCESS;
+
+	m_vkWin32SurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	m_vkWin32SurfaceCreateInfo.hwnd = (HWND)(GetSBWindowProcess()->GetNativeWindowHandle());
+	m_vkWin32SurfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
+
+	CVKRM(vkCreateWin32SurfaceKHR(m_vkInstance, &m_vkWin32SurfaceCreateInfo, nullptr, &m_vkSurface),
+		"Failed to create win32 windows surface");
 
 Error:
 	return r;

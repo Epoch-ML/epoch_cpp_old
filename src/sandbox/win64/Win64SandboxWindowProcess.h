@@ -31,6 +31,10 @@ public:
 
 	rectangle<int> GetScreenDimensions();
 
+	virtual intptr_t GetNativeWindowHandle() const override {
+		return reinterpret_cast<intptr_t>(m_hWindowHandle);
+	}
+
 private:
 	LRESULT CALLBACK WndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK StaticWndProc(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lParam);

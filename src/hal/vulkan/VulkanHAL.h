@@ -11,6 +11,9 @@
 
 #include "core/types/EPTuple.h"
 
+// TODO: split off the platform specific implementation
+#include <vulkan/vulkan_win32.h>
+
 class VulkanHAL :
 	public HAL
 {
@@ -35,6 +38,7 @@ private:
 
 	const EPVector<EPTuple<int, const char*>> m_RequiredExtensions = {
 		{VK_KHR_surface, VK_KHR_SURFACE_EXTENSION_NAME},
+		{VK_KHR_win32_surface, VK_KHR_WIN32_SURFACE_EXTENSION_NAME},
 		{VK_EXT_debug_utils, VK_EXT_DEBUG_UTILS_EXTENSION_NAME}
 	};
 
@@ -55,6 +59,9 @@ private:
 
 // Logical Device
 	RESULT InitializeLogicalDevice();
+
+// Window Surface
+	RESULT InitializeWindowSurface();
 
 // Debugging
 	RESULT InitializeDebugMessenger(bool fCreate);
@@ -87,7 +94,7 @@ private:
 	uint32_t m_vkPhysicalDeviceCount = 0;
 	EPVector<VkPhysicalDevice> m_vkAvailablePhysicalDevices;
 	EPVector<VkPhysicalDevice> m_vkSuitablePhysicalDevices;
-	VkPhysicalDevice m_vkPhysicalDevice = VK_NULL_HANDLE;
+	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkPhysicalDeviceFeatures m_vkPhysicalDeviceFeatures{};
 	VkPhysicalDeviceProperties m_vkPhysicalDeviceProperties;
 
@@ -95,8 +102,12 @@ private:
 	VkDeviceQueueCreateInfo m_vkDeviceQueueCreateInfo{};
 	VkDeviceCreateInfo m_vkDeviceCreateInfo{};
 
-	VkDevice m_vkLogicalDevice = VK_NULL_HANDLE;
-	VkQueue m_vkQueueHandle = VK_NULL_HANDLE;
+	VkDevice m_vkLogicalDevice = nullptr;
+	VkQueue m_vkQueueHandle = nullptr;
+
+// Window Surface
+	VkSurfaceKHR m_vkSurface = nullptr;
+	VkWin32SurfaceCreateInfoKHR m_vkWin32SurfaceCreateInfo = {};
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

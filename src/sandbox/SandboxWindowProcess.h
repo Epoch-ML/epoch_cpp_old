@@ -28,6 +28,8 @@ public:
 	virtual RESULT Show() = 0;
 	virtual RESULT Hide() = 0;
 
+	virtual intptr_t GetNativeWindowHandle() const = 0;
+
 public:
 	RESULT SetDimensions(int pxWidth, int pxHeight) {
 		m_rectDimensions = { pxWidth, pxHeight };
