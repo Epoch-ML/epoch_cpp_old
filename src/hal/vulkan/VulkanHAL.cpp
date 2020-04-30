@@ -175,6 +175,32 @@ Error:
 	return r;
 }
 
+// Note: this operates on the current physical device
+// TODO: we want to collect all of these things and put them into logical objects so the 
+// HAL is operating on them vs. calling all of this directly
+EPVector<VkQueueFamilyProperties> VulkanHAL::EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice) {
+	RESULT r = R::OK;
+	VkResult vkr = VK_SUCCESS;
+	uint32_t queueFamilyCount = 0;
+	EPVector<VkQueueFamilyProperties> vkPhysicalDeviceQueueFamilies;
+
+	CNM(vkPhysicalDevice, "Cannot enumerate queue families without a valid physical device");
+
+	vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, nullptr);
+
+	CBM(queueFamilyCount != 0, "Failed to find any queue families");
+
+	vkPhysicalDeviceQueueFamilies = EPVector<VkQueueFamilyProperties>(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(
+		vkPhysicalDevice,
+		&queueFamilyCount,
+		vkPhysicalDeviceQueueFamilies.data(queueFamilyCount)
+	);
+
+Error:
+	return vkPhysicalDeviceQueueFamilies;
+}
+
 // TODO: We might want to keep this data 
 bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 	VkPhysicalDeviceProperties vkPhysicalDeviceProperties;
@@ -183,9 +209,32 @@ bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 	vkGetPhysicalDeviceProperties(vkPhysicalDevice, &vkPhysicalDeviceProperties);
 	vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
 
-	return vkPhysicalDeviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
-		vkPhysicalDeviceFeatures.geometryShader;
+
+	if (vkPhysicalDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+		return false;
+
+	if (vkPhysicalDeviceFeatures.geometryShader == false) 
+		return false;
+
+	auto queueFamilies = EnumerateVKPhysicalDeviceQueueFamilies(vkPhysicalDevice);
+	if (queueFamilies.size() == 0)
+		return false;
+
+	// Check for VK_QUEUE_GRAPHICS_BIT
+	bool fFoundQueueGraphicsBit = false;
+	for (auto& family : queueFamilies) {
+		if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			fFoundQueueGraphicsBit = true;
+			break;
+		}
+	}
+
+	if (fFoundQueueGraphicsBit == false)
+		return false;
+
+	return true;
 }
+
 
 RESULT VulkanHAL::EnumeratePhysicalDevices() {
 	RESULT r = R::OK;
@@ -225,7 +274,6 @@ RESULT VulkanHAL::InitializePhysicalDevice() {
 	// TODO: Probably want to do something with other suitable devices
 	// or choose more wisely
 	m_vkPhysicalDevice = m_vkSuitablePhysicalDevices[0];
-
 
 
 Error:

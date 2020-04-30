@@ -51,6 +51,7 @@ private:
 	RESULT EnumeratePhysicalDevices();
 	RESULT InitializePhysicalDevice();
 	bool IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice);
+	EPVector<VkQueueFamilyProperties> EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
 
 // Logical Device
 	RESULT InitializeLogicalDevice();
@@ -83,10 +84,10 @@ private:
 	const char* m_vkValidationLayerNames[64] = { 0 };
 
 // Physical Device
-	VkPhysicalDevice m_vkPhysicalDevice = VK_NULL_HANDLE;
 	uint32_t m_vkPhysicalDeviceCount = 0;
 	EPVector<VkPhysicalDevice> m_vkAvailablePhysicalDevices;
 	EPVector<VkPhysicalDevice> m_vkSuitablePhysicalDevices;
+	VkPhysicalDevice m_vkPhysicalDevice = VK_NULL_HANDLE;
 
 // Logical Device
 
