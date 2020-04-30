@@ -12,8 +12,8 @@ class swapchain :
 	public EPObj
 {
 public:
-	swapchain() = delete;
-	virtual ~swapchain() = 0;
+	swapchain() = default;
+	virtual ~swapchain() = default;
 
 public:
 	virtual RESULT Initialize() = 0;

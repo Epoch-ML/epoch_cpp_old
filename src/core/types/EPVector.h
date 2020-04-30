@@ -243,7 +243,7 @@ public:
 		return pData;
 	}
 
-	bool empty() {
+	const bool empty() const {
 		return (m_pBuffer_c == 0);
 	}
 

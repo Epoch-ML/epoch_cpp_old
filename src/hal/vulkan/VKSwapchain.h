@@ -11,20 +11,33 @@
 #include <vulkan/vulkan.h>
 
 #include "core/types/EPVector.h"
+#include "core/types/EPRef.h"
 
 class VKSwapchain :
 	public swapchain
 {
-public:
-	VKSwapchain(VulkanHAL* pParentHAL) :
-		m_pParentHAL(pParentHAL)
+private:
+	VKSwapchain(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface) :
+		m_vkPhysicalDevice(vkPhysicalDevice),
+		m_vkSurface(vkSurface)
 	{
 		//
 	}
 
-	virtual VKSwapchain override = default;
-
 	virtual RESULT Initialize() override;
+
+public:
+	virtual ~VKSwapchain() override = default;
+
+	static EPRef<VKSwapchain> make(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface);
+
+	const EPVector<VkSurfaceFormatKHR>& SurfaceFormats() const { 
+		return const_cast<const EPVector<VkSurfaceFormatKHR>&>(m_vkSurfaceFormats); 
+	}
+
+	const EPVector<VkPresentModeKHR>& PresentationModes() const { 
+		return const_cast<const EPVector<VkPresentModeKHR>&>(m_vkPresentationModes);
+	}
 
 private:
 	VkSurfaceCapabilitiesKHR m_vkSurfaceCapabilities = {};
@@ -34,7 +47,9 @@ private:
 	uint32_t m_vkPhysicalDevicePresenationModeCount = 0;
 	EPVector<VkPresentModeKHR> m_vkPresentationModes;
 
-	VulkanHAL* m_pParentHAL = nullptr;
+	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
+	VkSurfaceKHR m_vkSurface = nullptr;
+
 };
 
 #endif // ! VULKAN_SWAPCHAIN_H_

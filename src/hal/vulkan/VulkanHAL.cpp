@@ -5,6 +5,7 @@
 #include "sandbox/win64/Win64SandboxWindowProcess.h"
 
 #include "VulkanUtilities.h"
+#include "VKSwapchain.h"
 
 #include <string>
 
@@ -222,31 +223,34 @@ bool VulkanHAL::CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalD
 	CVKRM(vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, nullptr, &vkPhysicalDeviceExtensionCount, nullptr),
 		"Failed to enumerate physical device extensions");
 
-	EPVector<VkExtensionProperties> vkAvailablePhysicaDeviceExtensions(vkPhysicalDeviceExtensionCount);
+	{
 
-	CVKRM(vkEnumerateDeviceExtensionProperties(
-		vkPhysicalDevice,
-		nullptr,
-		&vkPhysicalDeviceExtensionCount,
-		vkAvailablePhysicaDeviceExtensions.data(vkPhysicalDeviceExtensionCount)),
-	"Failed to enumerate physical device extensions");
+		EPVector<VkExtensionProperties> vkAvailablePhysicaDeviceExtensions(vkPhysicalDeviceExtensionCount);
 
-	// Make sure all required extensions are in the supported physical device extensions
-	EPVector<VkExtensionProperties> vkRequiredPhyscalDeviceExtensions = m_vkExtensions;
-	for (auto& strVKRequiredPhysicalDeviceExtension : m_vkRequiredPhysicalDeviceExtensions) {
-		bool fFound = false;
+		CVKRM(vkEnumerateDeviceExtensionProperties(
+			vkPhysicalDevice,
+			nullptr,
+			&vkPhysicalDeviceExtensionCount,
+			vkAvailablePhysicaDeviceExtensions.data(vkPhysicalDeviceExtensionCount)),
+		"Failed to enumerate physical device extensions");
 
-		for (auto& vkPhysicalDeviceExtension : vkAvailablePhysicaDeviceExtensions) {
-			if (strcmp(vkPhysicalDeviceExtension.extensionName, strVKRequiredPhysicalDeviceExtension) == 0) {
-				fFound = true;
-				break;
+		// Make sure all required extensions are in the supported physical device extensions
+		EPVector<VkExtensionProperties> vkRequiredPhyscalDeviceExtensions = m_vkExtensions;
+		for (auto& strVKRequiredPhysicalDeviceExtension : m_vkRequiredPhysicalDeviceExtensions) {
+			bool fFound = false;
+
+			for (auto& vkPhysicalDeviceExtension : vkAvailablePhysicaDeviceExtensions) {
+				if (strcmp(vkPhysicalDeviceExtension.extensionName, strVKRequiredPhysicalDeviceExtension) == 0) {
+					fFound = true;
+					break;
+				}
 			}
-		}
 
-		if (fFound == false) {
-			DEBUG_LINEOUT("Required extension: %s not found in physical device", 
-				strVKRequiredPhysicalDeviceExtension);
-			return false;
+			if (fFound == false) {
+				DEBUG_LINEOUT("Required extension: %s not found in physical device",
+					strVKRequiredPhysicalDeviceExtension);
+				return false;
+			}
 		}
 	}
 
@@ -290,6 +294,20 @@ bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 	// Check extension support
 	if (CheckPhysicalDeviceExtensionSupport(vkPhysicalDevice) == false) 
 		return false;
+
+	// Check swap chain
+	EPRef<VKSwapchain> pVKSwapchain = VKSwapchain::make(vkPhysicalDevice, m_vkSurface);
+	if (pVKSwapchain == nullptr) {
+		DEBUG_LINEOUT("Failed to allocate VK swapchain");
+		return false;
+	}
+
+	if (pVKSwapchain->SurfaceFormats().empty())
+		return false;
+
+	if (pVKSwapchain->PresentationModes().empty())
+		return false;
+
 
 	return true;
 }
