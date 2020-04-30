@@ -247,6 +247,10 @@ public:
 		return (m_pBuffer_c == 0);
 	}
 
+	const TStorage* data() const {
+		return m_pBuffer;
+	}
+
 	TStorage* data() {
 		return m_pBuffer;
 	}

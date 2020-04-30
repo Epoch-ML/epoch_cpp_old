@@ -36,7 +36,7 @@ private:
 // Instance 
 	RESULT InitializeInstance();
 
-	const EPVector<EPTuple<int, const char*>> m_RequiredInstanceExtensions = {
+	const EPVector<EPTuple<int, const char*>> m_vkRequiredInstanceExtensions = {
 		{VK_KHR_surface, VK_KHR_SURFACE_EXTENSION_NAME},
 		{VK_KHR_win32_surface, VK_KHR_WIN32_SURFACE_EXTENSION_NAME},
 		{VK_EXT_debug_utils, VK_EXT_DEBUG_UTILS_EXTENSION_NAME}
@@ -52,8 +52,8 @@ private:
 	RESULT EnumerateValidationLayers();
 
 // Physical Device
-	const EPVector<EPTuple<int, const char*>> m_RequiredPhysicalDeviceExtensions = {
-		{VK_KHR_swapchain, VK_KHR_SWAPCHAIN_EXTENSION_NAME}
+	const EPVector<const char*> m_vkRequiredPhysicalDeviceExtensions = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 
 	RESULT EnumeratePhysicalDevices();

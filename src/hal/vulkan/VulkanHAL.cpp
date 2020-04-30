@@ -36,7 +36,7 @@ RESULT VulkanHAL::EnumerateInstanceExtensions() {
 		DEBUG_LINEOUT("%d: v%d %s", ++i, extension.specVersion, extension.extensionName);
 	}
 
-	for (auto& reqExtension : m_RequiredInstanceExtensions) {
+	for (auto& reqExtension : m_vkRequiredInstanceExtensions) {
 		bool fFound = false;
 		for (auto& extension : m_vkEnumeratedExtensions) {
 			if (strcmp(reqExtension.get<1, const char*>(), extension.extensionName) == 0) {
@@ -233,11 +233,11 @@ bool VulkanHAL::CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalD
 
 	// Make sure all required extensions are in the supported physical device extensions
 	EPVector<VkExtensionProperties> vkRequiredPhyscalDeviceExtensions = m_vkExtensions;
-	for (auto& vkRequiredPhysicalDeviceExtension : m_RequiredPhysicalDeviceExtensions) {
+	for (auto& strVKRequiredPhysicalDeviceExtension : m_vkRequiredPhysicalDeviceExtensions) {
 		bool fFound = false;
 
 		for (auto& vkPhysicalDeviceExtension : vkAvailablePhysicaDeviceExtensions) {
-			if (strcmp(vkPhysicalDeviceExtension.extensionName, vkRequiredPhysicalDeviceExtension.get<1, const char*>()) == 0) {
+			if (strcmp(vkPhysicalDeviceExtension.extensionName, strVKRequiredPhysicalDeviceExtension) == 0) {
 				fFound = true;
 				break;
 			}
@@ -245,7 +245,7 @@ bool VulkanHAL::CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalD
 
 		if (fFound == false) {
 			DEBUG_LINEOUT("Required extension: %s not found in physical device", 
-				vkRequiredPhysicalDeviceExtension.get<1, const char*>());
+				strVKRequiredPhysicalDeviceExtension);
 			return false;
 		}
 	}
@@ -409,7 +409,8 @@ RESULT VulkanHAL::InitializeLogicalDevice() {
 	m_vkDeviceCreateInfo.pQueueCreateInfos = m_vkDeviceQueueCreateInfos.data();
 	m_vkDeviceCreateInfo.pEnabledFeatures = &m_vkPhysicalDeviceFeatures;
 
-	m_vkDeviceCreateInfo.enabledExtensionCount = 0;
+	m_vkDeviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(m_vkRequiredPhysicalDeviceExtensions.size());
+	m_vkDeviceCreateInfo.ppEnabledExtensionNames = (char **)(m_vkRequiredPhysicalDeviceExtensions.data());
 
 	if (m_fEnableValidationLayers) {
 		m_vkDeviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_vkValidationLayers.size());
