@@ -47,6 +47,14 @@ private:
 
 	RESULT EnumerateValidationLayers();
 
+// Physical Device
+	RESULT EnumeratePhysicalDevices();
+	RESULT InitializePhysicalDevice();
+	bool IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice);
+
+// Logical Device
+	RESULT InitializeLogicalDevice();
+
 // Debugging
 	RESULT InitializeDebugMessenger(bool fCreate);
 
@@ -73,6 +81,14 @@ private:
 	EPVector<VkLayerProperties> m_vkAvailableValidationLayers;
 	EPVector<VkLayerProperties> m_vkValidationLayers;
 	const char* m_vkValidationLayerNames[64] = { 0 };
+
+// Physical Device
+	VkPhysicalDevice m_vkPhysicalDevice = VK_NULL_HANDLE;
+	uint32_t m_vkPhysicalDeviceCount = 0;
+	EPVector<VkPhysicalDevice> m_vkAvailablePhysicalDevices;
+	EPVector<VkPhysicalDevice> m_vkSuitablePhysicalDevices;
+
+// Logical Device
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

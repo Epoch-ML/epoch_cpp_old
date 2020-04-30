@@ -103,7 +103,12 @@ RESULT VulkanHAL::Initialize() {
 	DEBUG_LINEOUT("Extensions Supported: %d", m_vkEnumeratedExtensionCount);
 
 	CRM(InitializeInstance(), "Failed to initialize VK instance");
+
 	CRM(InitializeDebugMessenger(true), "Failed to initialize Debug Messenger");
+
+	CRM(InitializePhysicalDevice(), "Failed to initialize physical device");
+
+	CRM(InitializeLogicalDevice(), "Failed to initialize physical device");
 
 Error:
 	return r;
@@ -165,6 +170,71 @@ RESULT VulkanHAL::InitializeInstance() {
 
 	CVKRM(vkCreateInstance(&m_vkInstanceCreateInfo, nullptr, &m_vkInstance), "vkCreateInstance failed: %s", VkErrorString(vkr));
 	CNM(m_vkInstance, "Vulkan Instance not created properly");
+
+Error:
+	return r;
+}
+
+// TODO: We might want to keep this data 
+bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
+	VkPhysicalDeviceProperties vkPhysicalDeviceProperties;
+	VkPhysicalDeviceFeatures vkPhysicalDeviceFeatures;
+
+	vkGetPhysicalDeviceProperties(vkPhysicalDevice, &vkPhysicalDeviceProperties);
+	vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
+
+	return vkPhysicalDeviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+		vkPhysicalDeviceFeatures.geometryShader;
+}
+
+RESULT VulkanHAL::EnumeratePhysicalDevices() {
+	RESULT r = R::OK;
+	VkResult vkr = VK_SUCCESS;
+
+	CVKRM(vkEnumeratePhysicalDevices(m_vkInstance, &m_vkPhysicalDeviceCount, nullptr),
+		"Failed to enumerate physical devices");
+
+	CBM(m_vkPhysicalDeviceCount != 0, "There are zero vulkan devices present");
+
+	m_vkAvailablePhysicalDevices = EPVector<VkPhysicalDevice>(m_vkPhysicalDeviceCount);
+	CVKRM(vkEnumeratePhysicalDevices(
+		m_vkInstance, 
+		&m_vkPhysicalDeviceCount, 
+		m_vkAvailablePhysicalDevices.data(m_vkPhysicalDeviceCount)),
+	"Failed to enumerate physical devices");
+
+	// Collect suitable devices
+	for (auto& device : m_vkAvailablePhysicalDevices) {
+		if (IsVKPhysicalDeviceSuitable(device)) {
+			m_vkSuitablePhysicalDevices.PushBack(device);
+		}
+	}
+
+Error:
+	return r;
+}
+
+RESULT VulkanHAL::InitializePhysicalDevice() {
+	RESULT r = R::OK;
+	VkResult vkr = VK_SUCCESS;
+
+	CRM(EnumeratePhysicalDevices(), "Failed to enumerate vulkan physical devices");
+
+	CBM(m_vkSuitablePhysicalDevices.size() != 0, "Found no suitable vulkan physical devives");
+
+	// TODO: Probably want to do something with other suitable devices
+	// or choose more wisely
+	m_vkPhysicalDevice = m_vkSuitablePhysicalDevices[0];
+
+
+
+Error:
+	return r;
+}
+
+RESULT VulkanHAL::InitializeLogicalDevice() {
+	RESULT r = R::OK;
+	VkResult vkr = VK_SUCCESS;
 
 Error:
 	return r;
