@@ -63,11 +63,15 @@ private:
 	bool IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice);
 	EPVector<VkQueueFamilyProperties> EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
 
+	VkPhysicalDevice GetPhysicalDevice() { return m_vkPhysicalDevice; }
+
 // Logical Device
 	RESULT InitializeLogicalDevice();
+	VkDevice GetLogicalDevice() { return m_vkLogicalDevice; }
 
 // Window Surface
 	RESULT InitializeWindowSurface();
+	VkSurfaceKHR GetSurface() { return m_vkSurface; }
 
 // Debugging
 	RESULT InitializeDebugMessenger(bool fCreate);

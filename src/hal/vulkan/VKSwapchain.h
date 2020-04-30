@@ -28,7 +28,10 @@ public:
 
 private:
 	VkSurfaceCapabilitiesKHR m_vkSurfaceCapabilities = {};
+	uint32_t m_vkPhysicalDeviceSurfaceFormatCount = 0;
 	EPVector<VkSurfaceFormatKHR> m_vkSurfaceFormats;
+
+	uint32_t m_vkPhysicalDevicePresenationModeCount = 0;
 	EPVector<VkPresentModeKHR> m_vkPresentationModes;
 
 	VulkanHAL* m_pParentHAL = nullptr;
