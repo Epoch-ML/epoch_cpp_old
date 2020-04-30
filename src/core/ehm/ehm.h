@@ -159,6 +159,7 @@ inline const char* CMP_STR(size_t lhs, size_t rhs) {
 #define CN(pointer) do{if((pointer) == nullptr) {r = R::FAIL; EPLogError("CN", r); goto Error;}} while(0);
 #define CNR(pointer, rcode) do{if((pointer) == nullptr) {r = rcode; EPLogError("CN", r); goto Error;}} while(0);
 #define CNM(pointer, msg, ...) do{if((pointer) == nullptr) {r = RESULT::FAIL; EPLogErrorMessage("CNM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
+#define CNRM(pointer, rcode, msg, ...) do{if((pointer) == nullptr) {r = rcode; EPLogErrorMessage("CNM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 
 // check boolean conditional
 #define CB(condition) do{if(!condition) {r = R::FAIL; EPLogError("CB", r); goto Error;}} while(0);

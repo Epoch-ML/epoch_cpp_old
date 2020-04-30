@@ -15,4 +15,17 @@
 
 const char* VkErrorString(VkResult vkr);
 
+// TODO: move this to an 'extensions' object or namespace?
+RESULT CreateDebugUtilsMessengerEXT(
+	VkInstance vkInstance,
+	const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+	const VkAllocationCallbacks* pVKAllocationCallbacks,
+	VkDebugUtilsMessengerEXT* pVKDebugMessenger);
+
+RESULT DestroyDebugUtilsMessengerEXT(
+	VkInstance vkInstance,
+	VkDebugUtilsMessengerEXT vkDebugMessenger,
+	const VkAllocationCallbacks* pVkAllocationCallbacks);
+
+
 #endif // !VULKAN_UTILITIES_H_

@@ -41,6 +41,7 @@ typedef enum class RESULT : uint32_t {
 
 	NOT_IMPLEMENTED,
 	NO_RESULT,
+	SKIPPED,
 
 	// Fail codes
 	FAIL = 0x80000000,

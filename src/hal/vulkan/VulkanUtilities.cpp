@@ -31,3 +31,43 @@ const char* VkErrorString(VkResult vkr) {
 		return "VK_UNKNOWN_ERROR";
 	}
 }
+
+RESULT CreateDebugUtilsMessengerEXT(
+	VkInstance vkInstance, 
+	const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, 
+	const VkAllocationCallbacks* pVKAllocationCallbacks, 
+	VkDebugUtilsMessengerEXT* pVKDebugMessenger) 
+{
+	RESULT r = R::OK;
+
+	auto pfnVKCreateDebugUtilsMessengerEXT = 
+		(PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(vkInstance, "vkCreateDebugUtilsMessengerEXT");
+
+	CNRM(pfnVKCreateDebugUtilsMessengerEXT, (RESULT)VK_ERROR_EXTENSION_NOT_PRESENT, 
+		"PFN_vkCreateDebugUtilsMessengerEXT doesn't exist");
+
+	CVKRM(pfnVKCreateDebugUtilsMessengerEXT(vkInstance, pCreateInfo, pVKAllocationCallbacks, pVKDebugMessenger), 
+		"VKCreateDebugUtilsMessengerEXT failed");
+
+Error:
+	return r;
+}
+
+RESULT DestroyDebugUtilsMessengerEXT(
+	VkInstance vkInstance, 
+	VkDebugUtilsMessengerEXT vkDebugMessenger, 
+	const VkAllocationCallbacks* pVkAllocationCallbacks) 
+{
+	RESULT r = R::OK;
+
+	auto pfnVKDestroyDebugUtilsMessengerEXT = 
+		(PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(vkInstance, "vkDestroyDebugUtilsMessengerEXT");
+
+	CNRM(pfnVKDestroyDebugUtilsMessengerEXT, (RESULT)VK_ERROR_EXTENSION_NOT_PRESENT,
+		"PFN_vkDestroyDebugUtilsMessengerEXT doesn't exist");
+
+	pfnVKDestroyDebugUtilsMessengerEXT(vkInstance, vkDebugMessenger, pVkAllocationCallbacks);
+
+Error:
+	return r;
+}

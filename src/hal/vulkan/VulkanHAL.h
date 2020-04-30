@@ -31,8 +31,11 @@ public:
 
 private:
 // Instance Extensions
+	RESULT InitializeInstance();
+
 	const EPVector<EPTuple<int, const char*>> m_RequiredExtensions = {
-		{VK_KHR_surface, VK_KHR_SURFACE_EXTENSION_NAME}
+		{VK_KHR_surface, VK_KHR_SURFACE_EXTENSION_NAME},
+		{VK_EXT_debug_utils, VK_EXT_DEBUG_UTILS_EXTENSION_NAME}
 	};
 
 	RESULT EnumerateInstanceExtensions();
@@ -44,6 +47,15 @@ private:
 
 	RESULT EnumerateValidationLayers();
 
+// Debugging
+	RESULT InitializeDebugMessenger(bool fCreate);
+
+	static VKAPI_ATTR VkBool32 VKAPI_CALL VKDebugCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT msgType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		void* pUserData
+	);
 
 private:
 	VkInstance m_vkInstance;
@@ -53,13 +65,18 @@ private:
 // Instance Extensions
 	uint32_t m_vkEnumeratedExtensionCount = 0;
 	EPVector<VkExtensionProperties> m_vkEnumeratedExtensions;
-
 	EPVector<VkExtensionProperties> m_vkExtensions;
 	const char* m_vkExtensionNames[64] = { 0 };		// TODO: not a huge fan of the duplication here
 
 // Validation Layers
 	uint32_t m_vkValidationLayerCount;
 	EPVector<VkLayerProperties> m_vkAvailableValidationLayers;
+	EPVector<VkLayerProperties> m_vkValidationLayers;
+	const char* m_vkValidationLayerNames[64] = { 0 };
+
+// Debugging
+	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};
+	VkDebugUtilsMessengerCreateInfoEXT m_vkDebugMessangerCreateInfo;
 
 #ifdef NDEBUG
 	const bool m_fEnableValidationLayers = false;
