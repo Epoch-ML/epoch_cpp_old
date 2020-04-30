@@ -111,6 +111,8 @@ RESULT VulkanHAL::Initialize() {
 
 	CRM(InitializePhysicalDevice(), "Failed to initialize physical device");
 
+	CRM(InitializeSwapchain(), "Failed to initialize swapchain");
+
 	CRM(InitializeLogicalDevice(), "Failed to initialize physical device");
 
 Error:
@@ -124,6 +126,8 @@ RESULT VulkanHAL::Kill() {
 		CRM(DestroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugMessenger, nullptr),
 			"Failed to destroy debug messenger");
 	}
+
+	m_pVKSwapchain = nullptr;
 
 	if (m_vkLogicalDevice != nullptr) {
 		vkDestroyDevice(m_vkLogicalDevice, nullptr);
@@ -465,6 +469,27 @@ RESULT VulkanHAL::InitializeWindowSurface() {
 	CVKRM(vkCreateWin32SurfaceKHR(m_vkInstance, &m_vkWin32SurfaceCreateInfo, nullptr, &m_vkSurface),
 		"Failed to create win32 windows surface");
 
+Error:
+	return r;
+}
+
+
+RESULT VulkanHAL::InitializeSwapchain() {
+	RESULT r = R::OK;
+
+	CNM(m_vkPhysicalDevice, "Swapchain needs valid physical device");
+	CNM(m_vkSurface, "Swapchain needs valid surface");
+
+	m_pVKSwapchain = VKSwapchain::make(m_vkPhysicalDevice, m_vkSurface);
+	CNM(m_pVKSwapchain, "Failed to make vk swapchain");
+
+	// Select valid presentation mode and format
+	CRM(m_pVKSwapchain->SelectSurfaceFormat(VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR),
+		"Failed to select surface format");
+
+	CRM(m_pVKSwapchain->SelectPresentationMode(VK_PRESENT_MODE_FIFO_KHR),
+		"Failed to select presentation mode");
+	
 Error:
 	return r;
 }

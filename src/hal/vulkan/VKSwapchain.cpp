@@ -57,3 +57,41 @@ Error:
 	pVKSwapchain = nullptr;
 	return nullptr;
 }
+
+RESULT VKSwapchain::SelectSurfaceFormat(VkFormat vkFormat, VkColorSpaceKHR vkColorSpaceKHR) {
+	RESULT r = R::OK;
+	bool fFound = false;
+
+	for (const auto& availableFormat : m_vkSurfaceFormats) {
+		if (availableFormat.format == vkFormat &&
+			availableFormat.colorSpace == vkColorSpaceKHR)
+		{
+			m_vkSelectedSurfaceFormat = availableFormat;
+			fFound = true;
+			break;
+		}
+	}
+
+	CBM(fFound, "Failed to find selected surface format");
+
+Error:
+	return r;
+}
+
+RESULT VKSwapchain::SelectPresentationMode(VkPresentModeKHR vkPresentModeKHR) {
+	RESULT r = R::OK;
+	bool fFound = false;
+
+	for (const auto& availablePresentationMode : m_vkPresentationModes) {
+		if (availablePresentationMode == vkPresentModeKHR) {
+			m_vkSelectedPresentationMode = availablePresentationMode;
+			fFound = true;
+			break;
+		}
+	}
+
+	CBM(fFound, "Failed to find selected presentation mode");
+
+Error:
+	return r;
+}

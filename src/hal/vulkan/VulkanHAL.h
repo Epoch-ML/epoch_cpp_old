@@ -14,6 +14,8 @@
 // TODO: split off the platform specific implementation
 #include <vulkan/vulkan_win32.h>
 
+class VKSwapchain;
+
 class VulkanHAL :
 	public HAL
 {
@@ -73,6 +75,9 @@ private:
 	RESULT InitializeWindowSurface();
 	VkSurfaceKHR GetSurface() { return m_vkSurface; }
 
+// Swapchain
+	RESULT InitializeSwapchain();
+
 // Debugging
 	RESULT InitializeDebugMessenger(bool fCreate);
 
@@ -119,6 +124,9 @@ private:
 // Window Surface
 	VkSurfaceKHR m_vkSurface = nullptr;
 	VkWin32SurfaceCreateInfoKHR m_vkWin32SurfaceCreateInfo = {};
+
+// Swapchain
+	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

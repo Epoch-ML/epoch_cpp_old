@@ -39,13 +39,18 @@ public:
 		return const_cast<const EPVector<VkPresentModeKHR>&>(m_vkPresentationModes);
 	}
 
+	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
+	RESULT SelectPresentationMode(VkPresentModeKHR);
+
 private:
 	VkSurfaceCapabilitiesKHR m_vkSurfaceCapabilities = {};
 	uint32_t m_vkPhysicalDeviceSurfaceFormatCount = 0;
 	EPVector<VkSurfaceFormatKHR> m_vkSurfaceFormats;
+	VkSurfaceFormatKHR m_vkSelectedSurfaceFormat = {};
 
 	uint32_t m_vkPhysicalDevicePresenationModeCount = 0;
 	EPVector<VkPresentModeKHR> m_vkPresentationModes;
+	VkPresentModeKHR m_vkSelectedPresentationMode = {};
 
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkSurfaceKHR m_vkSurface = nullptr;
