@@ -210,6 +210,7 @@ RESULT VKSwapchain::CreateSwapchain() {
 		"Failed to create swap chain");
 	CNM(m_vkSwapchain, "Swapchain is invalid");
 
+	// Set up the swapchain images
 	CVKRM(vkGetSwapchainImagesKHR(m_vkLogicalDevice, m_vkSwapchain, &m_swapchainImageCount, nullptr),
 		"Failed to get swapchain image count");
 	CBM(m_swapchainImageCount != 0, "Found no swap chain images");
@@ -217,6 +218,31 @@ RESULT VKSwapchain::CreateSwapchain() {
 	m_swapchainImages = EPVector<VkImage>(m_swapchainImageCount);
 	CVKRM(vkGetSwapchainImagesKHR(m_vkLogicalDevice, m_vkSwapchain, &m_swapchainImageCount, m_swapchainImages.data(m_swapchainImageCount)),
 		"Failed to get swapchain images");
+
+	m_vkSwapchainImageFormat = m_vkSelectedSurfaceFormat.format;
+
+	// Set up the swapchain image views
+	m_swapchainImageViews = EPVector<VkImageView>(m_swapchainImageCount, true);
+	for (size_t i = 0; i < m_swapchainImages.size(); i++) {
+		VkImageViewCreateInfo vkImageViewCreateInfo{};
+		vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		vkImageViewCreateInfo.image = m_swapchainImages[i];
+		vkImageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		vkImageViewCreateInfo.format = m_vkSwapchainImageFormat;
+		vkImageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		vkImageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		vkImageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		vkImageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		vkImageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		vkImageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+		vkImageViewCreateInfo.subresourceRange.levelCount = 1;
+		vkImageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+		vkImageViewCreateInfo.subresourceRange.layerCount = 1;
+
+		CVKRM(vkCreateImageView(m_vkLogicalDevice, &vkImageViewCreateInfo, nullptr, &m_swapchainImageViews[i]),
+			"Failed to create swapchain image view %zu", i);
+		CNM(m_swapchainImageViews[i], "Failed to create image view %zu", i);
+	}
 
 Error:
 	return r;
@@ -227,6 +253,10 @@ RESULT VKSwapchain::Kill() {
 
 	CNM(m_vkLogicalDevice, "Cannot kill swapchain without valid physical device");
 	CNM(m_vkSwapchain, "Cannot destroy swapchain without valid swapchain");
+
+	for (auto imageView : m_swapchainImageViews) {
+		vkDestroyImageView(m_vkLogicalDevice, imageView, nullptr);
+	}
 	
 	vkDestroySwapchainKHR(m_vkLogicalDevice, m_vkSwapchain, nullptr);
 	m_vkSwapchain = nullptr;

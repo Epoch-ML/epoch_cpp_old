@@ -80,7 +80,9 @@ private:
 	VkSwapchainKHR m_vkSwapchain = nullptr;
 
 	uint32_t m_swapchainImageCount = 0;
+	VkFormat m_vkSwapchainImageFormat;
 	EPVector<VkImage> m_swapchainImages;
+	EPVector<VkImageView> m_swapchainImageViews;
 };
 
 #endif // ! VULKAN_SWAPCHAIN_H_

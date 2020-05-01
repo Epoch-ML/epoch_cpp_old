@@ -102,9 +102,9 @@ public:
 			m_pBuffer[i] = initValue;
 	}
 
-	EPVector(size_t initialSize) :
+	EPVector(size_t initialSize, bool fPopulate = false) :
 		m_pBuffer_n(initialSize),
-		m_pBuffer_c(0)
+		m_pBuffer_c(fPopulate ? initialSize : 0)
 	{
 		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
 		memset(m_pBuffer, 0, m_pBuffer_n * sizeof(TStorage));
