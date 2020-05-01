@@ -6,6 +6,7 @@
 
 #include "VulkanUtilities.h"
 #include "VKSwapchain.h"
+#include "VKPipeline.h"
 
 #include <string>
 
@@ -418,7 +419,6 @@ Error:
 	return r;
 }
 
-
 RESULT VulkanHAL::InitializeSwapchain() {
 	RESULT r = R::OK;
 
@@ -437,6 +437,20 @@ RESULT VulkanHAL::InitializeSwapchain() {
 	);
 
 	CNM(m_pVKSwapchain, "Failed to make vk swapchain");
+
+Error:
+	return r;
+}
+
+RESULT VulkanHAL::InitializePipeline() {
+	RESULT r = R::OK;
+
+	//CNM(m_vkPhysicalDevice, "Swapchain needs valid physical device");
+	//CNM(m_vkSurface, "Swapchain needs valid surface");
+	//CNM(m_vkLogicalDevice, "Swapchain needs valid logical device");
+
+	m_pVKPipeline = VKPipeline::make();
+	CNM(m_pVKPipeline, "Failed to make vk pipeline");
 
 Error:
 	return r;

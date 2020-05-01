@@ -15,6 +15,7 @@
 #include <vulkan/vulkan_win32.h>
 
 class VKSwapchain;
+class VKPipeline;
 
 class VulkanHAL :
 	public HAL
@@ -77,6 +78,9 @@ private:
 // Swapchain
 	RESULT InitializeSwapchain();
 
+// Pipeline
+	RESULT InitializePipeline();
+
 // Debugging
 	RESULT InitializeDebugMessenger(bool fCreate);
 
@@ -126,6 +130,9 @@ private:
 
 // Swapchain
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
+
+// Pipeline
+	EPRef <VKPipeline> m_pVKPipeline = nullptr;
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

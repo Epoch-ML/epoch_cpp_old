@@ -260,7 +260,6 @@ RESULT VKSwapchain::Kill() {
 	
 	vkDestroySwapchainKHR(m_vkLogicalDevice, m_vkSwapchain, nullptr);
 	m_vkSwapchain = nullptr;
-	
 
 Error:
 	return r;
