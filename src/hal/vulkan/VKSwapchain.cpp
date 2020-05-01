@@ -39,6 +39,7 @@ Error:
 	return r;
 }
 
+// This is split since this call can simply query the object
 EPRef<VKSwapchain> VKSwapchain::make(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface) {
 	RESULT r = R::OK;
 	EPRef<VKSwapchain> pVKSwapchain = nullptr;
@@ -59,12 +60,49 @@ Error:
 	return nullptr;
 }
 
-RESULT VKSwapchain::SelectSurfaceFormat(VkFormat vkFormat, VkColorSpaceKHR vkColorSpaceKHR) {
+EPRef<VKSwapchain> VKSwapchain::make(
+	VkPhysicalDevice vkPhysicalDevice, 
+	VkSurfaceKHR vkSurface, 
+	VkFormat vkSurfaceFormat, 
+	VkColorSpaceKHR vkColorSpaceKHR,
+	VkPresentModeKHR vkPresentModeKHR,
+	VkExtent2D vkExtent2D
+) {
+	RESULT r = R::OK;
+	EPRef<VKSwapchain> pVKSwapchain = nullptr;
+
+	CNM(vkPhysicalDevice, "Cannot make vk swapchain without a valid physical device");
+	CNM(vkSurface, "Cannot make vk swapchain without a valid surface");
+
+	pVKSwapchain = VKSwapchain::make(vkPhysicalDevice, vkSurface);
+	CNM(pVKSwapchain, "Failed to initialize VK swapchain");
+
+	// Select valid presentation mode and format
+	CRM(pVKSwapchain->SelectSurfaceFormat(vkSurfaceFormat, vkColorSpaceKHR),
+		"Failed to select surface format");
+
+	CRM(pVKSwapchain->SelectPresentationMode(vkPresentModeKHR),
+		"Failed to select presentation mode");
+
+	CRM(pVKSwapchain->SelectSwapchainExtent(vkExtent2D),
+		"Failed to set swap chain extends");
+
+	CRM(pVKSwapchain->CreateSwapchain(), "Failed to create swapchain");
+
+Success:
+	return pVKSwapchain;
+
+Error:
+	pVKSwapchain = nullptr;
+	return nullptr;
+}
+
+RESULT VKSwapchain::SelectSurfaceFormat(VkFormat vkSurfaceFormat, VkColorSpaceKHR vkColorSpaceKHR) {
 	RESULT r = R::OK;
 	bool fFound = false;
 
 	for (const auto& availableFormat : m_vkSurfaceFormats) {
-		if (availableFormat.format == vkFormat &&
+		if (availableFormat.format == vkSurfaceFormat &&
 			availableFormat.colorSpace == vkColorSpaceKHR)
 		{
 			m_vkSelectedSurfaceFormat = availableFormat;
@@ -101,20 +139,60 @@ RESULT VKSwapchain::SelectSwapchainExtent(VkExtent2D vkExtent2D) {
 	RESULT r = R::OK;
 
 	if (m_vkSurfaceCapabilities.currentExtent.width != UINT32_MAX) {
-		m_vkExtent2D = m_vkSurfaceCapabilities.currentExtent;
+		m_vkSelectedExtent2D = m_vkSurfaceCapabilities.currentExtent;
 	}
 	else {
-		m_vkExtent2D = vkExtent2D;
+		m_vkSelectedExtent2D = vkExtent2D;
 
-		m_vkExtent2D.width = std::max(
+		m_vkSelectedExtent2D.width = std::max(
 			m_vkSurfaceCapabilities.minImageExtent.width,
-			std::min(m_vkSurfaceCapabilities.maxImageExtent.width, m_vkExtent2D.width));
-		m_vkExtent2D.height = std::max(
+			std::min(m_vkSurfaceCapabilities.maxImageExtent.width, m_vkSelectedExtent2D.width));
+		m_vkSelectedExtent2D.height = std::max(
 			m_vkSurfaceCapabilities.minImageExtent.height,
-			std::min(m_vkSurfaceCapabilities.maxImageExtent.height, m_vkExtent2D.height));
+			std::min(m_vkSurfaceCapabilities.maxImageExtent.height, m_vkSelectedExtent2D.height));
 	}
 
-	DEBUG_LINEOUT("vkExtends: {%d, %d}", m_vkExtent2D.width, m_vkExtent2D.height);
+	DEBUG_LINEOUT("vkExtends: {%d, %d}", m_vkSelectedExtent2D.width, m_vkSelectedExtent2D.height);
+
+Error:
+	return r;
+}
+
+RESULT VKSwapchain::CreateSwapchain() {
+	RESULT r = R::OK;
+
+	EPVector<uint32_t> familyQueueIndexes;
+
+	CNM(m_vkPhysicalDevice, "Cannot create swapchain without a valid physical device");
+	CNM(m_vkSurface, "Cannot create swapchain without a valid surface");
+
+	m_swapchainImageCount = m_vkSurfaceCapabilities.minImageCount + 1;
+
+	if (m_vkSurfaceCapabilities.maxImageCount > 0 && m_swapchainImageCount > m_vkSurfaceCapabilities.maxImageCount) {
+		m_swapchainImageCount = m_vkSurfaceCapabilities.maxImageCount;
+	}
+
+	m_vkSwapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	m_vkSwapchainCreateInfo.surface = m_vkSurface;
+	m_vkSwapchainCreateInfo.minImageCount = m_swapchainImageCount;
+	m_vkSwapchainCreateInfo.imageFormat = m_vkSelectedSurfaceFormat.format;
+	m_vkSwapchainCreateInfo.imageColorSpace = m_vkSelectedSurfaceFormat.colorSpace;
+	m_vkSwapchainCreateInfo.imageExtent = m_vkSelectedExtent2D;
+	m_vkSwapchainCreateInfo.imageArrayLayers = 1;
+	m_vkSwapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+	familyQueueIndexes = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
+
+	if (familyQueueIndexes.size() > 1) {
+		m_vkSwapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		m_vkSwapchainCreateInfo.queueFamilyIndexCount = 2;
+		m_vkSwapchainCreateInfo.pQueueFamilyIndices = familyQueueIndexes.data();
+	}
+	else {
+		m_vkSwapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		m_vkSwapchainCreateInfo.queueFamilyIndexCount = 0; // Optional
+		m_vkSwapchainCreateInfo.pQueueFamilyIndices = nullptr; // Optional
+	}
 
 Error:
 	return r;

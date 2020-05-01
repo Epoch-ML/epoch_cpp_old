@@ -63,7 +63,6 @@ private:
 
 	bool CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
 	bool IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice);
-	EPVector<VkQueueFamilyProperties> EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
 
 	VkPhysicalDevice GetPhysicalDevice() { return m_vkPhysicalDevice; }
 

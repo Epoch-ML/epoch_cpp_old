@@ -26,9 +26,26 @@ private:
 
 	virtual RESULT Initialize() override;
 
+	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
+	RESULT SelectPresentationMode(VkPresentModeKHR);
+	RESULT SelectSwapchainExtent(VkExtent2D vkExtent2D);
+	RESULT CreateSwapchain();
+
+
 public:
 	virtual ~VKSwapchain() override = default;
 
+	// This will actually create the swapchain
+	static EPRef<VKSwapchain> make(
+		VkPhysicalDevice vkPhysicalDevice,
+		VkSurfaceKHR vkSurface,
+		VkFormat vkSurfaceFormat,
+		VkColorSpaceKHR vkColorSpaceKHR,
+		VkPresentModeKHR vkPresentModeKHR,
+		VkExtent2D vkExtent2D
+	);
+
+	// This just gets the swap chain initialized
 	static EPRef<VKSwapchain> make(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface);
 
 	const EPVector<VkSurfaceFormatKHR>& SurfaceFormats() const { 
@@ -39,9 +56,7 @@ public:
 		return const_cast<const EPVector<VkPresentModeKHR>&>(m_vkPresentationModes);
 	}
 
-	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
-	RESULT SelectPresentationMode(VkPresentModeKHR);
-	RESULT SelectSwapchainExtent(VkExtent2D vkExtent2D);
+	
 
 private:
 	VkSurfaceCapabilitiesKHR m_vkSurfaceCapabilities = {};
@@ -56,7 +71,10 @@ private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkSurfaceKHR m_vkSurface = nullptr;
 
-	VkExtent2D m_vkExtent2D;
+	VkExtent2D m_vkSelectedExtent2D;
+	uint32_t m_swapchainImageCount = 0;
+
+	VkSwapchainCreateInfoKHR m_vkSwapchainCreateInfo = {};
 
 };
 

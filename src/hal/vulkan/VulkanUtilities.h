@@ -8,6 +8,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "core/types/EPVector.h"
+
 // Extend the EHM for VK a bit
 
 #define CVKR(vkr) CR((RESULT)(vkr))
@@ -26,6 +28,9 @@ RESULT DestroyDebugUtilsMessengerEXT(
 	VkInstance vkInstance,
 	VkDebugUtilsMessengerEXT vkDebugMessenger,
 	const VkAllocationCallbacks* pVkAllocationCallbacks);
+
+EPVector<VkQueueFamilyProperties> EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
+EPVector<uint32_t> FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface);
 
 
 #endif // !VULKAN_UTILITIES_H_

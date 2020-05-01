@@ -194,32 +194,6 @@ Error:
 	return r;
 }
 
-// Note: this operates on the current physical device
-// TODO: we want to collect all of these things and put them into logical objects so the 
-// HAL is operating on them vs. calling all of this directly
-EPVector<VkQueueFamilyProperties> VulkanHAL::EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice) {
-	RESULT r = R::OK;
-	VkResult vkr = VK_SUCCESS;
-	uint32_t queueFamilyCount = 0;
-	EPVector<VkQueueFamilyProperties> vkPhysicalDeviceQueueFamilies;
-
-	CNM(vkPhysicalDevice, "Cannot enumerate queue families without a valid physical device");
-
-	vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, nullptr);
-
-	CBM(queueFamilyCount != 0, "Failed to find any queue families");
-
-	vkPhysicalDeviceQueueFamilies = EPVector<VkQueueFamilyProperties>(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(
-		vkPhysicalDevice,
-		&queueFamilyCount,
-		vkPhysicalDeviceQueueFamilies.data(queueFamilyCount)
-	);
-
-Error:
-	return vkPhysicalDeviceQueueFamilies;
-}
-
 bool VulkanHAL::CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice) {
 	RESULT r = R::OK;
 
@@ -369,45 +343,14 @@ RESULT VulkanHAL::InitializeLogicalDevice() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 	
-	// TODO: Wrap up in LogicalDevice object or something like that
-
-	EPVector<VkQueueFamilyProperties> vkQueueFamilyProperties;
-	uint32_t familyQueueIndex = 0;
-	int32_t graphicsFamilyQueueIndex = -1;
-	int32_t presentFamilyQueueIndex = -1;
-	bool fFoundQueueFamily = false;
-	EPVector<int32_t> familyQueueIndexes;
+	EPVector<uint32_t> familyQueueIndexes;
+	uint32_t graphicsFamilyQueueIndex;
+	uint32_t presentFamilyQueueIndex;
 
 	CNM(m_vkPhysicalDevice, "Cannot initialize logical device without a valid physical device");
+	CNM(m_vkSurface, "Cannot initialize logical device without a valid surface");
 
-	vkQueueFamilyProperties = EnumerateVKPhysicalDeviceQueueFamilies(m_vkPhysicalDevice);
-	CBM(vkQueueFamilyProperties.size() != 0, "Failed to enumerate physical device queue families");
-
-	for (auto& family : vkQueueFamilyProperties) {
-		if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			if (graphicsFamilyQueueIndex == -1)
-				graphicsFamilyQueueIndex = familyQueueIndex;
-		}
-
-		VkBool32 fPresentationSupport = false;
-		CVKRM(vkGetPhysicalDeviceSurfaceSupportKHR(m_vkPhysicalDevice, graphicsFamilyQueueIndex, m_vkSurface, &fPresentationSupport),
-			"Failed to get PhysicalDeviceSurfaceSupport");
-
-		if (fPresentationSupport == (VkBool32)(true)) {
-			if(presentFamilyQueueIndex == -1)
-				presentFamilyQueueIndex = familyQueueIndex;
-		}
-
-		familyQueueIndex++;
-	}
-
-	CBM(graphicsFamilyQueueIndex >= 0, "Failed to find graphics queue");
-	CBM(presentFamilyQueueIndex >= 0, "Failed to find surface presentation queue");
-
-	// TODO: this should be more dynamic (above in particular)
-	familyQueueIndexes.PushBack(graphicsFamilyQueueIndex);
-	if(graphicsFamilyQueueIndex != presentFamilyQueueIndex)
-		familyQueueIndexes.PushBack(presentFamilyQueueIndex);
+	familyQueueIndexes = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
 	 
 	for (auto& queueFamilyIndex : familyQueueIndexes) {
 
@@ -448,9 +391,11 @@ RESULT VulkanHAL::InitializeLogicalDevice() {
 	CNM(m_vkLogicalDevice, "Failed to create logical vulkan device");
 
 	// TODO: If the family queue index is the same the handle is equivalent
+	graphicsFamilyQueueIndex = familyQueueIndexes[0];
 	vkGetDeviceQueue(m_vkLogicalDevice, graphicsFamilyQueueIndex, 0, &m_vkGraphicsQueueHandle);
 	CNM(m_vkGraphicsQueueHandle, "Failed to retrieve graphics queue handle");
 
+	presentFamilyQueueIndex = (familyQueueIndexes.size() > 1) ? familyQueueIndexes[1] : familyQueueIndexes[0];
 	vkGetDeviceQueue(m_vkLogicalDevice, presentFamilyQueueIndex, 0, &m_vkPresentationQueueHandle);
 	CNM(m_vkPresentationQueueHandle, "Failed to retrieve presentation queue handle");
 
@@ -480,19 +425,16 @@ RESULT VulkanHAL::InitializeSwapchain() {
 	CNM(m_vkPhysicalDevice, "Swapchain needs valid physical device");
 	CNM(m_vkSurface, "Swapchain needs valid surface");
 
-	m_pVKSwapchain = VKSwapchain::make(m_vkPhysicalDevice, m_vkSurface);
+	m_pVKSwapchain = VKSwapchain::make(
+		m_vkPhysicalDevice, 
+		m_vkSurface, 
+		VK_FORMAT_B8G8R8A8_SRGB, 
+		VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+		VK_PRESENT_MODE_FIFO_KHR,
+		{ (uint32_t)GetSBWindowProcess()->GetWidth(), (uint32_t)GetSBWindowProcess()->GetHeight() }
+	);
+
 	CNM(m_pVKSwapchain, "Failed to make vk swapchain");
-
-	// Select valid presentation mode and format
-	CRM(m_pVKSwapchain->SelectSurfaceFormat(VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR),
-		"Failed to select surface format");
-
-	CRM(m_pVKSwapchain->SelectPresentationMode(VK_PRESENT_MODE_FIFO_KHR),
-		"Failed to select presentation mode");
-	
-	CRM(m_pVKSwapchain->SelectSwapchainExtent(
-		{(uint32_t)GetSBWindowProcess()->GetWidth(), (uint32_t)GetSBWindowProcess()->GetHeight() }),
-		"Failed to set swap chain extends");
 
 Error:
 	return r;
