@@ -118,11 +118,15 @@
     #define DEBUG_LINEOUT(str, ...) do { CONSOLE_OUT(str, ##__VA_ARGS__); CONSOLE_OUT("\n"); } while(0); 
 	#define DEBUG_LINEOUT_RETURN(str, ...) do { CONSOLE_OUT(str, ##__VA_ARGS__); CONSOLE_OUT("\r"); } while(0); 
 	#define DEBUG_SYSTEM_PAUSE() do { system("pause"); } while(0); 
+
+	#define RELEASE_LINEOUT(str, ...) DEBUG_LINEOUT(str, ##__VA_ARGS__)
 #else
 	#define DEBUG_OUT(str, ...)
 	#define DEBUG_LINEOUT(str, ...)
 	#define DEBUG_LINEOUT_RETURN(str, ...) 
 	#define DEBUG_SYSTEM_PAUSE()
+
+	#define RELEASE_LINEOUT(str, ...) do { CONSOLE_OUT(str, ##__VA_ARGS__); CONSOLE_OUT("\n"); } while(0);
 #endif
 
 // compare
@@ -150,6 +154,7 @@ inline const char* CMP_STR(size_t lhs, size_t rhs) {
 #define WSTR(X) L"##X"
 
 #define DEBUG_CMP(label, lhsname, lhs, rhsname, rhs, pct) do{ DEBUG_LINEOUT("%s: %s: %zu %s %s: %zu - %d%%", label, lhsname, lhs, CMP_STR(lhs, rhs), rhsname, rhs, pct); } while(0);
+#define RELEASE_CMP(label, lhsname, lhs, rhsname, rhs, pct) do{ RELEASE_LINEOUT("%s: %s: %zu %s %s: %zu - %d%%", label, lhsname, lhs, CMP_STR(lhs, rhs), rhsname, rhs, pct); } while(0);
 
 // check result value
 #define CR(res) do{r=(res);if(r&0x80000000){EPLogError("CR", r); goto Error;}} while(0);

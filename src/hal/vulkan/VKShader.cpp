@@ -7,9 +7,9 @@ RESULT VKShader::Initialize() {
 	EPVector<char> buffer;
 	size_t fileShader_n = 0;
 
-	EPString<char> strFilenamePath = EPString<char>(EPOCHROOTDIR) + m_strFilename;
+	m_strFilenamePath = EPString<char>(EPOCH_SHADERS_DIR) + "/" + m_strFilename;
 
-	std::ifstream fileShader(m_strFilename.c_str(), std::ios::ate | std::ios::binary);
+	std::ifstream fileShader(m_strFilenamePath.c_str(), std::ios::ate | std::ios::binary);
 	CBM(fileShader.is_open(), "Failed to open %s", m_strFilename.c_str());
 
 	// ingest file contents

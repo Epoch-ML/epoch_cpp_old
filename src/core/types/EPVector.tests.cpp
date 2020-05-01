@@ -1,6 +1,6 @@
 #include "TypesTestSuite.h"
 
-#define TEST_INT_ARRAY_LENGTH 1000
+#define TEST_INT_ARRAY_LENGTH 100000
 
 #include <vector>
 

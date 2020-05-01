@@ -61,7 +61,7 @@ RESULT EPTestSuiteBase::RunAllTests() {
 
 		CRM(r, "Failed to run test %s", pszName);
 
-		DEBUG_LINEOUT("Test: %s : %s with code 0x%x", 
+		RELEASE_LINEOUT("Test: %s : %s with code 0x%x", 
 			pszName, 
 			RSUCCESS(test.GetResult()) ? C_GREEN("SUCCEEDED") : C_RED("FAILED"), 
 			test.GetResult()

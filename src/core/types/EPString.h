@@ -59,10 +59,10 @@ public:
 	}
 
 	EPString(const EPString& lhs, const EPString& rhs) {
-		size_t strResult_n = lhs.size() + rhs.size();
+		size_t strResult_n = lhs.size() + rhs.size() - 1;
 		m_stringStorage = EPVector<TChar>(strResult_n, true);
-		memcpy(m_stringStorage.data(), lhs.c_str(), lhs.length() * sizeof(TCHAR));
-		memcpy(m_stringStorage.data() + lhs.length(), rhs.c_str(), rhs.length() * sizeof(TCHAR));
+		memcpy(m_stringStorage.data(), lhs.c_str(), (lhs.length() - 1) * sizeof(TCHAR));
+		memcpy(m_stringStorage.data() + (lhs.length() - 1), rhs.c_str(), rhs.length() * sizeof(TCHAR));
 	}
 
 	EPString(const TChar szString[], size_t szString_n) :
@@ -165,8 +165,13 @@ public:
 		return false;
 	}
 
-	EPString& operator+(const EPString& rhs) const {
-		return EPString(*this, rhs);
+	EPString operator+(const EPString& rhs) const {
+		EPString strReturn = EPString(this->length() + rhs.length() - 1, true);
+		
+		memcpy(strReturn.m_stringStorage.data(), this->c_str(), (this->length() - 1) * sizeof(TCHAR));
+		memcpy(strReturn.m_stringStorage.data() + (this->length() - 1), rhs.c_str(), rhs.length() * sizeof(TCHAR));
+
+		return strReturn;
 	}
 
 	TChar& operator[](size_t idx) {

@@ -2,7 +2,10 @@
 
 # Both Configurations
 set(EPOCH_DIR_VAL "${CMAKE_SOURCE_DIR}")
-add_definitions(-DEPOCHROOTDIR="${EPOCH_DIR_VAL}")
+add_definitions(-DEPOCH_ROOT_DIR="${EPOCH_DIR_VAL}")
+add_definitions(-DEPOCH_SRC_DIR="${EPOCH_DIR_VAL}/src")
+add_definitions(-DEPOCH_HAL_DIR="${EPOCH_DIR_VAL}/src/hal")
+add_definitions(-DEPOCH_SHADERS_DIR="${EPOCH_DIR_VAL}/src/hal/shaders")
 
 # Release Configuration
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")

@@ -38,6 +38,7 @@ public:
 
 private:
 	EPString<char> m_strFilename;
+	EPString<char> m_strFilenamePath;
 };
 
 #endif // ! VULKAN_PIPELINE_H_

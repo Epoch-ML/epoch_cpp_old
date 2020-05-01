@@ -108,7 +108,7 @@ public:
 		int pctFaster = (int)(((float)(rhsDuration) / (float)(lhsDuration)) * 100.0f);
 
 		// Print the comparison
-		DEBUG_CMP(pLHS->m_strTestCaseName.c_str(),
+		RELEASE_CMP(pLHS->m_strTestCaseName.c_str(),
 			pLHS->m_strTestCaseFlavor.c_str(), lhsDuration,
 			pRHS->m_strTestCaseFlavor.c_str(), rhsDuration, pctFaster);
 
