@@ -440,9 +440,10 @@ RESULT VulkanHAL::InitializePipeline() {
 
 	//CNM(m_vkPhysicalDevice, "Swapchain needs valid physical device");
 	//CNM(m_vkSurface, "Swapchain needs valid surface");
-	//CNM(m_vkLogicalDevice, "Swapchain needs valid logical device");
+	CNM(m_vkLogicalDevice, "Pipeline needs valid logical device");
+	CNM(m_pVKSwapchain, "Pipeline needs valid swapchain");
 
-	m_pVKPipeline = VKPipeline::make(m_vkLogicalDevice);
+	m_pVKPipeline = VKPipeline::make(m_vkLogicalDevice, m_pVKSwapchain);
 	CNM(m_pVKPipeline, "Failed to make vk pipeline");
 
 Error:

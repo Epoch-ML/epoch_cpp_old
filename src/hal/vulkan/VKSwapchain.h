@@ -27,6 +27,7 @@ private:
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
+
 	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
 	RESULT SelectPresentationMode(VkPresentModeKHR);
 	RESULT SelectSwapchainExtent(VkExtent2D vkExtent2D);
@@ -36,6 +37,9 @@ public:
 	virtual ~VKSwapchain() override {
 		Kill();
 	}
+
+	virtual uint32_t GetExtentsWidth() override { return m_vkSelectedExtent2D.width; }
+	virtual uint32_t GetExtentsHeight() override { return m_vkSelectedExtent2D.height; }
 
 	// This will actually create the swapchain
 	static EPRef<VKSwapchain> make(

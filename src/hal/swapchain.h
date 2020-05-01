@@ -15,9 +15,13 @@ public:
 	swapchain() = default;
 	virtual ~swapchain() = default;
 
-public:
+protected:
 	virtual RESULT Initialize() = 0;
 	virtual RESULT Kill() = 0;
+
+public:
+	virtual uint32_t GetExtentsWidth() = 0;
+	virtual uint32_t GetExtentsHeight() = 0;
 };
 
 #endif // ! SWAPCHAIN_H_

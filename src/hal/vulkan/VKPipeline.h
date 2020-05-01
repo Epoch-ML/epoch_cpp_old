@@ -15,14 +15,16 @@
 #include "core/types/EPFactoryMethod.h"
 
 #include "VKShader.h"
+#include "VKSwapchain.h"
 
 class VKPipeline :
 	public pipeline,
-	public EPFactoryMethod<VKPipeline, VkDevice>
+	public EPFactoryMethod<VKPipeline, VkDevice, const EPRef<VKSwapchain>&>
 {
 private:
-	VKPipeline(VkDevice vkLogicalDevice)  :
-		m_vkLogicalDevice(vkLogicalDevice)
+	VKPipeline(VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain)  :
+		m_vkLogicalDevice(vkLogicalDevice),
+		m_pVKSwapchain(pVKSwapchain)
 	{
 		//
 	}
@@ -35,14 +37,40 @@ public:
 		Kill();
 	}
 
-	static EPRef<VKPipeline> InternalMake(VkDevice);
+	static EPRef<VKPipeline> InternalMake(VkDevice, const EPRef<VKSwapchain>&);
 
 private:
 	VkDevice m_vkLogicalDevice = nullptr;
+	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 
 	// TODO: Replace with system to register/create vk pipelines
 	EPRef<VKShader> m_pVertexShader = nullptr;
 	EPRef<VKShader> m_pFragmentShader = nullptr;
+
+	// Fixed pipeline stages
+	// TODO: Move into objects
+	VkPipelineVertexInputStateCreateInfo m_vkPipelineVertexInputStateCreateInfo = {};
+	VkPipelineInputAssemblyStateCreateInfo m_vkPipelineInputAssemblyStateCreateInfo = {};
+	VkPipelineViewportStateCreateInfo m_vkPipelineViewportStateCreateInfo = {};
+	VkPipelineRasterizationStateCreateInfo m_vkPipelineRasterizationStateCreateInfo = {};
+	VkPipelineMultisampleStateCreateInfo m_vkPipelineMultisampleStateCreateInfo = {};
+	VkPipelineColorBlendStateCreateInfo m_vkPipelineColorBendStateCreateInfo = {};
+
+	VkPipelineColorBlendAttachmentState m_vkPipelineColorBlendAttachmentState = {};
+	VkViewport m_vkViewport = {};
+	VkRect2D m_vkrect2DScissor = {};
+
+	bool m_fBlendEnabled = false;
+
+	VkPipelineDynamicStateCreateInfo m_vkPipelineDynamicStateCreateInfo = {};
+	EPVector<VkDynamicState> m_vkDynamicStates = {
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_LINE_WIDTH
+	};
+
+	VkPipelineLayoutCreateInfo m_vkPipelineLayoutCreateInfo = {};
+	VkPipelineLayout m_vkPipelineLayout = nullptr;
+
 };
 
 #endif // ! VULKAN_PIPELINE_H_

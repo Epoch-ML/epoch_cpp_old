@@ -49,7 +49,8 @@ private:
 	VkShaderStageFlagBits m_vkShaderStageFlagBits;
 
 	// TODO: This should be spun out into a different object likely
-	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
+	VkPipelineShaderStageCreateInfo m_vkPipelineShaderStateCreateInfo = {};
+
 };
 
 #endif // ! VULKAN_PIPELINE_H_
