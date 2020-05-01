@@ -18,7 +18,7 @@ Error:
 	return r;
 }
 
-EPRef<VKPipeline> VKPipeline::make() {
+EPRef<VKPipeline> VKPipeline::InternalMake() {
 	RESULT r = R::OK;
 	EPRef<VKPipeline> pVKPipeline = nullptr;
 

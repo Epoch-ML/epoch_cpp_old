@@ -14,7 +14,8 @@
 #include "core/types/EPRef.h"
 
 class VKPipeline :
-	public pipeline
+	public pipeline,
+	public EPFactoryMethod
 {
 private:
 	VKPipeline()  {
@@ -29,7 +30,7 @@ public:
 		Kill();
 	}
 
-	static EPRef<VKPipeline> make();
+	static EPRef<VKPipeline> InternalMake();
 
 private:
 

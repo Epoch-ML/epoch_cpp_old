@@ -12,6 +12,14 @@ file(GLOB VULKAN_SOURCES
 )
 source_group("vulkan" FILES ${VULKAN_SOURCES})
 
+file(GLOB VULKAN_SOURCES 
+  "shaders/*.cpp"
+  "shaders/*.h"
+  "shaders/*.vert"
+  "shaders/*.frag"
+)
+source_group("shaders" FILES ${SHADERS_SOURCES})
+
 # TODO: Switch to the below
 add_library(hal
     ${SOURCES}
