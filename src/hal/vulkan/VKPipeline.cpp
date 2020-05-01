@@ -3,10 +3,12 @@
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
 
-	m_pVertexShader = VKShader::make("vert.spv");
+	CNM(m_vkLogicalDevice, "Cannot create pipeline without a valid logical device");
+
+	m_pVertexShader = VKShader::make("vert.spv", m_vkLogicalDevice);
 	CNM(m_pVertexShader, "Failed to create vertex shader");
 
-	m_pFragmentShader = VKShader::make("frag.spv");
+	m_pFragmentShader = VKShader::make("frag.spv", m_vkLogicalDevice);
 	CNM(m_pFragmentShader, "Failed to create fragment shader");
 
 Error:
@@ -16,17 +18,18 @@ Error:
 RESULT VKPipeline::Kill() {
 	RESULT r = R::OK;
 
-	//
+	m_pVertexShader = nullptr;
+	m_pFragmentShader = nullptr;
 
 Error:
 	return r;
 }
 
-EPRef<VKPipeline> VKPipeline::InternalMake() {
+EPRef<VKPipeline> VKPipeline::InternalMake(VkDevice vkLogicalDevice) {
 	RESULT r = R::OK;
 	EPRef<VKPipeline> pVKPipeline = nullptr;
 
-	pVKPipeline = new VKPipeline();
+	pVKPipeline = new VKPipeline(vkLogicalDevice);
 	CNM(pVKPipeline, "Failed to allocate pipeline");
 
 	CRM(pVKPipeline->Initialize(), "Failed to initialize VK pipeline");

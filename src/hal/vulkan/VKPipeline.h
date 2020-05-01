@@ -18,10 +18,12 @@
 
 class VKPipeline :
 	public pipeline,
-	public EPFactoryMethod<VKPipeline>
+	public EPFactoryMethod<VKPipeline, VkDevice>
 {
 private:
-	VKPipeline()  {
+	VKPipeline(VkDevice vkLogicalDevice)  :
+		m_vkLogicalDevice(vkLogicalDevice)
+	{
 		//
 	}
 
@@ -33,9 +35,12 @@ public:
 		Kill();
 	}
 
-	static EPRef<VKPipeline> InternalMake();
+	static EPRef<VKPipeline> InternalMake(VkDevice);
 
 private:
+	VkDevice m_vkLogicalDevice = nullptr;
+
+	// TODO: Replace with system to register/create vk pipelines
 	EPRef<VKShader> m_pVertexShader = nullptr;
 	EPRef<VKShader> m_pFragmentShader = nullptr;
 };

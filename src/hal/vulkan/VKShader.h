@@ -17,11 +17,12 @@
 
 class VKShader :
 	public shader,
-	public EPFactoryMethod<VKShader, const EPString<char>&>
+	public EPFactoryMethod<VKShader, const EPString<char>&, VkDevice>
 {
 private:
-	VKShader(const EPString<char> &strFilename) :
-		m_strFilename(strFilename)
+	VKShader(const EPString<char> &strFilename, VkDevice vkLogicalDevice) :
+		m_strFilename(strFilename),
+		m_vkLogicalDevice(vkLogicalDevice)
 	{
 		//
 	}
@@ -34,11 +35,16 @@ public:
 		Kill();
 	}
 
-	static EPRef<VKShader> InternalMake(const EPString<char>&);
+	static EPRef<VKShader> InternalMake(const EPString<char>&, VkDevice);
 
 private:
 	EPString<char> m_strFilename;
 	EPString<char> m_strFilenamePath;
+
+	VkDevice m_vkLogicalDevice = nullptr;
+
+	VkShaderModuleCreateInfo m_vkShaderModuleCreateInfo = {};
+	VkShaderModule m_vkShaderModule = nullptr;
 };
 
 #endif // ! VULKAN_PIPELINE_H_

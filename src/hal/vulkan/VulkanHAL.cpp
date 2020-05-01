@@ -120,6 +120,7 @@ RESULT VulkanHAL::Kill(void) {
 			"Failed to destroy debug messenger");
 	}
 
+	m_pVKPipeline = nullptr;
 	m_pVKSwapchain = nullptr;
 
 	if (m_vkLogicalDevice != nullptr) {
@@ -441,7 +442,7 @@ RESULT VulkanHAL::InitializePipeline() {
 	//CNM(m_vkSurface, "Swapchain needs valid surface");
 	//CNM(m_vkLogicalDevice, "Swapchain needs valid logical device");
 
-	m_pVKPipeline = VKPipeline::make();
+	m_pVKPipeline = VKPipeline::make(m_vkLogicalDevice);
 	CNM(m_pVKPipeline, "Failed to make vk pipeline");
 
 Error:
