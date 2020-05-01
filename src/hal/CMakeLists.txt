@@ -12,7 +12,7 @@ file(GLOB VULKAN_SOURCES
 )
 source_group("vulkan" FILES ${VULKAN_SOURCES})
 
-file(GLOB VULKAN_SOURCES 
+file(GLOB SHADERS_SOURCES 
   "shaders/*.cpp"
   "shaders/*.h"
   "shaders/*.vert"
@@ -84,7 +84,7 @@ target_link_libraries(hal.tests
   logger
   sandbox
   eptest
-  hal
+  hal 
   Vulkan::Vulkan
 )
 

@@ -1,22 +1,12 @@
 #include "VulkanHAL.h"
 
+#include <string>
+
 #include "core/types/EPRef.h"
 #include "sandbox/SandboxWindowProcess.h"
 #include "sandbox/win64/Win64SandboxWindowProcess.h"
 
 #include "VulkanUtilities.h"
-#include "VKSwapchain.h"
-#include "VKPipeline.h"
-
-#include <string>
-
-VulkanHAL::VulkanHAL() {
-	//
-}
-
-VulkanHAL::~VulkanHAL() {
-	//
-}
 
 RESULT VulkanHAL::EnumerateInstanceExtensions() {
 	RESULT r = R::OK;
@@ -90,7 +80,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::Initialize() {
+RESULT VulkanHAL::Initialize(void) {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 
@@ -116,11 +106,13 @@ RESULT VulkanHAL::Initialize() {
 
 	CRM(InitializeSwapchain(), "Failed to initialize swapchain");
 
+	CRM(InitializePipeline(), "Failed to initialize pipeline");
+
 Error:
 	return r;
 }
 
-RESULT VulkanHAL::Kill() {
+RESULT VulkanHAL::Kill(void) {
 	RESULT r = R::OK;
 
 	if (m_fEnableValidationLayers) {

@@ -18,7 +18,7 @@ Error:
 	return r;
 }
 
-EPRef<VKShader> VKShader::make() {
+EPRef<VKShader> VKShader::InternalMake() {
 	RESULT r = R::OK;
 	EPRef<VKShader> pVKShader = nullptr;
 

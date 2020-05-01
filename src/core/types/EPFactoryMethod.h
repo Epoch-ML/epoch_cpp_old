@@ -18,8 +18,8 @@
 template <typename TObj, typename ... MArgs>
 class EPFactoryMethod {
 protected:
-	EPFactory() = delete;
-	~EPFactory() = delete;
+	EPFactoryMethod() = default;
+	~EPFactoryMethod() = default;
 
 public:
 	static EPRef<TObj> make(MArgs... args) {
@@ -32,7 +32,7 @@ public:
 		return pEPObj;
 
 	Error:
-		pEPObj = nullptr;
+		//pEPObj = nullptr;
 		return nullptr;
 	}
 

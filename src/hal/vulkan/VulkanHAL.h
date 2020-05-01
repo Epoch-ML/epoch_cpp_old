@@ -14,22 +14,26 @@
 // TODO: split off the platform specific implementation
 #include <vulkan/vulkan_win32.h>
 
-class VKSwapchain;
-class VKPipeline;
+#include "VKSwapchain.h"
+#include "VKPipeline.h"
 
 class VulkanHAL :
 	public HAL
 {
 
 public:
-	VulkanHAL();
+	VulkanHAL() {
+		//
+	}
 
 protected:
-	virtual ~VulkanHAL() override;
+	virtual ~VulkanHAL() override {
+		//
+	}
 
 public:
-	virtual RESULT Initialize() override;
-	virtual RESULT Kill() override;
+	virtual RESULT Initialize(void) override;
+	virtual RESULT Kill(void) override;
 
 	virtual HAL::type GetType() override {
 		return HAL::type::vulkan;
@@ -132,7 +136,7 @@ private:
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 
 // Pipeline
-	EPRef <VKPipeline> m_pVKPipeline = nullptr;
+	EPRef<VKPipeline> m_pVKPipeline = nullptr;
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

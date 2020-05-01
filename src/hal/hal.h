@@ -18,13 +18,18 @@ class HAL :
 	public EPObj
 {
 public:
-	enum class type : uint32_t {
+	enum class type : uint32_t { 
 		vulkan,
 		custom
 	};
-	static const char* kHALTypes[];
-
+	
+	// TODO: Not ideal
 	static const char* GetTypeName(HAL::type halType) {
+		const EPVector<char*> kHALTypes = {
+			"vulkan",
+			"custom"
+		};
+
 		return kHALTypes[static_cast<uint8_t>(halType)];
 	}
 
@@ -44,16 +49,16 @@ public:
 	}
 
 public:
-	HAL();
-	virtual ~HAL() override;
+	HAL() = default;
 
 	virtual HAL::type GetType() = 0;
-	virtual RESULT Initialize() = 0;
-	virtual RESULT Kill() = 0;
 
+	virtual RESULT Initialize(void) = 0;
+	virtual RESULT Kill(void) = 0;
 
 private:
 	EPRef<SandboxWindowProcess> m_pSBWindowProcess = nullptr;
 };
+
 
 #endif // ! HAL_H_

@@ -12,10 +12,11 @@
 
 #include "core/types/EPVector.h"
 #include "core/types/EPRef.h"
+#include "core/types/EPFactoryMethod.h"
 
 class VKPipeline :
 	public pipeline,
-	public EPFactoryMethod
+	public EPFactoryMethod<VKPipeline>
 {
 private:
 	VKPipeline()  {

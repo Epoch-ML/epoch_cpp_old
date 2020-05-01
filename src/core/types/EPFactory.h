@@ -35,13 +35,13 @@ public:
 		RESULT r = R::OK;
 
 		EPRef<TEPObj> pEPObj = TEPFactory::InternalMake(args...);
-		CNM(pEPObj, "Failed to create factory object " CSTR(TEPObj));
+		CNM(pEPObj, "Failed to create factory object");
 
 	Success:
 		return pEPObj;
 
 	Error:
-		pEPObj = nullptr;
+		//pEPObj = nullptr;
 		return nullptr;
 	}
 
