@@ -35,6 +35,12 @@ RESULT VKShader::Initialize() {
 	CVKRM(vkCreateShaderModule(m_vkLogicalDevice, &m_vkShaderModuleCreateInfo, nullptr, &m_vkShaderModule),
 		"Failed to create Shader module");
 
+	// TODO: this should be spun out into a different object
+	m_vkPipelineShaderStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	m_vkPipelineShaderStateCreateInfo.stage = m_vkShaderStageFlagBits;
+	m_vkPipelineShaderStateCreateInfo.module = m_vkShaderModule;
+	m_vkPipelineShaderStateCreateInfo.pName = "main";
+
 Error:
 	return r;
 }
@@ -51,11 +57,15 @@ Error:
 	return r;
 }
 
-EPRef<VKShader> VKShader::InternalMake(const EPString<char> &strFilename, VkDevice vkLogicalDevice) {
+EPRef<VKShader> VKShader::InternalMake(
+	VkDevice vkLogicalDevice, 
+	const EPString<char>& strFilename, 
+	VkShaderStageFlagBits vkShaderStageFlagBits
+) {
 	RESULT r = R::OK;
 	EPRef<VKShader> pVKShader = nullptr;
 
-	pVKShader = new VKShader(strFilename, vkLogicalDevice);
+	pVKShader = new VKShader(strFilename, vkLogicalDevice, vkShaderStageFlagBits);
 	CNM(pVKShader, "Failed to allocate shader");
 
 	CRM(pVKShader->Initialize(), "Failed to initialize VK shader");

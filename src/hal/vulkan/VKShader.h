@@ -17,12 +17,13 @@
 
 class VKShader :
 	public shader,
-	public EPFactoryMethod<VKShader, const EPString<char>&, VkDevice>
+	public EPFactoryMethod<VKShader, VkDevice, const EPString<char>&, VkShaderStageFlagBits>
 {
 private:
-	VKShader(const EPString<char> &strFilename, VkDevice vkLogicalDevice) :
+	VKShader(const EPString<char> &strFilename, VkDevice vkLogicalDevice, VkShaderStageFlagBits vkShaderStageFlagBits) :
 		m_strFilename(strFilename),
-		m_vkLogicalDevice(vkLogicalDevice)
+		m_vkLogicalDevice(vkLogicalDevice),
+		m_vkShaderStageFlagBits(vkShaderStageFlagBits)
 	{
 		//
 	}
@@ -35,7 +36,7 @@ public:
 		Kill();
 	}
 
-	static EPRef<VKShader> InternalMake(const EPString<char>&, VkDevice);
+	static EPRef<VKShader> InternalMake(VkDevice, const EPString<char>&, VkShaderStageFlagBits);
 
 private:
 	EPString<char> m_strFilename;
@@ -45,6 +46,10 @@ private:
 
 	VkShaderModuleCreateInfo m_vkShaderModuleCreateInfo = {};
 	VkShaderModule m_vkShaderModule = nullptr;
+	VkShaderStageFlagBits m_vkShaderStageFlagBits;
+
+	// TODO: This should be spun out into a different object likely
+	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 };
 
 #endif // ! VULKAN_PIPELINE_H_

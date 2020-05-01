@@ -5,10 +5,10 @@ RESULT VKPipeline::Initialize() {
 
 	CNM(m_vkLogicalDevice, "Cannot create pipeline without a valid logical device");
 
-	m_pVertexShader = VKShader::make("vert.spv", m_vkLogicalDevice);
+	m_pVertexShader = VKShader::make(m_vkLogicalDevice, "vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
 	CNM(m_pVertexShader, "Failed to create vertex shader");
 
-	m_pFragmentShader = VKShader::make("frag.spv", m_vkLogicalDevice);
+	m_pFragmentShader = VKShader::make(m_vkLogicalDevice, "frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
 	CNM(m_pFragmentShader, "Failed to create fragment shader");
 
 Error:
