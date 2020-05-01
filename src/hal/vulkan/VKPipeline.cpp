@@ -3,7 +3,11 @@
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
 
-	//
+	m_pVertexShader = VKShader::make("vert.spv");
+	CNM(m_pVertexShader, "Failed to create vertex shader");
+
+	m_pFragmentShader = VKShader::make("frag.spv");
+	CNM(m_pFragmentShader, "Failed to create fragment shader");
 
 Error:
 	return r;

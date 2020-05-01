@@ -13,13 +13,16 @@
 #include "core/types/EPVector.h"
 #include "core/types/EPRef.h"
 #include "core/types/EPFactoryMethod.h"
+#include "core/types/EPString.h"
 
 class VKShader :
 	public shader,
-	public EPFactoryMethod<VKShader>
+	public EPFactoryMethod<VKShader, const EPString<char>&>
 {
 private:
-	VKShader() {
+	VKShader(const EPString<char> &strFilename) :
+		m_strFilename(strFilename)
+	{
 		//
 	}
 
@@ -31,10 +34,10 @@ public:
 		Kill();
 	}
 
-	static EPRef<VKShader> InternalMake();
+	static EPRef<VKShader> InternalMake(const EPString<char>&);
 
 private:
-
+	EPString<char> m_strFilename;
 };
 
 #endif // ! VULKAN_PIPELINE_H_

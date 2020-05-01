@@ -14,6 +14,8 @@
 #include "core/types/EPRef.h"
 #include "core/types/EPFactoryMethod.h"
 
+#include "VKShader.h"
+
 class VKPipeline :
 	public pipeline,
 	public EPFactoryMethod<VKPipeline>
@@ -34,7 +36,8 @@ public:
 	static EPRef<VKPipeline> InternalMake();
 
 private:
-
+	EPRef<VKShader> m_pVertexShader = nullptr;
+	EPRef<VKShader> m_pFragmentShader = nullptr;
 };
 
 #endif // ! VULKAN_PIPELINE_H_
