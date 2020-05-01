@@ -17,6 +17,7 @@ public:
 
 public:
 	virtual RESULT Initialize() = 0;
+	virtual RESULT Kill() = 0;
 };
 
 #endif // ! SWAPCHAIN_H_

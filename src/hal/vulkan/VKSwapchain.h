@@ -25,20 +25,23 @@ private:
 	}
 
 	virtual RESULT Initialize() override;
+	virtual RESULT Kill() override;
 
 	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
 	RESULT SelectPresentationMode(VkPresentModeKHR);
 	RESULT SelectSwapchainExtent(VkExtent2D vkExtent2D);
 	RESULT CreateSwapchain();
 
-
 public:
-	virtual ~VKSwapchain() override = default;
+	virtual ~VKSwapchain() override {
+		Kill();
+	}
 
 	// This will actually create the swapchain
 	static EPRef<VKSwapchain> make(
 		VkPhysicalDevice vkPhysicalDevice,
 		VkSurfaceKHR vkSurface,
+		VkDevice vkLogicalDevice,
 		VkFormat vkSurfaceFormat,
 		VkColorSpaceKHR vkColorSpaceKHR,
 		VkPresentModeKHR vkPresentModeKHR,
@@ -56,8 +59,6 @@ public:
 		return const_cast<const EPVector<VkPresentModeKHR>&>(m_vkPresentationModes);
 	}
 
-	
-
 private:
 	VkSurfaceCapabilitiesKHR m_vkSurfaceCapabilities = {};
 	uint32_t m_vkPhysicalDeviceSurfaceFormatCount = 0;
@@ -70,12 +71,16 @@ private:
 
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkSurfaceKHR m_vkSurface = nullptr;
+	VkDevice m_vkLogicalDevice = nullptr;
 
 	VkExtent2D m_vkSelectedExtent2D;
-	uint32_t m_swapchainImageCount = 0;
 
 	VkSwapchainCreateInfoKHR m_vkSwapchainCreateInfo = {};
 
+	VkSwapchainKHR m_vkSwapchain = nullptr;
+
+	uint32_t m_swapchainImageCount = 0;
+	EPVector<VkImage> m_swapchainImages;
 };
 
 #endif // ! VULKAN_SWAPCHAIN_H_

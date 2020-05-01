@@ -63,6 +63,7 @@ Error:
 EPRef<VKSwapchain> VKSwapchain::make(
 	VkPhysicalDevice vkPhysicalDevice, 
 	VkSurfaceKHR vkSurface, 
+	VkDevice vkLogicalDevice,
 	VkFormat vkSurfaceFormat, 
 	VkColorSpaceKHR vkColorSpaceKHR,
 	VkPresentModeKHR vkPresentModeKHR,
@@ -73,9 +74,12 @@ EPRef<VKSwapchain> VKSwapchain::make(
 
 	CNM(vkPhysicalDevice, "Cannot make vk swapchain without a valid physical device");
 	CNM(vkSurface, "Cannot make vk swapchain without a valid surface");
+	CNM(vkLogicalDevice, "Cannot make vk swapchain without a valid logical device");
 
 	pVKSwapchain = VKSwapchain::make(vkPhysicalDevice, vkSurface);
 	CNM(pVKSwapchain, "Failed to initialize VK swapchain");
+
+	pVKSwapchain->m_vkLogicalDevice = vkLogicalDevice;
 
 	// Select valid presentation mode and format
 	CRM(pVKSwapchain->SelectSurfaceFormat(vkSurfaceFormat, vkColorSpaceKHR),
@@ -158,6 +162,7 @@ Error:
 	return r;
 }
 
+// TODO: We may want to open this up as needed in the future
 RESULT VKSwapchain::CreateSwapchain() {
 	RESULT r = R::OK;
 
@@ -165,6 +170,7 @@ RESULT VKSwapchain::CreateSwapchain() {
 
 	CNM(m_vkPhysicalDevice, "Cannot create swapchain without a valid physical device");
 	CNM(m_vkSurface, "Cannot create swapchain without a valid surface");
+	CNM(m_vkLogicalDevice, "Cannot create swapchain without a valid logcial device");
 
 	m_swapchainImageCount = m_vkSurfaceCapabilities.minImageCount + 1;
 
@@ -193,6 +199,38 @@ RESULT VKSwapchain::CreateSwapchain() {
 		m_vkSwapchainCreateInfo.queueFamilyIndexCount = 0; // Optional
 		m_vkSwapchainCreateInfo.pQueueFamilyIndices = nullptr; // Optional
 	}
+
+	m_vkSwapchainCreateInfo.preTransform = m_vkSurfaceCapabilities.currentTransform;
+	m_vkSwapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	m_vkSwapchainCreateInfo.presentMode = m_vkSelectedPresentationMode;
+	m_vkSwapchainCreateInfo.clipped = VK_TRUE;
+	m_vkSwapchainCreateInfo.oldSwapchain = nullptr;
+
+	CVKRM(vkCreateSwapchainKHR(m_vkLogicalDevice, &m_vkSwapchainCreateInfo, nullptr, &m_vkSwapchain),
+		"Failed to create swap chain");
+	CNM(m_vkSwapchain, "Swapchain is invalid");
+
+	CVKRM(vkGetSwapchainImagesKHR(m_vkLogicalDevice, m_vkSwapchain, &m_swapchainImageCount, nullptr),
+		"Failed to get swapchain image count");
+	CBM(m_swapchainImageCount != 0, "Found no swap chain images");
+
+	m_swapchainImages = EPVector<VkImage>(m_swapchainImageCount);
+	CVKRM(vkGetSwapchainImagesKHR(m_vkLogicalDevice, m_vkSwapchain, &m_swapchainImageCount, m_swapchainImages.data(m_swapchainImageCount)),
+		"Failed to get swapchain images");
+
+Error:
+	return r;
+}
+
+RESULT VKSwapchain::Kill() {
+	RESULT r = R::OK;
+
+	CNM(m_vkLogicalDevice, "Cannot kill swapchain without valid physical device");
+	CNM(m_vkSwapchain, "Cannot destroy swapchain without valid swapchain");
+	
+	vkDestroySwapchainKHR(m_vkLogicalDevice, m_vkSwapchain, nullptr);
+	m_vkSwapchain = nullptr;
+	
 
 Error:
 	return r;

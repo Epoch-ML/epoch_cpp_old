@@ -111,9 +111,9 @@ RESULT VulkanHAL::Initialize() {
 
 	CRM(InitializePhysicalDevice(), "Failed to initialize physical device");
 
-	CRM(InitializeSwapchain(), "Failed to initialize swapchain");
-
 	CRM(InitializeLogicalDevice(), "Failed to initialize physical device");
+
+	CRM(InitializeSwapchain(), "Failed to initialize swapchain");
 
 Error:
 	return r;
@@ -424,10 +424,12 @@ RESULT VulkanHAL::InitializeSwapchain() {
 
 	CNM(m_vkPhysicalDevice, "Swapchain needs valid physical device");
 	CNM(m_vkSurface, "Swapchain needs valid surface");
+	CNM(m_vkLogicalDevice, "Swapchain needs valid logical device");
 
 	m_pVKSwapchain = VKSwapchain::make(
 		m_vkPhysicalDevice, 
 		m_vkSurface, 
+		m_vkLogicalDevice,
 		VK_FORMAT_B8G8R8A8_SRGB, 
 		VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
 		VK_PRESENT_MODE_FIFO_KHR,
