@@ -36,6 +36,18 @@ public:
 		return R::OK;
 	}
 
+	const rectangle<int>& GetDimensions() const {
+		return const_cast<rectangle<int>&>(m_rectDimensions);
+	}
+
+	inline const int GetHeight() const {
+		return m_rectDimensions.height();
+	}
+
+	inline const int GetWidth() const {
+		return m_rectDimensions.width();
+	}
+
 protected:
 	rectangle<int> m_rectDimensions = {
 		DEFAULT_WINDOW_WIDTH,

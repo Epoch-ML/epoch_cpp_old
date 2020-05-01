@@ -490,6 +490,10 @@ RESULT VulkanHAL::InitializeSwapchain() {
 	CRM(m_pVKSwapchain->SelectPresentationMode(VK_PRESENT_MODE_FIFO_KHR),
 		"Failed to select presentation mode");
 	
+	CRM(m_pVKSwapchain->SelectSwapchainExtent(
+		{(uint32_t)GetSBWindowProcess()->GetWidth(), (uint32_t)GetSBWindowProcess()->GetHeight() }),
+		"Failed to set swap chain extends");
+
 Error:
 	return r;
 }

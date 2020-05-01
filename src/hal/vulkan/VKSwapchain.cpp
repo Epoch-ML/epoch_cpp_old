@@ -2,6 +2,7 @@
 
 #include "VulkanUtilities.h"
 
+#include <algorithm>
 
 RESULT VKSwapchain::Initialize() {
 	RESULT r = R::OK;
@@ -91,6 +92,29 @@ RESULT VKSwapchain::SelectPresentationMode(VkPresentModeKHR vkPresentModeKHR) {
 	}
 
 	CBM(fFound, "Failed to find selected presentation mode");
+
+Error:
+	return r;
+}
+
+RESULT VKSwapchain::SelectSwapchainExtent(VkExtent2D vkExtent2D) {
+	RESULT r = R::OK;
+
+	if (m_vkSurfaceCapabilities.currentExtent.width != UINT32_MAX) {
+		m_vkExtent2D = m_vkSurfaceCapabilities.currentExtent;
+	}
+	else {
+		m_vkExtent2D = vkExtent2D;
+
+		m_vkExtent2D.width = std::max(
+			m_vkSurfaceCapabilities.minImageExtent.width,
+			std::min(m_vkSurfaceCapabilities.maxImageExtent.width, m_vkExtent2D.width));
+		m_vkExtent2D.height = std::max(
+			m_vkSurfaceCapabilities.minImageExtent.height,
+			std::min(m_vkSurfaceCapabilities.maxImageExtent.height, m_vkExtent2D.height));
+	}
+
+	DEBUG_LINEOUT("vkExtends: {%d, %d}", m_vkExtent2D.width, m_vkExtent2D.height);
 
 Error:
 	return r;

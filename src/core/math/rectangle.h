@@ -41,6 +41,9 @@ public:
 		return *this;
 	}
 
+	inline const T& width() const { return w; }
+	inline const T& height() const { return h; }
+
 	inline T& width() { return w; }
 	inline T& height() { return h; }
 

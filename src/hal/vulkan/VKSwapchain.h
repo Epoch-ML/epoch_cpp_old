@@ -41,6 +41,7 @@ public:
 
 	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
 	RESULT SelectPresentationMode(VkPresentModeKHR);
+	RESULT SelectSwapchainExtent(VkExtent2D vkExtent2D);
 
 private:
 	VkSurfaceCapabilitiesKHR m_vkSurfaceCapabilities = {};
@@ -54,6 +55,8 @@ private:
 
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkSurfaceKHR m_vkSurface = nullptr;
+
+	VkExtent2D m_vkExtent2D;
 
 };
 
