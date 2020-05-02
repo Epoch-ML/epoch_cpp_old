@@ -54,7 +54,7 @@ private:
 	VkPipelineViewportStateCreateInfo m_vkPipelineViewportStateCreateInfo = {};
 	VkPipelineRasterizationStateCreateInfo m_vkPipelineRasterizationStateCreateInfo = {};
 	VkPipelineMultisampleStateCreateInfo m_vkPipelineMultisampleStateCreateInfo = {};
-	VkPipelineColorBlendStateCreateInfo m_vkPipelineColorBendStateCreateInfo = {};
+	VkPipelineColorBlendStateCreateInfo m_vkPipelineColorBlendStateCreateInfo = {};
 
 	VkPipelineColorBlendAttachmentState m_vkPipelineColorBlendAttachmentState = {};
 	VkViewport m_vkViewport = {};
@@ -80,6 +80,10 @@ private:
 	// Render pass
 	VkRenderPassCreateInfo m_vkRenderPassCreateInfo = {};
 	VkRenderPass m_vkRenderPass = nullptr;
+
+	VkGraphicsPipelineCreateInfo m_vkGraphicsPipelineCreateInfo = {};
+
+	VkPipeline m_vkGraphicsPipeline = nullptr;
 
 };
 

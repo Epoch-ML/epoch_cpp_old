@@ -99,15 +99,15 @@ RESULT VKPipeline::Initialize() {
 	//m_vkPipelineColorBlendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
 	//m_vkPipelineColorBlendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
 
-	m_vkPipelineColorBendStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	m_vkPipelineColorBendStateCreateInfo.logicOpEnable = VK_FALSE;
-	m_vkPipelineColorBendStateCreateInfo.logicOp = VK_LOGIC_OP_COPY; // Optional
-	m_vkPipelineColorBendStateCreateInfo.attachmentCount = 1;
-	m_vkPipelineColorBendStateCreateInfo.pAttachments = &m_vkPipelineColorBlendAttachmentState;
-	m_vkPipelineColorBendStateCreateInfo.blendConstants[0] = 0.0f; // Optional
-	m_vkPipelineColorBendStateCreateInfo.blendConstants[1] = 0.0f; // Optional
-	m_vkPipelineColorBendStateCreateInfo.blendConstants[2] = 0.0f; // Optional
-	m_vkPipelineColorBendStateCreateInfo.blendConstants[3] = 0.0f; // Optional
+	m_vkPipelineColorBlendStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	m_vkPipelineColorBlendStateCreateInfo.logicOpEnable = VK_FALSE;
+	m_vkPipelineColorBlendStateCreateInfo.logicOp = VK_LOGIC_OP_COPY; // Optional
+	m_vkPipelineColorBlendStateCreateInfo.attachmentCount = 1;
+	m_vkPipelineColorBlendStateCreateInfo.pAttachments = &m_vkPipelineColorBlendAttachmentState;
+	m_vkPipelineColorBlendStateCreateInfo.blendConstants[0] = 0.0f; // Optional
+	m_vkPipelineColorBlendStateCreateInfo.blendConstants[1] = 0.0f; // Optional
+	m_vkPipelineColorBlendStateCreateInfo.blendConstants[2] = 0.0f; // Optional
+	m_vkPipelineColorBlendStateCreateInfo.blendConstants[3] = 0.0f; // Optional
 
 	// Dynamic States
 	m_vkPipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -155,7 +155,34 @@ RESULT VKPipeline::Initialize() {
 		"Failed to create render pass");
 	CNM(m_vkRenderPass, "Failed to create render pass");
 
+	// Create the pipeline 
 	
+	VkPipelineShaderStageCreateInfo vkPipelineShaderStages[] = {
+		m_pVertexShader->GetShaderStageCreateInfo(), 
+		m_pFragmentShader->GetShaderStageCreateInfo()
+	};
+
+	m_vkGraphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	m_vkGraphicsPipelineCreateInfo.stageCount = 2;
+	m_vkGraphicsPipelineCreateInfo.pStages = vkPipelineShaderStages;
+	m_vkGraphicsPipelineCreateInfo.pVertexInputState = &m_vkPipelineVertexInputStateCreateInfo;
+	m_vkGraphicsPipelineCreateInfo.pInputAssemblyState = &m_vkPipelineInputAssemblyStateCreateInfo;
+	m_vkGraphicsPipelineCreateInfo.pViewportState = &m_vkPipelineViewportStateCreateInfo;
+	m_vkGraphicsPipelineCreateInfo.pRasterizationState = &m_vkPipelineRasterizationStateCreateInfo;
+	m_vkGraphicsPipelineCreateInfo.pMultisampleState = &m_vkPipelineMultisampleStateCreateInfo;
+	m_vkGraphicsPipelineCreateInfo.pDepthStencilState = nullptr; // Optional
+	m_vkGraphicsPipelineCreateInfo.pColorBlendState = &m_vkPipelineColorBlendStateCreateInfo;
+	m_vkGraphicsPipelineCreateInfo.pDynamicState = nullptr; // Optional
+	m_vkGraphicsPipelineCreateInfo.layout = m_vkPipelineLayout;
+	m_vkGraphicsPipelineCreateInfo.renderPass = m_vkRenderPass;
+	m_vkGraphicsPipelineCreateInfo.subpass = 0;
+	m_vkGraphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+	m_vkGraphicsPipelineCreateInfo.basePipelineIndex = -1; // Optional
+
+	CVKRM(vkCreateGraphicsPipelines(m_vkLogicalDevice, VK_NULL_HANDLE, 1, &m_vkGraphicsPipelineCreateInfo, nullptr, &m_vkGraphicsPipeline),
+		"Failed to create vk graphics pipeline");
+
+	CNM(m_vkGraphicsPipeline, "Failed to create graphics pipeline");
 
 Error:
 	return r;
@@ -168,6 +195,10 @@ RESULT VKPipeline::Kill() {
 	m_pFragmentShader = nullptr;
 
 	CN(m_vkLogicalDevice);
+	CN(m_vkGraphicsPipeline);
+
+	vkDestroyPipeline(m_vkLogicalDevice, m_vkGraphicsPipeline, nullptr);
+
 	CN(m_vkPipelineLayout);
 
 	vkDestroyPipelineLayout(m_vkLogicalDevice, m_vkPipelineLayout, nullptr);

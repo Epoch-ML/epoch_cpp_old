@@ -36,6 +36,10 @@ public:
 		Kill();
 	}
 
+	const VkPipelineShaderStageCreateInfo &GetShaderStageCreateInfo() {
+		return m_vkPipelineShaderStateCreateInfo;
+	}
+
 	static EPRef<VKShader> InternalMake(VkDevice, const EPString<char>&, VkShaderStageFlagBits);
 
 private:
