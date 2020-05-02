@@ -26,7 +26,7 @@ RESULT VKCommandBuffers::Initialize() {
 	m_vkCommandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	m_vkCommandBufferAllocateInfo.commandBufferCount = (uint32_t)m_vkCommandBuffers.size();
 
-	CVKRM(vkAllocateCommandBuffers(m_pVKCommandPool->GetLogicalDeviceHandle(), &m_vkCommandBufferAllocateInfo, m_vkCommandBuffers.data()),
+	CVKRM(vkAllocateCommandBuffers(m_pVKCommandPool->GetVKLogicalDeviceHandle(), &m_vkCommandBufferAllocateInfo, m_vkCommandBuffers.data()),
 		"Failed to allocate command buffers");
 
 	CRM(RecordCommandBuffers(), "Failed to record command buffers");
@@ -66,6 +66,8 @@ Error:
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
 
+	uint32_t graphicsPipeline = FindQueueFamilies(m_pVKCommandPool->GetVKPhyscialDeviceHandle(), m_pVKCommandPool->GetVKSurfaceHandle())[0];
+
 	for (uint32_t i = 0; i < m_vkCommandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
 
@@ -78,7 +80,7 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = m_pVKCommandPool->GetVKPipeline()->GetVKRenderPass();
+		renderPassInfo.renderPass = m_pVKCommandPool->GetVKPipeline()->GetVKRenderPassHandle();
 		renderPassInfo.framebuffer = m_pVKCommandPool->GetVKSwapchain()->GetSwapchainFramebuffers(i);
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = m_pVKCommandPool->GetVKSwapchain()->GetSwapchainExtent();
@@ -89,9 +91,20 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 
 		vkCmdBeginRenderPass(m_vkCommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+		// Bind the pipeline
+		vkCmdBindPipeline(
+			m_vkCommandBuffers[i], 
+			VK_PIPELINE_BIND_POINT_GRAPHICS, 
+			m_pVKCommandPool->GetVKPipeline()->GetVKPipelineHandle()
+		);
+
+		vkCmdDraw(m_vkCommandBuffers[i], 3, 1, 0, 0);
+
+		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
+
+		CVKRM(vkEndCommandBuffer(m_vkCommandBuffers[i]),
+			"Failed to end command buffer recording");
 	}
-
-
 
 Error:
 	return r;

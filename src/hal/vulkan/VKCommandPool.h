@@ -45,7 +45,10 @@ public:
 	}
 
 	VkCommandPool GetVKCommandPoolHandle() { return m_vkCommandPool; }
-	VkDevice GetLogicalDeviceHandle() { return m_vkLogicalDevice; }
+	VkPhysicalDevice GetVKPhyscialDeviceHandle() { return m_vkPhysicalDevice; }
+	VkDevice GetVKLogicalDeviceHandle() { return m_vkLogicalDevice; }
+	VkSurfaceKHR GetVKSurfaceHandle() { return m_vkSurface; }
+
 	const EPRef<VKSwapchain>& GetVKSwapchain() const { return m_pVKSwapchain; }
 	const EPRef<VKPipeline>& GetVKPipeline() const { return m_pVKPipeline; }
 

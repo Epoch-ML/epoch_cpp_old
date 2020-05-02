@@ -22,6 +22,8 @@ RESULT VKCommandPool::Initialize() {
 		"Failed to create vk command pool");
 	CNM(m_vkCommandPool, "Failed to create command pool");
 
+	CRM(InitializeCommandBuffers(), "Failed to set up command buffers");
+
 Error:
 	return r;
 }
@@ -63,7 +65,9 @@ Error:
 RESULT VKCommandPool::InitializeCommandBuffers() {
 	RESULT r = R::OK;
 
-	m_pVKCommandBuffers = VKCommandBuffers::make(this);
+	// TODO: This is nasty (the const ref doesn't create a new reference so when the underlying object 
+	// is killed it will null out the reference and kill our object
+	m_pVKCommandBuffers = VKCommandBuffers::make(*(new EPRef<VKCommandPool>(this)));
 	CNM(m_pVKCommandBuffers, "Failed to make vk command buffers");
 
 Error:

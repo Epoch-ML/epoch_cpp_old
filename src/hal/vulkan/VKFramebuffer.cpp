@@ -10,7 +10,7 @@ RESULT VKFramebuffer::Initialize() {
 	CNM(m_pVKSwapchain, "Cannot initialize framebuffer without valid swapchain");
 
 	m_vkFramebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-	m_vkFramebufferCreateInfo.renderPass = m_pVKPipeline->GetVKRenderPass();
+	m_vkFramebufferCreateInfo.renderPass = m_pVKPipeline->GetVKRenderPassHandle();
 	m_vkFramebufferCreateInfo.attachmentCount = 1;
 	m_vkFramebufferCreateInfo.pAttachments = m_pVKSwapchain->GetSwapchainImageViews();
 	m_vkFramebufferCreateInfo.width = m_pVKSwapchain->GetExtentsWidth();
