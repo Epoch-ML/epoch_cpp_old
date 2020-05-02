@@ -172,6 +172,8 @@ RESULT VKHAL::Render(void) {
 	VkSemaphore vkWaitSemaphores[] = { m_vkSemaphoseImageAvailable };
 	VkPipelineStageFlags vkPipelineStageFlags[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	VkSemaphore vkSignalSemaphores[] = { m_vkSemaphoreRenderFinished };
+	VkPresentInfoKHR vkPresentInfo{};
+	VkSwapchainKHR vkSwapchains[] = { m_pVKSwapchain->GetVKSwapchainHandle() };
 
 	CVKRM(vkAcquireNextImageKHR(m_vkLogicalDevice, m_pVKSwapchain->GetVKSwapchainHandle(), UINT64_MAX, m_vkSemaphoseImageAvailable, nullptr, &imageIndex),
 		"Failed to acquire next image from swapchain");
@@ -188,6 +190,20 @@ RESULT VKHAL::Render(void) {
 	CVKRM(vkQueueSubmit(m_vkGraphicsQueueHandle, 1, &vkSubmitInfo, VK_NULL_HANDLE),
 		"Failed to submit to graphics queue");
 
+	// Presentation info
+	vkPresentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	vkPresentInfo.waitSemaphoreCount = 1;
+	vkPresentInfo.pWaitSemaphores = vkSignalSemaphores;
+	vkPresentInfo.swapchainCount = 1;
+	vkPresentInfo.pSwapchains = vkSwapchains;
+	vkPresentInfo.pImageIndices = &imageIndex;
+
+	CVKRM(vkQueuePresentKHR(m_vkPresentationQueueHandle, &vkPresentInfo), "Failed to present to presentation queue");
+
+	//currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+
+	// TODO: move somewhere
 	CVKRM(vkDeviceWaitIdle(m_vkLogicalDevice), "Failed to wait idle");
 
 Error:
