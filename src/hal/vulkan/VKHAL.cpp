@@ -488,7 +488,7 @@ RESULT VKHAL::InitializeCommandPool() {
 	CNM(m_vkLogicalDevice, "Command pool needs valid logical device");
 	CNM(m_pVKSwapchain, "Command pool needs valid swapchain");
 
-	m_pVKCommandPool = VKCommandPool::make(m_vkLogicalDevice, m_pVKPipeline, m_pVKSwapchain);
+	m_pVKCommandPool = VKCommandPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_vkSurface, m_pVKPipeline, m_pVKSwapchain);
 	CNM(m_pVKCommandPool, "Failed to make vk command pool");
 
 Error:
