@@ -113,6 +113,8 @@ RESULT VKHAL::Initialize(void) {
 
 	CRM(InitializeCommandPool(), "Failed to initialize command pool");
 
+	CRM(InitializeSemaphores(), "Failed to initialize semaphores");
+
 Error:
 	return r;
 }
@@ -123,6 +125,16 @@ RESULT VKHAL::Kill(void) {
 	if (m_fEnableValidationLayers) {
 		CRM(DestroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugMessenger, nullptr),
 			"Failed to destroy debug messenger");
+	}
+
+	if (m_vkSemaphoseImageAvailable != nullptr) {
+		vkDestroySemaphore(m_vkLogicalDevice, m_vkSemaphoseImageAvailable, nullptr);
+		m_vkSemaphoseImageAvailable = nullptr;
+	}
+
+	if (m_vkSemaphoreRenderFinished != nullptr) {
+		vkDestroySemaphore(m_vkLogicalDevice, m_vkSemaphoreRenderFinished, nullptr);
+		m_vkSemaphoreRenderFinished = nullptr;
 	}
 
 	m_pVKCommandPool = nullptr;
@@ -147,6 +159,52 @@ RESULT VKHAL::Kill(void) {
 		vkDestroyInstance(m_vkInstance, nullptr);
 		m_vkInstance = nullptr;
 	}
+
+Error:
+	return r;
+}
+
+RESULT VKHAL::Render(void) {
+	RESULT r = R::OK;
+
+	uint32_t imageIndex;
+	VkSubmitInfo vkSubmitInfo{};
+	VkSemaphore vkWaitSemaphores[] = { m_vkSemaphoseImageAvailable };
+	VkPipelineStageFlags vkPipelineStageFlags[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	VkSemaphore vkSignalSemaphores[] = { m_vkSemaphoreRenderFinished };
+
+	CVKRM(vkAcquireNextImageKHR(m_vkLogicalDevice, m_pVKSwapchain->GetVKSwapchainHandle(), UINT64_MAX, m_vkSemaphoseImageAvailable, nullptr, &imageIndex),
+		"Failed to acquire next image from swapchain");
+
+	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	vkSubmitInfo.waitSemaphoreCount = 1;
+	vkSubmitInfo.pWaitSemaphores = vkWaitSemaphores;
+	vkSubmitInfo.pWaitDstStageMask = vkPipelineStageFlags;
+	vkSubmitInfo.commandBufferCount = 1;
+	vkSubmitInfo.pCommandBuffers = m_pVKCommandPool->GetCommandBufferHandle(imageIndex);  //&commandBuffers[imageIndex];
+	vkSubmitInfo.signalSemaphoreCount = 1;
+	vkSubmitInfo.pSignalSemaphores = vkSignalSemaphores;
+
+	CVKRM(vkQueueSubmit(m_vkGraphicsQueueHandle, 1, &vkSubmitInfo, VK_NULL_HANDLE),
+		"Failed to submit to graphics queue");
+
+	CVKRM(vkDeviceWaitIdle(m_vkLogicalDevice), "Failed to wait idle");
+
+Error:
+	return r;
+}
+
+RESULT VKHAL::InitializeSemaphores() {
+	RESULT r = R::OK;
+
+	VkSemaphoreCreateInfo vkSempahoreCreateInfo = {};
+	vkSempahoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_vkSemaphoseImageAvailable),
+		"Failed to create image available semaphore");
+
+	CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_vkSemaphoreRenderFinished),
+		"Failed to create render finished semaphore");
 
 Error:
 	return r;

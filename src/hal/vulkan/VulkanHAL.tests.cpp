@@ -39,8 +39,9 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 	pVulkanHAL = HALFactory::make(halType, EPRef<SandboxWindowProcess>(pSBProcess));
 	CNM(pVulkanHAL, "Failed to create VulkanHAL");
 
+	CRM(pVulkanHAL->Render(), "Failed to render frame");
 
-	/*
+	///*
 	// Don't quit while thread is running
 	while (pSandbox->GetRunningProcesses().size() != 0) {
 		// 

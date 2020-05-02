@@ -79,6 +79,7 @@ private:
 	VkAttachmentReference m_vkAttachmentReference = {};
 
 	VkSubpassDescription m_vkSubpassDescription = {};
+	VkSubpassDependency m_vkSubpassDependency = {};
 
 	// Render pass
 	VkRenderPassCreateInfo m_vkRenderPassCreateInfo = {};

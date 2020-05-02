@@ -52,6 +52,13 @@ public:
 	const EPRef<VKSwapchain>& GetVKSwapchain() const { return m_pVKSwapchain; }
 	const EPRef<VKPipeline>& GetVKPipeline() const { return m_pVKPipeline; }
 
+	const VkCommandBuffer* GetCommandBufferHandle(uint32_t index) const { 
+		if (m_pVKCommandBuffers == nullptr)
+			return nullptr;
+
+		return m_pVKCommandBuffers->GetCommandBufferHandle(index); 
+	}
+
 	static EPRef<VKCommandPool> InternalMake(VkPhysicalDevice, VkDevice, VkSurfaceKHR, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&);
 
 private:

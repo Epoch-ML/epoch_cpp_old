@@ -144,12 +144,22 @@ RESULT VKPipeline::Initialize() {
 	m_vkSubpassDescription.colorAttachmentCount = 1;
 	m_vkSubpassDescription.pColorAttachments = &m_vkAttachmentReference;
 
+	// Subpadd dependency
+	m_vkSubpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	m_vkSubpassDependency.dstSubpass = 0;
+	m_vkSubpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	m_vkSubpassDependency.srcAccessMask = 0;
+	m_vkSubpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	m_vkSubpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 	// Render pass
 	m_vkRenderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	m_vkRenderPassCreateInfo.attachmentCount = 1;
 	m_vkRenderPassCreateInfo.pAttachments = &m_vkAttachmentDescription;
 	m_vkRenderPassCreateInfo.subpassCount = 1;
 	m_vkRenderPassCreateInfo.pSubpasses = &m_vkSubpassDescription;
+	m_vkRenderPassCreateInfo.dependencyCount = 1;
+	m_vkRenderPassCreateInfo.pDependencies = &m_vkSubpassDependency;
 
 	CVKRM(vkCreateRenderPass(m_vkLogicalDevice, &m_vkRenderPassCreateInfo, nullptr, &m_vkRenderPass),
 		"Failed to create render pass");

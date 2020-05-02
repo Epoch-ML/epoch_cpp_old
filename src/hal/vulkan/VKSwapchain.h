@@ -48,6 +48,8 @@ public:
 
 	const VkFramebuffer GetSwapchainFramebuffers(uint32_t i) const;
 
+	const VkSwapchainKHR GetVKSwapchainHandle() const { return m_vkSwapchain; }
+
 	// This will actually create the swapchain
 	static EPRef<VKSwapchain> make(
 		VkPhysicalDevice vkPhysicalDevice,

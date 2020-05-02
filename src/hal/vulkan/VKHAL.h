@@ -35,6 +35,7 @@ protected:
 public:
 	virtual RESULT Initialize(void) override;
 	virtual RESULT Kill(void) override;
+	virtual RESULT Render(void) override;
 
 	virtual HAL::type GetType() override {
 		return HAL::type::vulkan;
@@ -99,6 +100,9 @@ private:
 		void* pUserData
 	);
 
+// Semaphores
+	RESULT InitializeSemaphores();
+
 private:
 	VkInstance m_vkInstance;
 	VkApplicationInfo m_vkApplicationInfo = {};
@@ -148,6 +152,10 @@ private:
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};
 	VkDebugUtilsMessengerCreateInfoEXT m_vkDebugMessangerCreateInfo;
+
+// Rendering semaphores
+	VkSemaphore m_vkSemaphoseImageAvailable;
+	VkSemaphore m_vkSemaphoreRenderFinished;
 
 #ifdef NDEBUG
 	const bool m_fEnableValidationLayers = false;
