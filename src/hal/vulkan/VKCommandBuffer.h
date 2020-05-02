@@ -20,11 +20,13 @@
 
 class VKCommandBuffer :
 	public command_buffer,
-	public EPFactoryMethod<VKCommandBuffer, VkDevice, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&>
+	public EPFactoryMethod<VKCommandBuffer, VkPhysicalDevice, VkDevice, VkSurfaceKHR, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&>
 {
 private:
-	VKCommandBuffer(VkDevice vkLogicalDevice, const EPRef<VKPipeline>& pVKPipeline, const EPRef<VKSwapchain>& pVKSwapchain) :
+	VKCommandBuffer(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, VkSurfaceKHR vkSurface, const EPRef<VKPipeline>& pVKPipeline, const EPRef<VKSwapchain>& pVKSwapchain) :
+		m_vkPhysicalDevice(vkPhysicalDevice),
 		m_vkLogicalDevice(vkLogicalDevice),
+		m_vkSurface(vkSurface),
 		m_pVKPipeline(pVKPipeline),
 		m_pVKSwapchain(pVKSwapchain)
 	{
@@ -39,13 +41,18 @@ public:
 		Kill();
 	}
 
-	static EPRef<VKCommandBuffer> InternalMake(VkDevice, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&);
+	static EPRef<VKCommandBuffer> InternalMake(VkPhysicalDevice, VkDevice, VkSurfaceKHR, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&);
 
 private:
+	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
+	VkSurfaceKHR m_vkSurface = nullptr;
 
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 	EPRef<VKPipeline> m_pVKPipeline = nullptr;
+
+	VkCommandPoolCreateInfo m_vkCommandPoolCreateInfo = {};
+	VkCommandPool m_vkCommandPool = nullptr;
 };
 
 #endif // ! VULKAN_COMMAND_BUFFER_H_

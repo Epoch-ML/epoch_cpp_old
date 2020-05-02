@@ -1,13 +1,13 @@
 #include "HALFactory.h"
 
-#include "hal/vulkan/VulkanHAL.h"
+#include "hal/vulkan/VKHAL.h"
 
 EPRef<HAL> HALFactory::InternalMakeVulkan(EPRef<SandboxWindowProcess> pSBWindowProcess) {
 	RESULT r = R::OK;
 
 	EPRef<HAL> pHAL = nullptr;
 
-	pHAL = new VulkanHAL();
+	pHAL = new VKHAL();
 	CNM(pHAL, "Failed to allocate VulkanHAL");
 
 	CRM(pHAL->SetSBWindowProcess(pSBWindowProcess), "Failed to set sandbox window process for HAL");

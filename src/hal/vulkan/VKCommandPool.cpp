@@ -2,7 +2,7 @@
 
 #include "VulkanUtilities.h"
 
-RESULT VKFramebuffer::Initialize() {
+RESULT VKCommandPool::Initialize() {
 	RESULT r = R::OK;
 	
 	CNM(m_vkLogicalDevice, "Cannot initialize command pool without valid logical device");
@@ -15,7 +15,7 @@ Error:
 	return r;
 }
 
-RESULT VKFramebuffer::Kill() {
+RESULT VKCommandPool::Kill() {
 	RESULT r = R::OK;
 
 	//

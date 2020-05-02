@@ -17,18 +17,19 @@
 #include "VKSwapchain.h"
 #include "VKPipeline.h"
 #include "VKFramebuffer.h"
+#include "VKCommandPool.h"
 
-class VulkanHAL :
+class VKHAL :
 	public HAL
 {
 
 public:
-	VulkanHAL() {
+	VKHAL() {
 		//
 	}
 
 protected:
-	virtual ~VulkanHAL() override {
+	virtual ~VKHAL() override {
 		//
 	}
 
@@ -89,6 +90,9 @@ private:
 // Framebuffers
 	RESULT InitializeFramebuffers();
 
+// Command pool
+	RESULT InitializeCommandPool();
+
 // Debugging
 	RESULT InitializeDebugMessenger(bool fCreate);
 
@@ -144,6 +148,9 @@ private:
 
 // Framebuffers
 	EPVector<EPRef<VKFramebuffer>> m_vkFramebuffers;
+
+// Command pool
+	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

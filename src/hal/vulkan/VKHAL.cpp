@@ -1,4 +1,4 @@
-#include "VulkanHAL.h"
+#include "VKHAL.h"
 
 #include <string>
 
@@ -8,7 +8,7 @@
 
 #include "VulkanUtilities.h"
 
-RESULT VulkanHAL::EnumerateInstanceExtensions() {
+RESULT VKHAL::EnumerateInstanceExtensions() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 
@@ -46,7 +46,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::EnumerateValidationLayers() {
+RESULT VKHAL::EnumerateValidationLayers() {
 	RESULT r = R::OK;
 	int count = 0;
 
@@ -80,7 +80,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::Initialize(void) {
+RESULT VKHAL::Initialize(void) {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 
@@ -110,17 +110,21 @@ RESULT VulkanHAL::Initialize(void) {
 
 	CRM(InitializeFramebuffers(), "Failed to initialize framebuffers");
 
+	CRM(InitializeCommandPool(), "Failed to initialize command pool");
+
 Error:
 	return r;
 }
 
-RESULT VulkanHAL::Kill(void) {
+RESULT VKHAL::Kill(void) {
 	RESULT r = R::OK;
 
 	if (m_fEnableValidationLayers) {
 		CRM(DestroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugMessenger, nullptr),
 			"Failed to destroy debug messenger");
 	}
+
+	m_pVKCommandPool = nullptr;
 
 	// Framebuffers
 	for (auto& pVKFramebuffer : m_vkFramebuffers) {
@@ -150,7 +154,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::InitializeInstance() {
+RESULT VKHAL::InitializeInstance() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 
@@ -196,7 +200,7 @@ Error:
 	return r;
 }
 
-bool VulkanHAL::CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice) {
+bool VKHAL::CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice) {
 	RESULT r = R::OK;
 
 	uint32_t vkPhysicalDeviceExtensionCount;
@@ -242,7 +246,7 @@ Error:
 }
 
 // TODO: We might want to keep this data 
-bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
+bool VKHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 	VkPhysicalDeviceProperties vkPhysicalDeviceProperties;
 	VkPhysicalDeviceFeatures vkPhysicalDeviceFeatures;
 
@@ -293,7 +297,7 @@ bool VulkanHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 }
 
 
-RESULT VulkanHAL::EnumeratePhysicalDevices() {
+RESULT VKHAL::EnumeratePhysicalDevices() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 
@@ -320,7 +324,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::InitializePhysicalDevice() {
+RESULT VKHAL::InitializePhysicalDevice() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 
@@ -341,7 +345,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::InitializeLogicalDevice() {
+RESULT VKHAL::InitializeLogicalDevice() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 	
@@ -405,7 +409,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::InitializeWindowSurface() {
+RESULT VKHAL::InitializeWindowSurface() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 
@@ -420,7 +424,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::InitializeSwapchain() {
+RESULT VKHAL::InitializeSwapchain() {
 	RESULT r = R::OK;
 
 	CNM(m_vkPhysicalDevice, "Swapchain needs valid physical device");
@@ -443,7 +447,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::InitializePipeline() {
+RESULT VKHAL::InitializePipeline() {
 	RESULT r = R::OK;
 
 	//CNM(m_vkPhysicalDevice, "Swapchain needs valid physical device");
@@ -458,7 +462,7 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::InitializeFramebuffers() {
+RESULT VKHAL::InitializeFramebuffers() {
 	RESULT r = R::OK;
 
 	CNM(m_vkLogicalDevice, "Framebuffers need valid logical device");
@@ -476,7 +480,23 @@ Error:
 	return r;
 }
 
-RESULT VulkanHAL::InitializeDebugMessenger(bool fCreate) {
+RESULT VKHAL::InitializeCommandPool() {
+	RESULT r = R::OK;
+
+	CNM(m_vkPhysicalDevice, "Command pool needs valid physical device");
+	CNM(m_vkSurface, "Command pool needs valid surface");
+	CNM(m_vkLogicalDevice, "Command pool needs valid logical device");
+	CNM(m_pVKSwapchain, "Command pool needs valid swapchain");
+
+	m_pVKCommandPool = VKCommandPool::make(m_vkLogicalDevice, m_pVKPipeline, m_pVKSwapchain);
+	CNM(m_pVKCommandPool, "Failed to make vk command pool");
+
+Error:
+	return r;
+}
+
+
+RESULT VKHAL::InitializeDebugMessenger(bool fCreate) {
 	RESULT r = R::OK;
 
 	if (m_fEnableValidationLayers == false) {
@@ -498,7 +518,7 @@ Error:
 	return r;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL VulkanHAL::VKDebugCallback(
+VKAPI_ATTR VkBool32 VKAPI_CALL VKHAL::VKDebugCallback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity,
 	VkDebugUtilsMessageTypeFlagsEXT msgType,
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -507,7 +527,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VulkanHAL::VKDebugCallback(
 {
 	RESULT r = R::OK;
 
-	VulkanHAL* pVKHAL = reinterpret_cast<VulkanHAL*>(pUserData);
+	VKHAL* pVKHAL = reinterpret_cast<VKHAL*>(pUserData);
 	CNM(pVKHAL, "VulkanHAL not valid");
 
 	if (msgSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
