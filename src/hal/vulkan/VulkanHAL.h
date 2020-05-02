@@ -16,6 +16,7 @@
 
 #include "VKSwapchain.h"
 #include "VKPipeline.h"
+#include "VKFramebuffer.h"
 
 class VulkanHAL :
 	public HAL
@@ -85,6 +86,9 @@ private:
 // Pipeline
 	RESULT InitializePipeline();
 
+// Framebuffers
+	RESULT InitializeFramebuffers();
+
 // Debugging
 	RESULT InitializeDebugMessenger(bool fCreate);
 
@@ -137,6 +141,9 @@ private:
 
 // Pipeline
 	EPRef<VKPipeline> m_pVKPipeline = nullptr;
+
+// Framebuffers
+	EPVector<EPRef<VKFramebuffer>> m_vkFramebuffers;
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

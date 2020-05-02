@@ -108,6 +108,8 @@ RESULT VulkanHAL::Initialize(void) {
 
 	CRM(InitializePipeline(), "Failed to initialize pipeline");
 
+	CRM(InitializeFramebuffers(), "Failed to initialize framebuffers");
+
 Error:
 	return r;
 }
@@ -119,6 +121,12 @@ RESULT VulkanHAL::Kill(void) {
 		CRM(DestroyDebugUtilsMessengerEXT(m_vkInstance, m_vkDebugMessenger, nullptr),
 			"Failed to destroy debug messenger");
 	}
+
+	// Framebuffers
+	for (auto& pVKFramebuffer : m_vkFramebuffers) {
+		pVKFramebuffer = nullptr;
+	}
+	m_vkFramebuffers.clear(true);
 
 	m_pVKPipeline = nullptr;
 	m_pVKSwapchain = nullptr;
@@ -445,6 +453,24 @@ RESULT VulkanHAL::InitializePipeline() {
 
 	m_pVKPipeline = VKPipeline::make(m_vkLogicalDevice, m_pVKSwapchain);
 	CNM(m_pVKPipeline, "Failed to make vk pipeline");
+
+Error:
+	return r;
+}
+
+RESULT VulkanHAL::InitializeFramebuffers() {
+	RESULT r = R::OK;
+
+	CNM(m_vkLogicalDevice, "Framebuffers need valid logical device");
+	CNM(m_pVKSwapchain, "Framebuffers need valid swapchain");
+	CNM(m_pVKPipeline, "Framebuffers need valid pipeline");
+
+	for (uint32_t i = 0; i < m_pVKSwapchain->GetSwapchainImageCount(); i++) {
+		EPRef<VKFramebuffer> pVKFramebuffer = VKFramebuffer::make(m_vkLogicalDevice, m_pVKPipeline, m_pVKSwapchain);
+		CNM(pVKFramebuffer, "Failed to create framebuffer");
+
+		m_vkFramebuffers.PushBack(pVKFramebuffer);
+	}
 
 Error:
 	return r;
