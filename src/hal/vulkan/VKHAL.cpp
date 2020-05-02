@@ -187,7 +187,7 @@ RESULT VKHAL::Render(void) {
 	vkSubmitInfo.signalSemaphoreCount = 1;
 	vkSubmitInfo.pSignalSemaphores = vkSignalSemaphores;
 
-	CVKRM(vkQueueSubmit(m_vkGraphicsQueueHandle, 1, &vkSubmitInfo, VK_NULL_HANDLE),
+	CVKRM(vkQueueSubmit(m_vkGraphicsQueueHandle, 1, &vkSubmitInfo, nullptr),
 		"Failed to submit to graphics queue");
 
 	// Presentation info
@@ -204,7 +204,7 @@ RESULT VKHAL::Render(void) {
 
 
 	// TODO: move somewhere
-	CVKRM(vkDeviceWaitIdle(m_vkLogicalDevice), "Failed to wait idle");
+	//CVKRM(vkDeviceWaitIdle(m_vkLogicalDevice), "Failed to wait idle");
 
 Error:
 	return r;
