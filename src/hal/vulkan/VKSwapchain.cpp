@@ -4,6 +4,9 @@
 
 #include <algorithm>
 
+#include "VKPipeline.h"
+#include "VKFramebuffer.h"
+
 RESULT VKSwapchain::Initialize() {
 	RESULT r = R::OK;
 
@@ -34,6 +37,26 @@ RESULT VKSwapchain::Initialize() {
 	m_vkPresentationModes = EPVector< VkPresentModeKHR>(m_vkPhysicalDevicePresenationModeCount);
 	CVKRM(vkGetPhysicalDeviceSurfacePresentModesKHR(m_vkPhysicalDevice, m_vkSurface, &m_vkPhysicalDevicePresenationModeCount, m_vkPresentationModes.data(m_vkPhysicalDevicePresenationModeCount)),
 		"Failed to get physical device presentation modes");
+
+Error:
+	return r;
+}
+
+RESULT VKSwapchain::InitializeFramebuffers(const EPRef<VKPipeline> &pVKPipeline) {
+	RESULT r = R::OK;
+
+	m_pVKPipeline = pVKPipeline;
+
+	CNM(m_vkLogicalDevice, "Framebuffers need valid logical device");
+	CNM(m_pVKPipeline, "Framebuffers need valid pipeline");
+
+	for (uint32_t i = 0; i < GetSwapchainImageCount(); i++) {
+		// TODO: this is nasty
+		EPRef<VKFramebuffer> pVKFramebuffer = VKFramebuffer::make(m_vkLogicalDevice, m_pVKPipeline, *(new EPRef<VKSwapchain>(this)));
+		CNM(pVKFramebuffer, "Failed to create framebuffer");
+
+		m_vkFramebuffers.PushBack(pVKFramebuffer);
+	}
 
 Error:
 	return r;
@@ -248,11 +271,30 @@ Error:
 	return r;
 }
 
+RESULT VKSwapchain::KillFramebuffers() {
+	RESULT r = R::OK;
+
+	CNM(m_pVKPipeline, "Cannot destroy framebufers without valid pipeline");
+
+	// Framebuffers
+	for (int i = 0; i < m_vkFramebuffers.size(); i++) {
+		m_vkFramebuffers[i] = nullptr;
+	}
+	m_vkFramebuffers.clear(true);
+
+	m_pVKPipeline = nullptr;
+
+Error:
+	return r;
+}
+
 RESULT VKSwapchain::Kill() {
 	RESULT r = R::OK;
 
 	CNM(m_vkLogicalDevice, "Cannot kill swapchain without valid physical device");
 	CNM(m_vkSwapchain, "Cannot destroy swapchain without valid swapchain");
+
+	// Framebuffers done elsewhere 
 
 	for (auto imageView : m_swapchainImageViews) {
 		vkDestroyImageView(m_vkLogicalDevice, imageView, nullptr);
@@ -263,4 +305,19 @@ RESULT VKSwapchain::Kill() {
 
 Error:
 	return r;
+}
+
+const VkFramebuffer VKSwapchain::GetSwapchainFramebuffers(uint32_t i) const {
+	return m_vkFramebuffers[i]->GetVKFrameBufferHandle();
+}
+
+VKSwapchain::VKSwapchain(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface) :
+	m_vkPhysicalDevice(vkPhysicalDevice),
+	m_vkSurface(vkSurface)
+{
+	//
+}
+
+VKSwapchain::~VKSwapchain() {
+	Kill();
 }

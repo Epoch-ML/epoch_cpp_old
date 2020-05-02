@@ -40,6 +40,7 @@ public:
 	}
 
 	static EPRef<VKFramebuffer> InternalMake(VkDevice, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&);
+	const VkFramebuffer GetVKFrameBufferHandle() const { return m_vkFramebuffer; }
 
 private:
 	VkDevice m_vkLogicalDevice = nullptr;
@@ -49,7 +50,7 @@ private:
 
 	// Framebuffer
 	VkFramebufferCreateInfo m_vkFramebufferCreateInfo = {};
-	VkFramebuffer m_vkFramebuffer;
+	VkFramebuffer m_vkFramebuffer = nullptr;
 };
 
 #endif // ! VULKAN_FRAMEBUFFER_H_

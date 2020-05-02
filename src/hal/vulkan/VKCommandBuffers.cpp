@@ -29,6 +29,8 @@ RESULT VKCommandBuffers::Initialize() {
 	CVKRM(vkAllocateCommandBuffers(m_pVKCommandPool->GetLogicalDeviceHandle(), &m_vkCommandBufferAllocateInfo, m_vkCommandBuffers.data()),
 		"Failed to allocate command buffers");
 
+	CRM(RecordCommandBuffers(), "Failed to record command buffers");
+
 Error:
 	return r;
 }
@@ -59,4 +61,38 @@ Success:
 Error:
 	pVKCommandBuffer = nullptr;
 	return nullptr;
+}
+
+RESULT VKCommandBuffers::RecordCommandBuffers() {
+	RESULT r = R::OK;
+
+	for (uint32_t i = 0; i < m_vkCommandBuffers.size(); i++) {
+		VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
+
+		vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		vkCommandBufferBeginInfo.flags = 0; // Optional
+		vkCommandBufferBeginInfo.pInheritanceInfo = nullptr; // Optional
+
+		CVKRM(vkBeginCommandBuffer(m_vkCommandBuffers[i], &vkCommandBufferBeginInfo),
+			"Failed to begin command buffer recording");
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = m_pVKCommandPool->GetVKPipeline()->GetVKRenderPass();
+		renderPassInfo.framebuffer = m_pVKCommandPool->GetVKSwapchain()->GetSwapchainFramebuffers(i);
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = m_pVKCommandPool->GetVKSwapchain()->GetSwapchainExtent();
+
+		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(m_vkCommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	}
+
+
+
+Error:
+	return r;
 }

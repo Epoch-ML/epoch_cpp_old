@@ -32,6 +32,8 @@ public:
 
 	static EPRef<VKCommandBuffers> InternalMake(const EPRef<VKCommandPool>& pVKCommandPool);
 
+	RESULT RecordCommandBuffers();
+
 private:
 	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
 

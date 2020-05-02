@@ -13,19 +13,16 @@
 #include "core/types/EPVector.h"
 #include "core/types/EPRef.h"
 
+class VKPipeline;
+class VKFramebuffer;
+
 class VKSwapchain :
 	public swapchain
 {
 private:
-	VKSwapchain(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface) :
-		m_vkPhysicalDevice(vkPhysicalDevice),
-		m_vkSurface(vkSurface)
-	{
-		//
-	}
+	VKSwapchain(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface);
 
 	virtual RESULT Initialize() override;
-	virtual RESULT Kill() override;
 
 
 	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
@@ -33,17 +30,23 @@ private:
 	RESULT SelectSwapchainExtent(VkExtent2D vkExtent2D);
 	RESULT CreateSwapchain();
 
-public:
-	virtual ~VKSwapchain() override {
-		Kill();
-	}
+	virtual RESULT Kill() override;
 
+public:
+	virtual ~VKSwapchain() override;
+
+	RESULT KillFramebuffers();
+	RESULT InitializeFramebuffers(const EPRef<VKPipeline> &pVKPipeline);
+
+	const VkExtent2D& GetSwapchainExtent() const { return m_vkSelectedExtent2D; }
 	virtual uint32_t GetExtentsWidth() override { return m_vkSelectedExtent2D.width; }
 	virtual uint32_t GetExtentsHeight() override { return m_vkSelectedExtent2D.height; }
 
 	VkFormat GetVKSwapchainImageFormat() { return m_vkSwapchainImageFormat; }
 	uint32_t GetSwapchainImageCount() { return (uint32_t)m_swapchainImages.size(); }
 	const VkImageView* GetSwapchainImageViews() { return m_swapchainImageViews.data(); }
+
+	const VkFramebuffer GetSwapchainFramebuffers(uint32_t i) const;
 
 	// This will actually create the swapchain
 	static EPRef<VKSwapchain> make(
@@ -91,6 +94,11 @@ private:
 	VkFormat m_vkSwapchainImageFormat;
 	EPVector<VkImage> m_swapchainImages;
 	EPVector<VkImageView> m_swapchainImageViews;
+
+
+// Framebuffers
+	EPRef<VKPipeline> m_pVKPipeline = nullptr;
+	EPVector<EPRef<VKFramebuffer>> m_vkFramebuffers;
 };
 
 #endif // ! VULKAN_SWAPCHAIN_H_

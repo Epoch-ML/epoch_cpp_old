@@ -108,7 +108,8 @@ RESULT VKHAL::Initialize(void) {
 
 	CRM(InitializePipeline(), "Failed to initialize pipeline");
 
-	CRM(InitializeFramebuffers(), "Failed to initialize framebuffers");
+	// TODO: One of these things is not like the others
+	CRM(m_pVKSwapchain->InitializeFramebuffers(m_pVKPipeline), "Failed to initialize framebuffers");
 
 	CRM(InitializeCommandPool(), "Failed to initialize command pool");
 
@@ -126,13 +127,10 @@ RESULT VKHAL::Kill(void) {
 
 	m_pVKCommandPool = nullptr;
 
-	// Framebuffers
-	for (auto& pVKFramebuffer : m_vkFramebuffers) {
-		pVKFramebuffer = nullptr;
-	}
-	m_vkFramebuffers.clear(true);
+	m_pVKSwapchain->KillFramebuffers();
 
 	m_pVKPipeline = nullptr;
+
 	m_pVKSwapchain = nullptr;
 
 	if (m_vkLogicalDevice != nullptr) {
@@ -457,24 +455,6 @@ RESULT VKHAL::InitializePipeline() {
 
 	m_pVKPipeline = VKPipeline::make(m_vkLogicalDevice, m_pVKSwapchain);
 	CNM(m_pVKPipeline, "Failed to make vk pipeline");
-
-Error:
-	return r;
-}
-
-RESULT VKHAL::InitializeFramebuffers() {
-	RESULT r = R::OK;
-
-	CNM(m_vkLogicalDevice, "Framebuffers need valid logical device");
-	CNM(m_pVKSwapchain, "Framebuffers need valid swapchain");
-	CNM(m_pVKPipeline, "Framebuffers need valid pipeline");
-
-	for (uint32_t i = 0; i < m_pVKSwapchain->GetSwapchainImageCount(); i++) {
-		EPRef<VKFramebuffer> pVKFramebuffer = VKFramebuffer::make(m_vkLogicalDevice, m_pVKPipeline, m_pVKSwapchain);
-		CNM(pVKFramebuffer, "Failed to create framebuffer");
-
-		m_vkFramebuffers.PushBack(pVKFramebuffer);
-	}
 
 Error:
 	return r;

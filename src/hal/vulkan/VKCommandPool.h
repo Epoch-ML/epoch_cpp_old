@@ -46,6 +46,8 @@ public:
 
 	VkCommandPool GetVKCommandPoolHandle() { return m_vkCommandPool; }
 	VkDevice GetLogicalDeviceHandle() { return m_vkLogicalDevice; }
+	const EPRef<VKSwapchain>& GetVKSwapchain() const { return m_pVKSwapchain; }
+	const EPRef<VKPipeline>& GetVKPipeline() const { return m_pVKPipeline; }
 
 	static EPRef<VKCommandPool> InternalMake(VkPhysicalDevice, VkDevice, VkSurfaceKHR, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&);
 

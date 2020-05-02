@@ -39,7 +39,7 @@ public:
 
 	static EPRef<VKPipeline> InternalMake(VkDevice, const EPRef<VKSwapchain>&);
 
-	const VkRenderPass GetVKRenderPass() { return m_vkRenderPass; }
+	const VkRenderPass GetVKRenderPass() const { return m_vkRenderPass; }
 
 private:
 	VkDevice m_vkLogicalDevice = nullptr;

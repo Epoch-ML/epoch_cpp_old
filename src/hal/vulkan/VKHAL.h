@@ -16,7 +16,6 @@
 
 #include "VKSwapchain.h"
 #include "VKPipeline.h"
-#include "VKFramebuffer.h"
 #include "VKCommandPool.h"
 
 class VKHAL :
@@ -87,9 +86,6 @@ private:
 // Pipeline
 	RESULT InitializePipeline();
 
-// Framebuffers
-	RESULT InitializeFramebuffers();
-
 // Command pool
 	RESULT InitializeCommandPool();
 
@@ -145,9 +141,6 @@ private:
 
 // Pipeline
 	EPRef<VKPipeline> m_pVKPipeline = nullptr;
-
-// Framebuffers
-	EPVector<EPRef<VKFramebuffer>> m_vkFramebuffers;
 
 // Command pool
 	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;

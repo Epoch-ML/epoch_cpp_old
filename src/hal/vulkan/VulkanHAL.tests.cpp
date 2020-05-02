@@ -40,10 +40,12 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 	CNM(pVulkanHAL, "Failed to create VulkanHAL");
 
 
+	/*
 	// Don't quit while thread is running
 	while (pSandbox->GetRunningProcesses().size() != 0) {
 		// 
 	}
+	//*/
 
 
 	CRM(pVulkanHAL->Kill(), "Failed to kill VulkanHAL");
