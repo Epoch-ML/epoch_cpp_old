@@ -41,6 +41,8 @@ public:
 	virtual uint32_t GetExtentsWidth() override { return m_vkSelectedExtent2D.width; }
 	virtual uint32_t GetExtentsHeight() override { return m_vkSelectedExtent2D.height; }
 
+	VkFormat GetVKFormat() { return m_vkSwapchainImageFormat; }
+
 	// This will actually create the swapchain
 	static EPRef<VKSwapchain> make(
 		VkPhysicalDevice vkPhysicalDevice,

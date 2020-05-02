@@ -71,6 +71,17 @@ private:
 	VkPipelineLayoutCreateInfo m_vkPipelineLayoutCreateInfo = {};
 	VkPipelineLayout m_vkPipelineLayout = nullptr;
 
+	// TODO: Render pass is here, move into an object
+	VkAttachmentDescription m_vkAttachmentDescription = {};
+	VkAttachmentReference m_vkAttachmentReference = {};
+
+	VkSubpassDescription m_vkSubpassDescription = {};
+
+	// Pipeline Layout and render pass
+	VkRenderPassCreateInfo m_vkRenderPassCreateInfo = {};
+	VkRenderPass m_vkRenderPass = nullptr;
+	VkPipelineLayout m_vkPipelineLayout = nullptr;
+
 };
 
 #endif // ! VULKAN_PIPELINE_H_

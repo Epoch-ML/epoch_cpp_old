@@ -125,6 +125,38 @@ RESULT VKPipeline::Initialize() {
 		"Failed to creat the pipeline layout");
 	CNM(m_vkPipelineLayout, "Failed to create pipeline layout");
 
+	// Color attachment TODO: Split into object
+	m_vkAttachmentDescription.format = m_pVKSwapchain->GetVKSwapchainImageFormat();
+	m_vkAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+	m_vkAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	m_vkAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	m_vkAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	m_vkAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	m_vkAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	m_vkAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	// Color attachment reference
+	m_vkAttachmentReference.attachment = 0;
+	m_vkAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	// Subpass
+	m_vkSubpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	m_vkSubpassDescription.colorAttachmentCount = 1;
+	m_vkSubpassDescription.pColorAttachments = &m_vkAttachmentReference;
+
+	// Render pass
+	m_vkRenderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	m_vkRenderPassCreateInfo.attachmentCount = 1;
+	m_vkRenderPassCreateInfo.pAttachments = &m_vkAttachmentDescription;
+	m_vkRenderPassCreateInfo.subpassCount = 1;
+	m_vkRenderPassCreateInfo.pSubpasses = &m_vkSubpassDescription;
+
+	CVKRM(vkCreateRenderPass(m_vkLogicalDevice, &m_vkRenderPassCreateInfo, nullptr, &m_vkRenderPass),
+		"Failed to create render pass");
+	CNM(m_vkRenderPass, "Failed to create render pass");
+
+	
+
 Error:
 	return r;
 }
@@ -139,6 +171,10 @@ RESULT VKPipeline::Kill() {
 	CN(m_vkPipelineLayout);
 
 	vkDestroyPipelineLayout(m_vkLogicalDevice, m_vkPipelineLayout, nullptr);
+
+	CN(m_vkRenderPass);
+
+	vkDestroyRenderPass(m_vkLogicalDevice, m_vkRenderPass, nullptr);
 
 Error:
 	return r;
