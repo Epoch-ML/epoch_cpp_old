@@ -77,10 +77,9 @@ private:
 
 	VkSubpassDescription m_vkSubpassDescription = {};
 
-	// Pipeline Layout and render pass
+	// Render pass
 	VkRenderPassCreateInfo m_vkRenderPassCreateInfo = {};
 	VkRenderPass m_vkRenderPass = nullptr;
-	VkPipelineLayout m_vkPipelineLayout = nullptr;
 
 };
 
