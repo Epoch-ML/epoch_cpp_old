@@ -1,5 +1,7 @@
 #include "Win64SandboxWindowProcess.h"
 
+#include "hal/HALFactory.h"
+
 Win64SandboxWindowProcess::Win64SandboxWindowProcess() {
     // empty
 }
@@ -85,12 +87,22 @@ Error:
 RESULT Win64SandboxWindowProcess::Process() {
 	RESULT r = R::OK;
 
+	EPRef<HAL> pVulkanHAL = nullptr;
+	HAL::type halType = HAL::type::vulkan;
+
 	CRM(Initialize(), "Failed to initialize win64 window");
+
+	pVulkanHAL = HALFactory::make(halType, EPRef<SandboxWindowProcess>(this));
+	CNM(pVulkanHAL, "Failed to create VulkanHAL");
 
 	CRM(Show(), "Failed to show win64 window");
 
 	while (IsRunning()) {
 		CRM(HandleWin64Messages(), "Failed to handle win64 messages");
+
+		CRM(pVulkanHAL->Render(), "Failed to render frame");
+
+		///Sleep(1000);
 
 		// TODO: Swap buffers
 		// CBM(SwapBuffers(m_hDeviceContext), "Failed to swap buiffers");

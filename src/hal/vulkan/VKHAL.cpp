@@ -127,9 +127,9 @@ RESULT VKHAL::Kill(void) {
 			"Failed to destroy debug messenger");
 	}
 
-	if (m_vkSemaphoseImageAvailable != nullptr) {
-		vkDestroySemaphore(m_vkLogicalDevice, m_vkSemaphoseImageAvailable, nullptr);
-		m_vkSemaphoseImageAvailable = nullptr;
+	if (m_vkSemaphoreImageAvailable != nullptr) {
+		vkDestroySemaphore(m_vkLogicalDevice, m_vkSemaphoreImageAvailable, nullptr);
+		m_vkSemaphoreImageAvailable = nullptr;
 	}
 
 	if (m_vkSemaphoreRenderFinished != nullptr) {
@@ -169,13 +169,13 @@ RESULT VKHAL::Render(void) {
 
 	uint32_t imageIndex;
 	VkSubmitInfo vkSubmitInfo{};
-	VkSemaphore vkWaitSemaphores[] = { m_vkSemaphoseImageAvailable };
+	VkSemaphore vkWaitSemaphores[] = { m_vkSemaphoreImageAvailable };
 	VkPipelineStageFlags vkPipelineStageFlags[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	VkSemaphore vkSignalSemaphores[] = { m_vkSemaphoreRenderFinished };
 	VkPresentInfoKHR vkPresentInfo{};
 	VkSwapchainKHR vkSwapchains[] = { m_pVKSwapchain->GetVKSwapchainHandle() };
 
-	CVKRM(vkAcquireNextImageKHR(m_vkLogicalDevice, m_pVKSwapchain->GetVKSwapchainHandle(), UINT64_MAX, m_vkSemaphoseImageAvailable, nullptr, &imageIndex),
+	CVKRM(vkAcquireNextImageKHR(m_vkLogicalDevice, m_pVKSwapchain->GetVKSwapchainHandle(), UINT64_MAX, m_vkSemaphoreImageAvailable, nullptr, &imageIndex),
 		"Failed to acquire next image from swapchain");
 
 	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -204,7 +204,7 @@ RESULT VKHAL::Render(void) {
 
 
 	// TODO: move somewhere
-	//CVKRM(vkDeviceWaitIdle(m_vkLogicalDevice), "Failed to wait idle");
+	CVKRM(vkDeviceWaitIdle(m_vkLogicalDevice), "Failed to wait idle");
 
 Error:
 	return r;
@@ -216,7 +216,7 @@ RESULT VKHAL::InitializeSemaphores() {
 	VkSemaphoreCreateInfo vkSempahoreCreateInfo = {};
 	vkSempahoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-	CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_vkSemaphoseImageAvailable),
+	CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_vkSemaphoreImageAvailable),
 		"Failed to create image available semaphore");
 
 	CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_vkSemaphoreRenderFinished),

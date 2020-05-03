@@ -154,7 +154,7 @@ private:
 	VkDebugUtilsMessengerCreateInfoEXT m_vkDebugMessangerCreateInfo;
 
 // Rendering semaphores
-	VkSemaphore m_vkSemaphoseImageAvailable;
+	VkSemaphore m_vkSemaphoreImageAvailable;
 	VkSemaphore m_vkSemaphoreRenderFinished;
 
 #ifdef NDEBUG

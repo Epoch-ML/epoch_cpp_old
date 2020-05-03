@@ -36,9 +36,9 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 	//CRM(pSBProcess->Run(), "Failed to run Win64 Window Console Process");
 
 	// TODO: 
-	pVulkanHAL = HALFactory::make(halType, EPRef<SandboxWindowProcess>(pSBProcess));
-	CNM(pVulkanHAL, "Failed to create VulkanHAL");
-	CRM(pVulkanHAL->Render(), "Failed to render frame");
+	//pVulkanHAL = HALFactory::make(halType, EPRef<SandboxWindowProcess>(pSBProcess));
+	//CNM(pVulkanHAL, "Failed to create VulkanHAL");
+	//CRM(pVulkanHAL->Render(), "Failed to render frame");
 
 	///*
 	// Don't quit while thread is running

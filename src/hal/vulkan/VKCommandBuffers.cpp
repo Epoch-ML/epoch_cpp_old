@@ -19,7 +19,10 @@ RESULT VKCommandBuffers::Initialize() {
 
 	CN(m_pVKCommandPool);
 	
-	m_vkCommandBuffers = EPVector<VkCommandBuffer>(2, true);
+	//commandBuffers.resize(swapChainFramebuffers.size());
+
+
+	m_vkCommandBuffers = EPVector<VkCommandBuffer>(3, true);
 
 	m_vkCommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	m_vkCommandBufferAllocateInfo.commandPool = m_pVKCommandPool->GetVKCommandPoolHandle();
@@ -66,7 +69,10 @@ Error:
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
 
-	uint32_t graphicsPipeline = FindQueueFamilies(m_pVKCommandPool->GetVKPhyscialDeviceHandle(), m_pVKCommandPool->GetVKSurfaceHandle())[0];
+	uint32_t graphicsPipeline = FindQueueFamilies(
+		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
+		m_pVKCommandPool->GetVKSurfaceHandle()
+	)[0];
 
 	for (uint32_t i = 0; i < m_vkCommandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
