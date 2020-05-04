@@ -106,14 +106,7 @@ RESULT VKHAL::Initialize(void) {
 
 	CRM(InitializeSwapchain(), "Failed to initialize swapchain");
 
-	CRM(InitializePipeline(), "Failed to initialize pipeline");
-
-	// TODO: One of these things is not like the others
-	CRM(m_pVKSwapchain->InitializeFramebuffers(m_pVKPipeline), "Failed to initialize framebuffers");
-
-	CRM(InitializeCommandPool(), "Failed to initialize command pool");
-
-	CRM(InitializeSemaphores(), "Failed to initialize semaphores");
+	CRM(InitializeConcurrencyPrimitives(), "Failed to initialize semaphores");
 
 Error:
 	return r;
@@ -127,23 +120,24 @@ RESULT VKHAL::Kill(void) {
 			"Failed to destroy debug messenger");
 	}
 
-	if (m_vkSemaphoreImageAvailable != nullptr) {
-		vkDestroySemaphore(m_vkLogicalDevice, m_vkSemaphoreImageAvailable, nullptr);
-		m_vkSemaphoreImageAvailable = nullptr;
+	CRM(CleanupSwapchain(), "Failed to clean up swapchain");
+
+	for (int i = 0; i < k_MaxConcurrentFrames; i++) {
+		if (m_imageAvailableVkSemaphores[i] != nullptr) {
+			vkDestroySemaphore(m_vkLogicalDevice, m_imageAvailableVkSemaphores[i], nullptr);
+			m_imageAvailableVkSemaphores[i] = nullptr;
+		}
+
+		if (m_renderFinishedVkSemaphores[i] != nullptr) {
+			vkDestroySemaphore(m_vkLogicalDevice, m_renderFinishedVkSemaphores[i], nullptr);
+			m_renderFinishedVkSemaphores[i] = nullptr;
+		}
+
+		if (m_concurrentFrameFences[i] != nullptr) {
+			vkDestroyFence(m_vkLogicalDevice, m_concurrentFrameFences[i], nullptr);
+			m_concurrentFrameFences[i] = nullptr;
+		}
 	}
-
-	if (m_vkSemaphoreRenderFinished != nullptr) {
-		vkDestroySemaphore(m_vkLogicalDevice, m_vkSemaphoreRenderFinished, nullptr);
-		m_vkSemaphoreRenderFinished = nullptr;
-	}
-
-	m_pVKCommandPool = nullptr;
-
-	m_pVKSwapchain->KillFramebuffers();
-
-	m_pVKPipeline = nullptr;
-
-	m_pVKSwapchain = nullptr;
 
 	if (m_vkLogicalDevice != nullptr) {
 		vkDestroyDevice(m_vkLogicalDevice, nullptr);
@@ -166,17 +160,43 @@ Error:
 
 RESULT VKHAL::Render(void) {
 	RESULT r = R::OK;
+	VkResult vkr = VK_SUCCESS;
 
 	uint32_t imageIndex;
 	VkSubmitInfo vkSubmitInfo{};
-	VkSemaphore vkWaitSemaphores[] = { m_vkSemaphoreImageAvailable };
+	VkSemaphore vkWaitSemaphores[] = { m_imageAvailableVkSemaphores[m_currentFrame] };
 	VkPipelineStageFlags vkPipelineStageFlags[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-	VkSemaphore vkSignalSemaphores[] = { m_vkSemaphoreRenderFinished };
+	VkSemaphore vkSignalSemaphores[] = { m_renderFinishedVkSemaphores[m_currentFrame] };
 	VkPresentInfoKHR vkPresentInfo{};
 	VkSwapchainKHR vkSwapchains[] = { m_pVKSwapchain->GetVKSwapchainHandle() };
+	
+	// Wait on fences
+	CVKR(vkWaitForFences(m_vkLogicalDevice, 1, &m_concurrentFrameFences[m_currentFrame], VK_TRUE, UINT64_MAX));
+	CVKR(vkResetFences(m_vkLogicalDevice, 1, &m_concurrentFrameFences[m_currentFrame]));
 
-	CVKRM(vkAcquireNextImageKHR(m_vkLogicalDevice, m_pVKSwapchain->GetVKSwapchainHandle(), UINT64_MAX, m_vkSemaphoreImageAvailable, nullptr, &imageIndex),
-		"Failed to acquire next image from swapchain");
+	vkr = vkAcquireNextImageKHR(
+		m_vkLogicalDevice,
+		m_pVKSwapchain->GetVKSwapchainHandle(),
+		UINT64_MAX,
+		m_imageAvailableVkSemaphores[m_currentFrame],
+		nullptr,
+		&imageIndex
+	);
+		
+	// Check for out-of-date swapchain
+	if (vkr == VK_ERROR_OUT_OF_DATE_KHR) {
+		CRM(InitializeSwapchain(), "Failed to reinitialize swapchain");
+		return r;
+	}
+	else if (vkr != VK_SUCCESS && vkr != VK_SUBOPTIMAL_KHR) {
+		CVKRM(vkr, "Failed to acquire next image from swapchain")
+	}
+
+	// Make sure we don't overwrite the current swapchain image / frame
+	if (m_currentlyUsedFrameFences[imageIndex] != nullptr) {
+		CVKR(vkWaitForFences(m_vkLogicalDevice, 1, &m_currentlyUsedFrameFences[imageIndex], VK_TRUE, UINT64_MAX));
+	}
+	m_currentlyUsedFrameFences[imageIndex] = m_concurrentFrameFences[m_currentFrame];
 
 	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	vkSubmitInfo.waitSemaphoreCount = 1;
@@ -187,7 +207,10 @@ RESULT VKHAL::Render(void) {
 	vkSubmitInfo.signalSemaphoreCount = 1;
 	vkSubmitInfo.pSignalSemaphores = vkSignalSemaphores;
 
-	CVKRM(vkQueueSubmit(m_vkGraphicsQueueHandle, 1, &vkSubmitInfo, nullptr),
+	// Reset the fence for the current frame
+	CVKR(vkResetFences(m_vkLogicalDevice, 1, &m_concurrentFrameFences[m_currentFrame]));
+
+	CVKRM(vkQueueSubmit(m_vkGraphicsQueueHandle, 1, &vkSubmitInfo, m_concurrentFrameFences[m_currentFrame]),
 		"Failed to submit to graphics queue");
 
 	// Presentation info
@@ -198,29 +221,57 @@ RESULT VKHAL::Render(void) {
 	vkPresentInfo.pSwapchains = vkSwapchains;
 	vkPresentInfo.pImageIndices = &imageIndex;
 
-	CVKRM(vkQueuePresentKHR(m_vkPresentationQueueHandle, &vkPresentInfo), "Failed to present to presentation queue");
+	// Handle suboptimal swapchain
+	vkr = vkQueuePresentKHR(m_vkPresentationQueueHandle, &vkPresentInfo);
+	if (vkr == VK_ERROR_OUT_OF_DATE_KHR || vkr == VK_SUBOPTIMAL_KHR || m_fPendingSwapchainResize) {
+		m_fPendingSwapchainResize = false;
+		CRM(InitializeSwapchain(), "Failed to reinitialize swapchain");
+	}
+	else if (vkr != VK_SUCCESS) {
+		CVKRM(vkr, "Failed to present to presentation queue");
+	}
 
-	//currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
+	m_currentFrame = (m_currentFrame + 1) % k_MaxConcurrentFrames;
 
-	// TODO: move somewhere
+Error:
+	return r;
+}
+
+RESULT VKHAL::WaitForIdle(void) {
+	RESULT r = R::OK;
+
 	CVKRM(vkDeviceWaitIdle(m_vkLogicalDevice), "Failed to wait idle");
 
 Error:
 	return r;
 }
 
-RESULT VKHAL::InitializeSemaphores() {
+RESULT VKHAL::InitializeConcurrencyPrimitives() {
 	RESULT r = R::OK;
+
+	m_imageAvailableVkSemaphores = EPVector<VkSemaphore>(k_MaxConcurrentFrames, true);
+	m_renderFinishedVkSemaphores = EPVector<VkSemaphore>(k_MaxConcurrentFrames, true);
+	m_concurrentFrameFences = EPVector<VkFence>(k_MaxConcurrentFrames, true);
+	m_currentlyUsedFrameFences = EPVector<VkFence>(m_pVKSwapchain->GetSwapchainImageCount(), nullptr);
 
 	VkSemaphoreCreateInfo vkSempahoreCreateInfo = {};
 	vkSempahoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-	CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_vkSemaphoreImageAvailable),
-		"Failed to create image available semaphore");
+	VkFenceCreateInfo vkFenceCreateInfo{};
+	vkFenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	vkFenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_vkSemaphoreRenderFinished),
-		"Failed to create render finished semaphore");
+	for (int i = 0; i < k_MaxConcurrentFrames; i++) {
+		CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_imageAvailableVkSemaphores[i]),
+			"Failed to create image available semaphore %d", i);
+
+		CVKRM(vkCreateSemaphore(m_vkLogicalDevice, &vkSempahoreCreateInfo, nullptr, &m_renderFinishedVkSemaphores[i]),
+			"Failed to create render finished semaphore %d", i);
+
+		CVKRM(vkCreateFence(m_vkLogicalDevice, &vkFenceCreateInfo, nullptr, &m_concurrentFrameFences[i]),
+			"Faioled to create current frame fence %d", i);
+	}
 
 Error:
 	return r;
@@ -503,6 +554,10 @@ RESULT VKHAL::InitializeSwapchain() {
 	CNM(m_vkSurface, "Swapchain needs valid surface");
 	CNM(m_vkLogicalDevice, "Swapchain needs valid logical device");
 
+	CVKR(vkDeviceWaitIdle(m_vkLogicalDevice));
+
+	CRM(CleanupSwapchain(), "Failed to clean up swapchain first");
+
 	m_pVKSwapchain = VKSwapchain::make(
 		m_vkPhysicalDevice, 
 		m_vkSurface, 
@@ -514,6 +569,32 @@ RESULT VKHAL::InitializeSwapchain() {
 	);
 
 	CNM(m_pVKSwapchain, "Failed to make vk swapchain");
+
+	CRM(InitializePipeline(), "Failed to initialize pipeline");
+
+	// TODO: One of these things is not like the others
+	CRM(m_pVKSwapchain->InitializeFramebuffers(m_pVKPipeline), "Failed to initialize framebuffers");
+
+	CRM(InitializeCommandPool(), "Failed to initialize command pool");
+
+Error:
+	return r;
+}
+
+RESULT VKHAL::CleanupSwapchain() {
+	RESULT r = R::OK;
+
+	// TODO: only destroy command buffers, not pool
+	// This is an optimization and will get ironed out with better arch
+	m_pVKCommandPool = nullptr;
+
+	if (m_pVKSwapchain != nullptr) {
+		m_pVKSwapchain->KillFramebuffers();
+	}
+
+	m_pVKPipeline = nullptr;
+
+	m_pVKSwapchain = nullptr;
 
 Error:
 	return r;

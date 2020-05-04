@@ -56,6 +56,7 @@ public:
 	virtual RESULT Initialize(void) = 0;
 	virtual RESULT Kill(void) = 0;
 	virtual RESULT Render() = 0;
+	virtual RESULT WaitForIdle() = 0;
 
 private:
 	EPRef<SandboxWindowProcess> m_pSBWindowProcess = nullptr;

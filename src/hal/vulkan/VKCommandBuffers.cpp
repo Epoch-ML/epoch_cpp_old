@@ -19,10 +19,7 @@ RESULT VKCommandBuffers::Initialize() {
 
 	CN(m_pVKCommandPool);
 	
-	//commandBuffers.resize(swapChainFramebuffers.size());
-
-
-	m_vkCommandBuffers = EPVector<VkCommandBuffer>(3, true);
+	m_vkCommandBuffers = EPVector<VkCommandBuffer>(m_pVKCommandPool->GetVKSwapchain()->GetFramebufferCount(), true);
 
 	m_vkCommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	m_vkCommandBufferAllocateInfo.commandPool = m_pVKCommandPool->GetVKCommandPoolHandle();

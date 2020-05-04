@@ -9,6 +9,8 @@
 #include "hal/hal.h"
 #include <vulkan/vulkan.h>
 
+#include <atomic>
+
 #include "core/types/EPTuple.h"
 
 // TODO: split off the platform specific implementation
@@ -36,6 +38,7 @@ public:
 	virtual RESULT Initialize(void) override;
 	virtual RESULT Kill(void) override;
 	virtual RESULT Render(void) override;
+	virtual RESULT WaitForIdle(void) override;
 
 	virtual HAL::type GetType() override {
 		return HAL::type::vulkan;
@@ -83,6 +86,7 @@ private:
 
 // Swapchain
 	RESULT InitializeSwapchain();
+	RESULT CleanupSwapchain();
 
 // Pipeline
 	RESULT InitializePipeline();
@@ -101,7 +105,7 @@ private:
 	);
 
 // Semaphores
-	RESULT InitializeSemaphores();
+	RESULT InitializeConcurrencyPrimitives();
 
 private:
 	VkInstance m_vkInstance;
@@ -142,6 +146,7 @@ private:
 
 // Swapchain
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
+	std::atomic<bool> m_fPendingSwapchainResize = false;
 
 // Pipeline
 	EPRef<VKPipeline> m_pVKPipeline = nullptr;
@@ -153,9 +158,13 @@ private:
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};
 	VkDebugUtilsMessengerCreateInfoEXT m_vkDebugMessangerCreateInfo;
 
-// Rendering semaphores
-	VkSemaphore m_vkSemaphoreImageAvailable;
-	VkSemaphore m_vkSemaphoreRenderFinished;
+// Concurrency
+	const int k_MaxConcurrentFrames = 2;
+	size_t m_currentFrame = 0;
+	EPVector<VkFence> m_concurrentFrameFences;
+	EPVector<VkFence> m_currentlyUsedFrameFences;
+	EPVector<VkSemaphore> m_imageAvailableVkSemaphores;
+	EPVector<VkSemaphore> m_renderFinishedVkSemaphores;
 
 #ifdef NDEBUG
 	const bool m_fEnableValidationLayers = false;

@@ -51,8 +51,16 @@ RESULT VKSwapchain::InitializeFramebuffers(const EPRef<VKPipeline> &pVKPipeline)
 	CNM(m_pVKPipeline, "Framebuffers need valid pipeline");
 
 	for (uint32_t i = 0; i < GetSwapchainImageCount(); i++) {
-		// TODO: this is nasty
-		EPRef<VKFramebuffer> pVKFramebuffer = VKFramebuffer::make(m_vkLogicalDevice, m_pVKPipeline, *(new EPRef<VKSwapchain>(this)));
+		
+		// TODO: this is nasty currently
+		EPRef<VKFramebuffer> pVKFramebuffer = 
+			VKFramebuffer::make(
+				m_vkLogicalDevice, 
+				m_pVKPipeline, 
+				*(new EPRef<VKSwapchain>(this)), 
+				i
+		);
+
 		CNM(pVKFramebuffer, "Failed to create framebuffer");
 
 		m_vkFramebuffers.PushBack(pVKFramebuffer);

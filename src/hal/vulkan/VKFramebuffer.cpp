@@ -12,7 +12,7 @@ RESULT VKFramebuffer::Initialize() {
 	m_vkFramebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	m_vkFramebufferCreateInfo.renderPass = m_pVKPipeline->GetVKRenderPassHandle();
 	m_vkFramebufferCreateInfo.attachmentCount = 1;
-	m_vkFramebufferCreateInfo.pAttachments = m_pVKSwapchain->GetSwapchainImageViews();
+	m_vkFramebufferCreateInfo.pAttachments = m_pVKSwapchain->GetSwapchainImageView(m_frameBufferIndex);
 	m_vkFramebufferCreateInfo.width = m_pVKSwapchain->GetExtentsWidth();
 	m_vkFramebufferCreateInfo.height = m_pVKSwapchain->GetExtentsHeight();
 	m_vkFramebufferCreateInfo.layers = 1;
@@ -40,12 +40,13 @@ Error:
 EPRef<VKFramebuffer> VKFramebuffer::InternalMake(
 	VkDevice vkLogicalDevice, 
 	const EPRef<VKPipeline>& pVKPipeline, 
-	const EPRef<VKSwapchain>& pVKSwapchain
+	const EPRef<VKSwapchain>& pVKSwapchain,
+	uint32_t frameBufferIndex
 ) {
 	RESULT r = R::OK;
 	EPRef<VKFramebuffer> pVKFramebuffer = nullptr;
 
-	pVKFramebuffer = new VKFramebuffer(vkLogicalDevice, pVKPipeline, pVKSwapchain);
+	pVKFramebuffer = new VKFramebuffer(vkLogicalDevice, pVKPipeline, pVKSwapchain, frameBufferIndex);
 	CNM(pVKFramebuffer, "Failed to allocate vk framebuffer");
 
 	CRM(pVKFramebuffer->Initialize(), "Failed to initialize VK framebufer");

@@ -44,11 +44,22 @@ public:
 
 	VkFormat GetVKSwapchainImageFormat() { return m_vkSwapchainImageFormat; }
 	uint32_t GetSwapchainImageCount() { return (uint32_t)m_swapchainImages.size(); }
-	const VkImageView* GetSwapchainImageViews() { return m_swapchainImageViews.data(); }
+	
+	const VkImageView* GetSwapchainImageViews() { 
+		return m_swapchainImageViews.data(); 
+	}
+
+	const VkImageView* GetSwapchainImageView(uint32_t index) {
+		return &(m_swapchainImageViews[index]);
+	}
 
 	const VkFramebuffer GetSwapchainFramebuffers(uint32_t i) const;
 
 	const VkSwapchainKHR GetVKSwapchainHandle() const { return m_vkSwapchain; }
+
+	const uint32_t GetFramebufferCount() const {
+		return (uint32_t)(m_vkFramebuffers.size());
+	}
 
 	// This will actually create the swapchain
 	static EPRef<VKSwapchain> make(

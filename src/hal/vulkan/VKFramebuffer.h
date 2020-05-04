@@ -20,13 +20,19 @@
 
 class VKFramebuffer :
 	public framebuffer,
-	public EPFactoryMethod<VKFramebuffer, VkDevice, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&>
+	public EPFactoryMethod<VKFramebuffer, VkDevice, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&, uint32_t>
 {
 private:
-	VKFramebuffer(VkDevice vkLogicalDevice, const EPRef<VKPipeline>& pVKPipeline, const EPRef<VKSwapchain>& pVKSwapchain) :
+	VKFramebuffer(
+		VkDevice vkLogicalDevice, 
+		const EPRef<VKPipeline>& pVKPipeline, 
+		const EPRef<VKSwapchain>& pVKSwapchain,
+		uint32_t frameBufferIndex
+	) :
 		m_vkLogicalDevice(vkLogicalDevice),
 		m_pVKPipeline(pVKPipeline),
-		m_pVKSwapchain(pVKSwapchain)
+		m_pVKSwapchain(pVKSwapchain),
+		m_frameBufferIndex(frameBufferIndex)
 	{
 		//
 	}
@@ -39,7 +45,7 @@ public:
 		Kill();
 	}
 
-	static EPRef<VKFramebuffer> InternalMake(VkDevice, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&);
+	static EPRef<VKFramebuffer> InternalMake(VkDevice, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&, uint32_t);
 	const VkFramebuffer GetVKFrameBufferHandle() const { return m_vkFramebuffer; }
 
 private:
@@ -49,6 +55,7 @@ private:
 	EPRef<VKPipeline> m_pVKPipeline = nullptr;
 
 	// Framebuffer
+	uint32_t m_frameBufferIndex = 0;
 	VkFramebufferCreateInfo m_vkFramebufferCreateInfo = {};
 	VkFramebuffer m_vkFramebuffer = nullptr;
 };
