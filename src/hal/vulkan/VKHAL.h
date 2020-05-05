@@ -44,6 +44,8 @@ public:
 		return HAL::type::vulkan;
 	}
 
+	virtual RESULT OnResize(uint32_t width, uint32_t height) override;
+
 private:
 // Instance 
 	RESULT InitializeInstance();

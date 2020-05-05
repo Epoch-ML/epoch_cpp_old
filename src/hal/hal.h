@@ -15,7 +15,8 @@
 #include "sandbox/SandboxWindowProcess.h"
 
 class HAL : 
-	public EPObj
+	public EPObj,
+	public SandboxWindowProcessObserver
 {
 public:
 	enum class type : uint32_t { 
@@ -57,6 +58,10 @@ public:
 	virtual RESULT Kill(void) = 0;
 	virtual RESULT Render() = 0;
 	virtual RESULT WaitForIdle() = 0;
+
+public:
+	// SandboxWindowProcessObserver
+	virtual RESULT OnResize(uint32_t width, uint32_t height) = 0;
 
 private:
 	EPRef<SandboxWindowProcess> m_pSBWindowProcess = nullptr;

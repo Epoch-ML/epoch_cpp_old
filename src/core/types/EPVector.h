@@ -274,6 +274,15 @@ public:
 	const size_t size() const { 
 		return m_pBuffer_c;
 	}
+
+	bool exists(const TStorage &obj) {
+		for (int i = 0; i < m_pBuffer_c; i++) {
+			if (obj == m_pBuffer[i])
+				return true;
+		}
+
+		return false;
+	}
 	
 	inline void clear(bool fDeallocate = true) {
 		if (fDeallocate) {

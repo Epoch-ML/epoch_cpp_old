@@ -171,8 +171,7 @@ RESULT VKHAL::Render(void) {
 	VkSwapchainKHR vkSwapchains[] = { m_pVKSwapchain->GetVKSwapchainHandle() };
 	
 	// Wait on fences
-	CVKR(vkWaitForFences(m_vkLogicalDevice, 1, &m_concurrentFrameFences[m_currentFrame], VK_TRUE, UINT64_MAX));
-	CVKR(vkResetFences(m_vkLogicalDevice, 1, &m_concurrentFrameFences[m_currentFrame]));
+	CVKR(vkWaitForFences(m_vkLogicalDevice, 1, &m_concurrentFrameFences[m_currentFrame], VK_TRUE, UINT64_MAX));	
 
 	vkr = vkAcquireNextImageKHR(
 		m_vkLogicalDevice,
@@ -233,6 +232,15 @@ RESULT VKHAL::Render(void) {
 
 
 	m_currentFrame = (m_currentFrame + 1) % k_MaxConcurrentFrames;
+
+Error:
+	return r;
+}
+
+RESULT VKHAL::OnResize(uint32_t width, uint32_t height) {
+	RESULT r = R::OK;
+
+	m_fPendingSwapchainResize = true;
 
 Error:
 	return r;

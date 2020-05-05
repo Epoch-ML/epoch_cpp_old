@@ -39,6 +39,8 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 	pVulkanHAL = HALFactory::make(halType, EPRef<SandboxWindowProcess>(pSBProcess));
 	CNM(pVulkanHAL, "Failed to create VulkanHAL");
 
+	CRM(dynamic_cast<SandboxWindowProcess*>(pSBProcess.get())->RegisterObserver(pVulkanHAL), "Failed to Register Observer");
+
 	///*
 	// Don't quit while thread is running
 	while (pSandbox->GetRunningProcesses().size() != 0) {

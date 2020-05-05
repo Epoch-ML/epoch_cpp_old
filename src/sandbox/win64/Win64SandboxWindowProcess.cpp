@@ -196,6 +196,7 @@ LRESULT CALLBACK Win64SandboxWindowProcess::WndProc(HWND hWindow, UINT msg, WPAR
 
 		case WM_SIZE: {
 			SetDimensions(LOWORD(lParam), HIWORD(lParam));
+			OnResize(LOWORD(lParam), HIWORD(lParam));
 		} break;
 
 		case WM_COPYDATA: {
