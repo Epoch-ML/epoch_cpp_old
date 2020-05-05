@@ -22,7 +22,7 @@ else()
     message(STATUS "Spdlog is enabled")
 	find_package(Spdlog REQUIRED)
 endif()
-message(${SPD_INCLUDE_PATH})
+message(${SPD_INCLUDE_PATH}) 
 
 include_directories(src)
 include_directories(${SPD_INCLUDE_PATH})

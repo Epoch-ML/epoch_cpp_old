@@ -55,7 +55,7 @@ public:
 
 	virtual RESULT Process() = 0;
 
-	const EPString<char>& GetName() {
+	const EPString<char>& GetName() const {
 		return m_strProcessName;
 	}
 

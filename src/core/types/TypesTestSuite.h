@@ -16,15 +16,20 @@ class TypesTestSuite :
 
 public:
 	// EPDynamicStorage
-	RESULT TestEPDynamicStorage(EPTestBase* pEPTestBase);
+	RESULT TestEPVector(EPTestBase* pEPTestBase);
 	RESULT TestEPString(EPTestBase* pEPTestBase);
 	RESULT TestEPList(EPTestBase* pEPTestBase);
+	RESULT TestEPRef(EPTestBase* pEPTestBase);
 
 	EP_TESTS_START {
 
-		EP_ADD_TEST(TestEPDynamicStorage);
+		EP_ADD_TEST(TestEPVector);
 		EP_ADD_TEST(TestEPList);
-		// TODO: EP_ADD_TEST(TestEPString);
+
+		EP_ADD_TEST(TestEPRef);
+
+		// TODO: this is incomplete
+		EP_ADD_TEST(TestEPString);
 
 	} EP_TESTS_END
 };

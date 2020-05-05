@@ -11,11 +11,19 @@
 #include "core/math/rectangle.h"
 #include "core/math/point.h"
 
+#include "core/types/observable.h"
+
 #define DEFAULT_WINDOW_WIDTH 1920 / 2
 #define DEFAULT_WINDOW_HEIGHT 1080 / 2
 
+class SandboxWindowProcessObserver {
+public:
+	virtual RESULT OnResize(uint32_t width, uint32_t height) = 0;
+};
+
 class SandboxWindowProcess :
-	public SandboxProcess
+	public SandboxProcess,
+	public observable<SandboxWindowProcessObserver>
 {
 public:
 	SandboxWindowProcess() = default;
@@ -28,10 +36,35 @@ public:
 	virtual RESULT Show() = 0;
 	virtual RESULT Hide() = 0;
 
+	RESULT OnResize(uint32_t width, uint32_t height) {
+		RESULT r = R::OK;
+
+		for (auto& pObserver : m_observers) {
+			CRM(pObserver->OnResize(width, height), "OnResize observer callback failed");
+		}
+
+	Error:
+		return r;
+	}
+
+	virtual intptr_t GetNativeWindowHandle() const = 0;
+
 public:
 	RESULT SetDimensions(int pxWidth, int pxHeight) {
 		m_rectDimensions = { pxWidth, pxHeight };
 		return R::OK;
+	}
+
+	const rectangle<int>& GetDimensions() const {
+		return const_cast<rectangle<int>&>(m_rectDimensions);
+	}
+
+	inline const int GetHeight() const {
+		return m_rectDimensions.height();
+	}
+
+	inline const int GetWidth() const {
+		return m_rectDimensions.width();
 	}
 
 protected:

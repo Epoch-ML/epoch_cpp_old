@@ -16,7 +16,7 @@
 // TODO: expand to wide string as well
 
 template <typename TChar>
-class EPString : public EPObj {
+class EPString {
 public:
 	// TODO: Maybe make this more general
 	struct compare_LT {
@@ -50,6 +50,19 @@ public:
 		m_stringStorage(szString, strlen(szString) + 1)
 	{
 		//
+	}
+
+	EPString(size_t initSize) :
+		m_stringStorage(initSize, true)
+	{
+		//
+	}
+
+	EPString(const EPString& lhs, const EPString& rhs) {
+		size_t strResult_n = lhs.size() + rhs.size() - 1;
+		m_stringStorage = EPVector<TChar>(strResult_n, true);
+		memcpy(m_stringStorage.data(), lhs.c_str(), (lhs.length() - 1) * sizeof(TCHAR));
+		memcpy(m_stringStorage.data() + (lhs.length() - 1), rhs.c_str(), rhs.length() * sizeof(TCHAR));
 	}
 
 	EPString(const TChar szString[], size_t szString_n) :
@@ -102,8 +115,36 @@ public:
 		}
 
 		return strcmp(pLeft, pRight) == 0;
+	}
 
-		return strcmp(c_str(), rhs.c_str()) == 0;
+	inline bool operator==(const TChar* pszCString) const {
+		auto pLeft = c_str();
+		auto pRight = pszCString;
+
+		if (pLeft == nullptr && pRight == nullptr) {
+			return false;
+		}
+		else if (pLeft == nullptr || pRight == nullptr) {
+			// One is nullptr but the other is not
+			return true;
+		}
+
+		return strcmp(pLeft, pRight) == 0;
+	}
+
+	inline bool operator==(TChar* pszCString) {
+		auto pLeft = c_str();
+		auto pRight = pszCString;
+
+		if (pLeft == nullptr && pRight == nullptr) {
+			return false;
+		}
+		else if (pLeft == nullptr || pRight == nullptr) {
+			// One is nullptr but the other is not
+			return true;
+		}
+
+		return strcmp(pLeft, pRight) == 0;
 	}
 
 	inline bool operator<(const EPString& rhs) const {
@@ -122,6 +163,15 @@ public:
 		}
 
 		return false;
+	}
+
+	EPString operator+(const EPString& rhs) const {
+		EPString strReturn = EPString(this->length() + rhs.length() - 1, true);
+		
+		memcpy(strReturn.m_stringStorage.data(), this->c_str(), (this->length() - 1) * sizeof(TCHAR));
+		memcpy(strReturn.m_stringStorage.data() + (this->length() - 1), rhs.c_str(), rhs.length() * sizeof(TCHAR));
+
+		return strReturn;
 	}
 
 	TChar& operator[](size_t idx) {

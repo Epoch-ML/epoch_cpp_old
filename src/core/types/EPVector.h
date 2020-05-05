@@ -51,11 +51,11 @@ public:
 
 	class const_iterator : public iterator {
 	public:
-		const_iterator(TStorage* pValue) noexcept : m_pValue(pValue) {}
+		const_iterator(TStorage* pValue) noexcept : iterator(pValue) {}
 		TStorage& operator*() { return (*m_pValue); }
 		TStorage* operator->() { return m_pValue; }
-		bool operator==(const iterator& rhs) { return m_pValue == rhs.m_pValue; }
-		bool operator!=(const iterator& rhs) { return m_pValue != rhs.m_pValue; }
+		bool operator==(const const_iterator& rhs) { return m_pValue == rhs.m_pValue; }
+		bool operator!=(const const_iterator& rhs) { return m_pValue != rhs.m_pValue; }
 	};
 
 	iterator begin() noexcept { 
@@ -98,6 +98,25 @@ public:
 		m_pBuffer_c(m_pBuffer_n)
 	{
 		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
+		for (int i = 0; i < m_pBuffer_c; i++)
+			m_pBuffer[i] = initValue;
+	}
+
+	EPVector(size_t initialSize, bool fPopulate = false) :
+		m_pBuffer_n(initialSize),
+		m_pBuffer_c(fPopulate ? initialSize : 0)
+	{
+		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
+		memset(m_pBuffer, 0, m_pBuffer_n * sizeof(TStorage));
+	}
+
+	EPVector(std::initializer_list<TStorage> list) :
+		m_pBuffer_n(list.size()),
+		m_pBuffer_c(0)
+	{
+		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
+		for (auto &val : list)
+			m_pBuffer[m_pBuffer_c++] = val;
 	}
 
 	EPVector(const TStorage staticValueArray[], size_t staticValueArray_n) {
@@ -224,6 +243,26 @@ public:
 		return pData;
 	}
 
+	const bool empty() const {
+		return (m_pBuffer_c == 0);
+	}
+
+	const TStorage* data() const {
+		return m_pBuffer;
+	}
+
+	TStorage* data() {
+		return m_pBuffer;
+	}
+
+	TStorage* data(size_t counterSetValue) {
+		if (counterSetValue > m_pBuffer_n)
+			return nullptr;
+
+		m_pBuffer_c = counterSetValue;
+		return m_pBuffer;
+	}
+
 	const TStorage& operator[](size_t index) const { 
 		return m_pBuffer[index]; 
 	}
@@ -234,6 +273,15 @@ public:
 
 	const size_t size() const { 
 		return m_pBuffer_c;
+	}
+
+	bool exists(const TStorage &obj) {
+		for (int i = 0; i < m_pBuffer_c; i++) {
+			if (obj == m_pBuffer[i])
+				return true;
+		}
+
+		return false;
 	}
 	
 	inline void clear(bool fDeallocate = true) {
@@ -258,7 +306,7 @@ private:
 		}
 
 		memcpy(&m_pBuffer[1], m_pBuffer, m_pBuffer_c * sizeof(TStorage));
-		m_pBuffer[0] = 0;
+		memset(&m_pBuffer[0], 0, sizeof(TStorage));
 
 		m_pBuffer_c++;
 

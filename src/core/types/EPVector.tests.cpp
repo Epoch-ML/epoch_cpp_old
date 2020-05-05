@@ -1,13 +1,13 @@
 #include "TypesTestSuite.h"
 
-#define TEST_INT_ARRAY_LENGTH 1000
+#define TEST_INT_ARRAY_LENGTH 100000
 
 #include <vector>
 
 #include "test/EPTest.h"
 #include "test/EPTestCase.h"
 
-RESULT TypesTestSuite::TestEPDynamicStorage(EPTestBase *pEPTestBase) {
+RESULT TypesTestSuite::TestEPVector(EPTestBase *pEPTestBase) {
 	RESULT r = R::OK;
 
 	EPVector<int> IntEPVector;

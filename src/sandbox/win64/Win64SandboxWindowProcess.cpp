@@ -1,5 +1,7 @@
 #include "Win64SandboxWindowProcess.h"
 
+//#include "hal/HALFactory.h"
+
 Win64SandboxWindowProcess::Win64SandboxWindowProcess() {
     // empty
 }
@@ -35,7 +37,7 @@ RESULT Win64SandboxWindowProcess::Initialize() {
 		return R::FAIL;
 	}
 
-	m_dwWindowStyle = WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	m_dwWindowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 
 	if (m_fFullscreen) {
 		m_ptPosition = { 0, 0 };
@@ -58,7 +60,7 @@ RESULT Win64SandboxWindowProcess::Initialize() {
 		m_ptPosition.y(),							// y coordinate
 		m_rectDimensions.width(),					// width of window 
 		m_rectDimensions.height(), 					// height of the window
-		nullptr,										// // hWndParent
+		nullptr,										// hWndParent
 		nullptr,										// hMenu
 		m_hInstance,									// hInstance
 		this											// lpParam
@@ -85,12 +87,22 @@ Error:
 RESULT Win64SandboxWindowProcess::Process() {
 	RESULT r = R::OK;
 
+	//EPRef<HAL> pVulkanHAL = nullptr;
+	//HAL::type halType = HAL::type::vulkan;
+
 	CRM(Initialize(), "Failed to initialize win64 window");
+
+	//pVulkanHAL = HALFactory::make(halType, EPRef<SandboxWindowProcess>(this));
+	//CNM(pVulkanHAL, "Failed to create VulkanHAL");
 
 	CRM(Show(), "Failed to show win64 window");
 
 	while (IsRunning()) {
 		CRM(HandleWin64Messages(), "Failed to handle win64 messages");
+
+		//CRM(pVulkanHAL->Render(), "Failed to render frame");
+
+		///Sleep(1000);
 
 		// TODO: Swap buffers
 		// CBM(SwapBuffers(m_hDeviceContext), "Failed to swap buiffers");
@@ -184,6 +196,7 @@ LRESULT CALLBACK Win64SandboxWindowProcess::WndProc(HWND hWindow, UINT msg, WPAR
 
 		case WM_SIZE: {
 			SetDimensions(LOWORD(lParam), HIWORD(lParam));
+			OnResize(LOWORD(lParam), HIWORD(lParam));
 		} break;
 
 		case WM_COPYDATA: {

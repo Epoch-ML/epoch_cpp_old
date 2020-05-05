@@ -1,5 +1,5 @@
-#ifndef EP_FACTORY_H_
-#define EP_FACTORY_H_
+#ifndef EP_FACTORY_METHOD_H_
+#define EP_FACTORY_METHOD_H_
 
 #include "core/ehm/ehm.h"
 
@@ -15,27 +15,18 @@
 #include "core/types/EPObj.h"
 #include "core/types/epref.h"
 
-template <typename TEPFactory, typename TEPObj, typename ... MArgs>
-class EPFactory : 
-	public EPObj
-	// TODO: singleton?
-	
-{
+template <typename TObj, typename ... MArgs>
+class EPFactoryMethod {
 protected:
-	EPFactory() {
-		// 
-	}
-
-	virtual ~EPFactory() {
-		// 
-	}
+	EPFactoryMethod() = default;
+	~EPFactoryMethod() = default;
 
 public:
-	static EPRef<TEPObj> make(MArgs... args) {
+	static EPRef<TObj> make(MArgs... args) {
 		RESULT r = R::OK;
 
-		EPRef<TEPObj> pEPObj = TEPFactory::InternalMake(args...);
-		CNM(pEPObj, "Failed to create factory object");
+		EPRef<TObj> pEPObj = TObj::InternalMake(args...);
+		CNM(pEPObj, "Factory method failed to create " CSTR(TObj));
 
 	Success:
 		return pEPObj;
@@ -46,7 +37,7 @@ public:
 	}
 
 protected:
-	static EPRef<TEPObj> InternalMake(MArgs...) {
+	static EPRef<TObj> InternalMake(MArgs...) {
 
 		// This needs to be overridden, but this is a 
 		// syntax hack since it's not possible to virtualize static functions
@@ -55,4 +46,4 @@ protected:
 	}
 };
 
-#endif // EP_FACTORY_H_
+#endif // EP_FACTORY_METHOD_H_

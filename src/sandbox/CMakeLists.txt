@@ -84,6 +84,7 @@ target_link_libraries(sandbox.tests
   logger
   sandbox
   eptest
+  hal   # TODO: This is just for temporary testing
 )
 
 add_test(
