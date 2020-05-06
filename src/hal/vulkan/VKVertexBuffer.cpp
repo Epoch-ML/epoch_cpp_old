@@ -5,6 +5,8 @@
 RESULT VKVertexBuffer::Initialize() {
 	RESULT r = R::OK;
 
+	VkPhysicalDeviceMemoryProperties vkPhysicalDeviceMemoryProperties = {};
+
 	CNM(m_vkLogicalDevice, "Cannot initialize framebuffer without valid logical device");
 
 	m_vkBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -15,16 +17,6 @@ RESULT VKVertexBuffer::Initialize() {
 	CVKRM(vkCreateBuffer(m_vkLogicalDevice, &m_vkBufferCreateInfo, nullptr, &m_vkBuffer),
 		"Failed to create vk buffer");
 	CNM(m_vkBuffer, "Failed to create vk buffer");
-
-	CRM(AllocateMemory(), "Failed to allocate buffer");
-
-Error:
-	return r;
-}
-
-RESULT VKVertexBuffer::AllocateMemory() {
-	RESULT r = R::OK;
-	VkPhysicalDeviceMemoryProperties vkPhysicalDeviceMemoryProperties = {};
 
 	VkMemoryPropertyFlags vkMemoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
@@ -78,6 +70,22 @@ Error:
 	return r;
 }
 
+RESULT VKVertexBuffer::CopyDataToBuffer(void* pVufferToCopy, size_t pVufferToCopy_n){
+	RESULT r = R::OK;
+
+	void* pMemoryMappedData = nullptr;
+
+	CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory, 0, m_vkMemoryRequirements.size, 0, &pMemoryMappedData),
+		"Failed to map memory to pointer");
+
+	memcpy(pMemoryMappedData, pVufferToCopy, pVufferToCopy_n);
+
+	vkUnmapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory);
+
+Error:
+	return r;
+}
+
 RESULT VKVertexBuffer::Kill() {
 	RESULT r = R::OK;
 
@@ -104,7 +112,8 @@ RESULT VKVertexBuffer::InitializeAsTriangle() {
 		VKVertex<float, 2>({-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f, 1.0f})
 	};
 
-	CopyDataToBuffer(vertices);
+	CRM(CopyDataToBuffer(vertices.data(), sizeof(VKVertex<float, 2>) * vertices.size()),
+		"Failed to copy triangle vertex data");
 
 Error:
 	return r;

@@ -49,25 +49,7 @@ public:
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
-	RESULT AllocateMemory();
-
-	template <typename T>
-	RESULT CopyDataToBuffer(const EPVector<T>& bufferToCopy) {
-		RESULT r = R::OK;
-
-		void* pMemoryMappedData = nullptr;
-		//VkDeviceSize sizeToWrite = std::min(bufferToCopy.size(), m_vkMemoryRequirements.size);
-
-		CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory, 0, m_vkMemoryRequirements.size, 0, &pMemoryMappedData),
-			"Failed to map memory to pointer");
-
-		memcpy(pMemoryMappedData, bufferToCopy.data(), (size_t)bufferToCopy.size() * sizeof(T));
-
-		vkUnmapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory);
-
-	Error:
-		return r;
-	}
+	RESULT CopyDataToBuffer(void* pVufferToCopy, size_t pVufferToCopy_n);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
