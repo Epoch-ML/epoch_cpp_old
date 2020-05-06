@@ -17,7 +17,7 @@
 class matrix_base {
 public:
 	matrix_base() = default;
-	virtual ~matrix_base() = default;
+	~matrix_base() = default;
 };
 
 template <typename TValue, int N = 4, int M = 4>
@@ -47,10 +47,17 @@ public:
 
 public:
 	matrix() = default;
-	virtual ~matrix() override = default;
+	~matrix() = default;
 
 	matrix(std::initializer_list<TValue> values) {
-		memcpy(data, &values, sizeof(data));
+		
+		// TODO: initializer lists for matrix, point, vector
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;
+		for (auto val : values) {
+			data[index++] = val;
+		}
 	}
 
 	matrix(const matrix& rhs) {

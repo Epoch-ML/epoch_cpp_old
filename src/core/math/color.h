@@ -13,7 +13,7 @@ class color :
 {
 public:
 	color() = default;
-	virtual ~color() override = default;
+	~color() = default;
 
 	color(float r, float g, float b, float a) :
 		matrix<float, 4, 1>({ r, g, b, a })
@@ -28,7 +28,13 @@ public:
 	}
 
 	color& operator=(std::initializer_list<float> values) {
-		memcpy(data, &values, sizeof(data));
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;
+		for (auto val : values) {
+			data[index++] = val;
+		}
+
 		return *this;
 	}
 

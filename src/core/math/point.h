@@ -14,19 +14,37 @@ class point :
 {
 public:
 	point() = default;
-	virtual ~point() override = default;
+	~point() = default;
 
 	point(std::initializer_list<TValue> values) {
-		memcpy(data, &values, sizeof(data));
+		// TODO: this should work / be faster
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;			
+		for (auto val : values) {
+			data[index++] = val;
+		}
 	}
 
 	point& operator=(std::initializer_list<TValue> values) {
-		memcpy(data, &values, sizeof(data));
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;
+		for (auto val : values) {
+			data[index++] = val;
+		}
+
 		return *this;
 	}
 
 	RESULT set(std::initializer_list<TValue> values) {
-		memcpy(data, &values, sizeof(data));
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;
+		for (auto val : values) {
+			data[index++] = val;
+		}
+
 		return R::OK;
 	}
 

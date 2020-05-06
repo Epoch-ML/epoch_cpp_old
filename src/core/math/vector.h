@@ -14,14 +14,25 @@ class vector :
 {
 public:
 	vector() = default;
-	virtual ~vector() override = default;
+	~vector() = default;
 
 	vector(std::initializer_list<TValue> values) {
-		memcpy(data, &values, sizeof(data));
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;
+		for (auto val : values) {
+			data[index++] = val;
+		}
 	}
 
 	RESULT set(std::initializer_list<TValue> values) {
-		memcpy(data, &values, sizeof(data));
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;
+		for (auto val : values) {
+			data[index++] = val;
+		}
+
 		return R::OK;
 	}
 

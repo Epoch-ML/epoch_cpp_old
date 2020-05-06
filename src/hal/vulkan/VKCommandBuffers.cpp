@@ -72,13 +72,16 @@ Error:
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
 
-	/*
+	// Set up the command buffer data
 	// TODO: This is temporary just for testing
 	EPVector<VKVertex<float, 2>> vertices = {
-		VKVertex<float, 2>({0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}),
-		VKVertex<float, 2>({0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}),
-		VKVertex<float, 2>({-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f})
+		VKVertex<float, 2>({0.0f, -0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}),
+		VKVertex<float, 2>({0.5f, 0.5f}, {0.0f, 0.0f, 0.0f, 1.0f}),
+		VKVertex<float, 2>({-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f, 1.0f})
 	};
+
+	size_t vertices_size = sizeof(VKVertex<float, 2>);
+	size_t floatSize = sizeof(point<float, 2>) + sizeof(color);
 
 	m_pVKVertexBuffer = VKBuffer::make(
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
@@ -87,7 +90,6 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
 
 	m_pVKVertexBuffer->CopyDataToBuffer(vertices);
-	*/
 
 	uint32_t graphicsPipeline = FindQueueFamilies(
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
@@ -125,11 +127,11 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		);
 
 		//// TODO: wtf land
-		//m_pVKVertexBuffer->BindAsVertexBuffer(m_vkCommandBuffers[i]);
+		m_pVKVertexBuffer->BindAsVertexBuffer(m_vkCommandBuffers[i]);
 
-		//vkCmdDraw(m_vkCommandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		vkCmdDraw(m_vkCommandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
-		vkCmdDraw(m_vkCommandBuffers[i], 3, 1, 0, 0);
+		//vkCmdDraw(m_vkCommandBuffers[i], 3, 1, 0, 0);
 
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
 
