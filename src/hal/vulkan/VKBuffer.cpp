@@ -1,7 +1,5 @@
 #include "VKBuffer.h"
 
-#include "VulkanUtilities.h"
-
 RESULT VKBuffer::Initialize() {
 	RESULT r = R::OK;
 
@@ -24,9 +22,8 @@ Error:
 
 RESULT VKBuffer::AllocateMemory() {
 	RESULT r = R::OK;
+	
 	VkPhysicalDeviceMemoryProperties vkPhysicalDeviceMemoryProperties = {};
-
-	VkMemoryPropertyFlags vkMemoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
 	CN(m_vkBuffer);
 	
@@ -39,7 +36,7 @@ RESULT VKBuffer::AllocateMemory() {
 	bool fFound = false;
 	for (memoryTypeIndex = 0; memoryTypeIndex < vkPhysicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
 		if ((m_vkMemoryRequirements.memoryTypeBits & (1 << memoryTypeIndex)) &&
-			(vkPhysicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags & vkMemoryPropertyFlags) == vkMemoryPropertyFlags)
+			(vkPhysicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags & m_vkMemoryPropertyFlags) == m_vkMemoryPropertyFlags)
 		{
 			fFound = true;
 			break;
@@ -92,12 +89,17 @@ Error:
 	return r;
 }
 
-/*
-EPRef<VKBuffer> VKBuffer::InternalMake(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, size_t size, VkBufferUsageFlags vkBufferUsageFlags) {
+EPRef<VKBuffer> VKBuffer::InternalMake(
+	VkPhysicalDevice vkPhysicalDevice, 
+	VkDevice vkLogicalDevice, 
+	size_t size, 
+	VkBufferUsageFlags vkBufferUsageFlags,
+	VkMemoryPropertyFlags vkMemoryPropertyFlags
+) {
 	RESULT r = R::OK;
 	EPRef<VKBuffer> pVKBuffer = nullptr;
 
-	pVKBuffer = new VKBuffer(vkPhysicalDevice, vkLogicalDevice, size, vkBufferUsageFlags);
+	pVKBuffer = new VKBuffer(vkPhysicalDevice, vkLogicalDevice, size, vkBufferUsageFlags, vkMemoryPropertyFlags);
 	CNM(pVKBuffer, "Failed to allocate vk buffer");
 
 	CRM(pVKBuffer->Initialize(), "Failed to initialize VK buffer");
@@ -109,4 +111,3 @@ Error:
 	pVKBuffer = nullptr;
 	return nullptr;
 }
-*/

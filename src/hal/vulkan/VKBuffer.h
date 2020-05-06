@@ -18,16 +18,25 @@
 #include "VKSwapchain.h"
 #include "VKPipeline.h"
 
+#include "VulkanUtilities.h"
+
 class VKBuffer :
-	public buffer
-	//virtual public EPFactoryMethod<VKBuffer, VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags>
+	public buffer,
+	public EPFactoryMethod<VKBuffer, VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags, VkMemoryPropertyFlags>
 {
 protected:
-	VKBuffer(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, size_t size, VkBufferUsageFlags vkBufferUsageFlags) :
+	VKBuffer(
+		VkPhysicalDevice vkPhysicalDevice, 
+		VkDevice vkLogicalDevice, 
+		size_t size, 
+		VkBufferUsageFlags vkBufferUsageFlags,
+		VkMemoryPropertyFlags vkMemoryPropertyFlags
+	) :
 		m_vkPhysicalDevice(vkPhysicalDevice),
 		m_vkLogicalDevice(vkLogicalDevice),
 		m_size(size),
-		m_vkBufferUsageFlags(vkBufferUsageFlags)
+		m_vkBufferUsageFlags(vkBufferUsageFlags),
+		m_vkMemoryPropertyFlags(vkMemoryPropertyFlags)
 	{
 		//
 	}
@@ -64,7 +73,7 @@ public:
 		return r;
 	}
 
-	//static EPRef<VKBuffer> InternalMake(VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags);
+	static EPRef<VKBuffer> InternalMake(VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags, VkMemoryPropertyFlags);
 
 	const VkBuffer GetVKBufferHandle() const { return m_vkBuffer; }
 
@@ -74,13 +83,14 @@ protected:
 
 	size_t m_size = 0;
 	VkBufferUsageFlags m_vkBufferUsageFlags;
+	VkMemoryPropertyFlags m_vkMemoryPropertyFlags;
 	VkBufferCreateInfo m_vkBufferCreateInfo = {};
 	VkBuffer m_vkBuffer = nullptr;
 
 	// Memory
 	VkMemoryRequirements m_vkMemoryRequirements = {};
 	VkMemoryAllocateInfo m_vkMemoryAllocateInfo = {};
-	VkDeviceMemory m_vkBufferDeviceMemory = nullptr;;
+	VkDeviceMemory m_vkBufferDeviceMemory = nullptr;
 };
 
 #endif // ! VULKAN_FRAMEBUFFER_H_
