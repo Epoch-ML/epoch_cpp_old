@@ -42,7 +42,26 @@ public:
 	}
 
 	RESULT Allocate();
+
 	virtual RESULT Bind() override;
+
+	template <typename T>
+	RESULT CopyDataToBuffer(EPVector<T> bufferToCopy) {
+		RESULT r = R::OK;
+
+		void* pMemoryMappedData = nullptr;
+		//VkDeviceSize sizeToWrite = std::min(bufferToCopy.size(), m_vkMemoryRequirements.size);
+
+		CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory, 0, m_vkMemoryRequirements.size, 0, &pMemoryMappedData),
+			"Failed to map memory to pointer");
+
+		memcpy(pMemoryMappedData, bufferToCopy.data(), (size_t)bufferToCopy.size() * sizeof(T));
+
+		vkUnmapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory);
+
+	Error:
+		return r;
+	}
 
 	static EPRef<VKBuffer> InternalMake(VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags);
 	const VkBuffer GetVKBufferHandle() const { return m_vkBuffer; }

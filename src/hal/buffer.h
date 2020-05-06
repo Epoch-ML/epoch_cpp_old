@@ -11,6 +11,8 @@
 
 #include "core/types/EPObj.h"
 
+template <typename TStorage> class EPVector;
+
 class buffer :
 	public EPObj
 {

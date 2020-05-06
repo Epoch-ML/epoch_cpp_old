@@ -42,6 +42,8 @@ RESULT VKPipeline::Initialize() {
 	m_pVKVertexBuffer = VKBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, sizeof(VKVertex<float, 2>) * m_vertices.size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
 
+	m_pVKVertexBuffer->CopyDataToBuffer(m_vertices);
+
 	// Vertex Input Stage
 	m_vkPipelineVertexInputStateCreateInfo .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 1;
