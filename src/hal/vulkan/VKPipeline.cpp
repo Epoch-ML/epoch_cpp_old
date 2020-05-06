@@ -27,10 +27,19 @@ RESULT VKPipeline::Initialize() {
 
 	// Vertex Input Stage
 	m_vkPipelineVertexInputStateCreateInfo .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+	// temporarily revert this
+	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 0;
+	m_vkPipelineVertexInputStateCreateInfo .pVertexBindingDescriptions = nullptr; 
+	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = 0;
+	m_vkPipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions = nullptr; // Optional
+
+	/*
 	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 1;
 	m_vkPipelineVertexInputStateCreateInfo .pVertexBindingDescriptions = &vkVertexBindingDescription; 
-	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = 2;
+	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = vkVertexAttributeDescriptions.size();
 	m_vkPipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions = vkVertexAttributeDescriptions.data; // Optional
+	*/
 
 	// Input assembly
 	m_vkPipelineInputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
