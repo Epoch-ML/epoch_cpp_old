@@ -44,6 +44,7 @@ public:
 	RESULT Allocate();
 
 	virtual RESULT Bind() override;
+	RESULT BindAsVertexBuffer(VkCommandBuffer vkCommandBuffer);
 
 	template <typename T>
 	RESULT CopyDataToBuffer(const EPVector<T> &bufferToCopy) {

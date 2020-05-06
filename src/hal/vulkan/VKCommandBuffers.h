@@ -16,6 +16,7 @@
 #include "core/types/EPString.h"
 
 class VKCommandPool;
+class VKBuffer;
 
 class VKCommandBuffers :
 	public command_buffer,
@@ -43,6 +44,9 @@ private:
 	VkCommandBufferAllocateInfo m_vkCommandBufferAllocateInfo = {};
 	
 	EPVector<VkCommandBuffer> m_vkCommandBuffers;
+
+	// TODO: temp
+	EPRef<VKBuffer> m_pVKVertexBuffer = nullptr;
 };
 
 #endif // ! VULKAN_COMMAND_BUFFER_H_

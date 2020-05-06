@@ -4,6 +4,9 @@
 
 #include "VKCommandPool.h"
 
+#include "VKVertex.h"
+#include "VKBuffer.h"
+
 VKCommandBuffers::VKCommandBuffers(const EPRef<VKCommandPool>& pVKCommandPool) :
 	m_pVKCommandPool(pVKCommandPool)
 {
@@ -40,6 +43,9 @@ RESULT VKCommandBuffers::Kill() {
 
 	CN(m_pVKCommandPool);
 
+	// TODO: move this out of here
+	m_pVKVertexBuffer = nullptr;
+
 Error:
 	return r;
 }
@@ -65,6 +71,21 @@ Error:
 
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
+
+	// TODO: This is temporary just for testing
+	EPVector<VKVertex<float, 2>> vertices = {
+		VKVertex<float, 2>({0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}),
+		VKVertex<float, 2>({0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}),
+		VKVertex<float, 2>({-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f})
+	};
+
+	m_pVKVertexBuffer = VKBuffer::make(
+		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
+		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
+		sizeof(VKVertex<float, 2>) * vertices.size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
+
+	m_pVKVertexBuffer->CopyDataToBuffer(vertices);
 
 	uint32_t graphicsPipeline = FindQueueFamilies(
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
@@ -101,7 +122,10 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 			m_pVKCommandPool->GetVKPipeline()->GetVKPipelineHandle()
 		);
 
-		vkCmdDraw(m_vkCommandBuffers[i], 3, 1, 0, 0);
+		// TODO: wtf land
+		m_pVKVertexBuffer->BindAsVertexBuffer(m_vkCommandBuffers[i]);
+
+		vkCmdDraw(m_vkCommandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
 

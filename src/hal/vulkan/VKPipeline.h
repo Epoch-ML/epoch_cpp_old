@@ -85,11 +85,6 @@ private:
 
 	VkPipeline m_vkGraphicsPipeline = nullptr;
 
-	// Vertex Buffer
-	// TODO: Get it out of here
-	EPVector<VKVertex<float, 2>> m_vertices;
-	EPRef<VKBuffer> m_pVKVertexBuffer = nullptr;
-
 };
 
 #endif // ! VULKAN_PIPELINE_H_

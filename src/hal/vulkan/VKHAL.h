@@ -20,6 +20,9 @@
 #include "VKPipeline.h"
 #include "VKCommandPool.h"
 
+template<typename TValue, int dimension> class VKVertex;
+class VKBuffer;
+
 class VKHAL :
 	public HAL
 {

@@ -25,25 +25,6 @@ RESULT VKPipeline::Initialize() {
 	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 2>::GetVKVertexBindingDescription();
 	vkVertexAttributeDescriptions = VKVertex<float, 2>::GetVKVertexAttributeDescriptions();
 
-	//// TODO: This should go somewhere else obviously 
-	//m_vertices = {
-	//	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-	//	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-	//	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-	//};
-
-	// TODO: make the above work 
-	m_vertices = {
-		VKVertex<float, 2>({0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}),
-		VKVertex<float, 2>({0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}),
-		VKVertex<float, 2>({-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f})
-	};
-
-	m_pVKVertexBuffer = VKBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, sizeof(VKVertex<float, 2>) * m_vertices.size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
-
-	m_pVKVertexBuffer->CopyDataToBuffer(m_vertices);
-
 	// Vertex Input Stage
 	m_vkPipelineVertexInputStateCreateInfo .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 1;
@@ -231,10 +212,6 @@ RESULT VKPipeline::Kill() {
 
 	m_pVertexShader = nullptr;
 	m_pFragmentShader = nullptr;
-	
-	// TODO: move this out of here
-	m_vertices.clear(true);
-	m_pVKVertexBuffer = nullptr;
 
 	CN(m_vkLogicalDevice);
 	CN(m_vkGraphicsPipeline);

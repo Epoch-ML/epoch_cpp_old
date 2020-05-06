@@ -8,6 +8,9 @@
 
 #include "VulkanUtilities.h"
 
+#include "VKBuffer.h"
+#include "VKVertex.h"
+
 RESULT VKHAL::EnumerateInstanceExtensions() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;

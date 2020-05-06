@@ -57,32 +57,25 @@ RESULT VKBuffer::Allocate() {
 		"Failed to allocate buffer memory");
 	CNM(m_vkBufferDeviceMemory, "Failed to allocate buffer memory");
 
+	CVKRM(vkBindBufferMemory(m_vkLogicalDevice, m_vkBuffer, m_vkBufferDeviceMemory, 0),
+		"Failed to bing memory to buffer");
+
 Error:
 	return r;
 }
 
-RESULT VKBuffer::Bind() {
-	auto vkr = vkBindBufferMemory(m_vkLogicalDevice, m_vkBuffer, m_vkBufferDeviceMemory, 0);
-	return (RESULT)(vkr);
+RESULT VKBuffer::BindAsVertexBuffer(VkCommandBuffer vkCommandBuffer) {
+	VkBuffer vkBuffers[] = { m_vkBuffer };
+	VkDeviceSize vkOffsets[] = { 0 };
+
+	vkCmdBindVertexBuffers(vkCommandBuffer, 0, 1, vkBuffers, vkOffsets);
+
+	return R::OK;
 }
 
-//template <typename T>
-//RESULT VKBuffer::CopyDataToBuffer(EPVector<T> bufferToCopy) {
-//	RESULT r = R::OK;
-//
-//	void* pMemoryMappedData = nullptr;
-//	//VkDeviceSize sizeToWrite = std::min(bufferToCopy.size(), m_vkMemoryRequirements.size);
-//
-//	CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory, 0, m_vkMemoryRequirements.size, 0, &pMemoryMappedData),
-//		"Failed to map memory to pointer");
-//
-//	memcpy(pMemoryMappedData, bufferToCopy.data(), (size_t)bufferToCopy.size() * sizeof(T));
-//	
-//	vkUnmapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory);
-//
-//Error:
-//	return r;
-//}
+RESULT VKBuffer::Bind() {
+	return R::NOT_IMPLEMENTED;
+}
 
 RESULT VKBuffer::Kill() {
 	RESULT r = R::OK;
