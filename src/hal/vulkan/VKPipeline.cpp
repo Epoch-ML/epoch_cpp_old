@@ -2,8 +2,14 @@
 
 #include "VulkanUtilities.h"
 
+#include "VKShader.h"
+#include "VKSwapchain.h"
+#include "VKVertex.h"
+#include "VKBuffer.h"
+
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
+	EPArray<VkVertexInputAttributeDescription, 2> vkVertexAttributeDescriptions = {};
 
 	CNM(m_vkLogicalDevice, "Cannot create pipeline without a valid logical device");
 
@@ -15,13 +21,33 @@ RESULT VKPipeline::Initialize() {
 
 	// Fixed stages
 	// TODO: This should all be moved into objects
-	
+
+	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 2>::GetVKVertexBindingDescription();
+	vkVertexAttributeDescriptions = VKVertex<float, 2>::GetVKVertexAttributeDescriptions();
+
+	//// TODO: This should go somewhere else obviously 
+	//m_vertices = {
+	//	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	//	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+	//	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+	//};
+
+	// TODO: make the above work 
+	m_vertices = {
+		VKVertex<float, 2>({0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}),
+		VKVertex<float, 2>({0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}),
+		VKVertex<float, 2>({-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f})
+	};
+
+	m_pVKVertexBuffer = VKBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, sizeof(VKVertex<float, 2>) * m_vertices.size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
+
 	// Vertex Input Stage
 	m_vkPipelineVertexInputStateCreateInfo .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 0;
-	m_vkPipelineVertexInputStateCreateInfo .pVertexBindingDescriptions = nullptr; // Optional
-	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = 0;
-	m_vkPipelineVertexInputStateCreateInfo .pVertexAttributeDescriptions = nullptr; // Optional
+	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 1;
+	m_vkPipelineVertexInputStateCreateInfo .pVertexBindingDescriptions = &vkVertexBindingDescription; 
+	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = 2;
+	m_vkPipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions = vkVertexAttributeDescriptions.data; // Optional
 
 	// Input assembly
 	m_vkPipelineInputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -165,8 +191,8 @@ RESULT VKPipeline::Initialize() {
 		"Failed to create render pass");
 	CNM(m_vkRenderPass, "Failed to create render pass");
 
-	// Create the pipeline 
-	
+	// Create the graphics pipeline 
+
 	VkPipelineShaderStageCreateInfo vkPipelineShaderStages[] = {
 		m_pVertexShader->GetShaderStageCreateInfo(), 
 		m_pFragmentShader->GetShaderStageCreateInfo()
@@ -203,6 +229,10 @@ RESULT VKPipeline::Kill() {
 
 	m_pVertexShader = nullptr;
 	m_pFragmentShader = nullptr;
+	
+	// TODO: move this out of here
+	m_vertices.clear(true);
+	m_pVKVertexBuffer = nullptr;
 
 	CN(m_vkLogicalDevice);
 	CN(m_vkGraphicsPipeline);
@@ -221,11 +251,11 @@ Error:
 	return r;
 }
 
-EPRef<VKPipeline> VKPipeline::InternalMake(VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain) {
+EPRef<VKPipeline> VKPipeline::InternalMake(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain) {
 	RESULT r = R::OK;
 	EPRef<VKPipeline> pVKPipeline = nullptr;
 
-	pVKPipeline = new VKPipeline(vkLogicalDevice, pVKSwapchain);
+	pVKPipeline = new VKPipeline(vkPhysicalDevice, vkLogicalDevice, pVKSwapchain);
 	CNM(pVKPipeline, "Failed to allocate pipeline");
 
 	CRM(pVKPipeline->Initialize(), "Failed to initialize VK pipeline");
@@ -236,4 +266,16 @@ Success:
 Error:
 	pVKPipeline = nullptr;
 	return nullptr;
+}
+
+VKPipeline::VKPipeline(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain) :
+	m_vkPhysicalDevice(vkPhysicalDevice),
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_pVKSwapchain(pVKSwapchain)
+{
+	//
+}
+
+VKPipeline::~VKPipeline() {
+	Kill();
 }

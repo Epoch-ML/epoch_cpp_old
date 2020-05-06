@@ -616,7 +616,7 @@ RESULT VKHAL::InitializePipeline() {
 	CNM(m_vkLogicalDevice, "Pipeline needs valid logical device");
 	CNM(m_pVKSwapchain, "Pipeline needs valid swapchain");
 
-	m_pVKPipeline = VKPipeline::make(m_vkLogicalDevice, m_pVKSwapchain);
+	m_pVKPipeline = VKPipeline::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
 	CNM(m_pVKPipeline, "Failed to make vk pipeline");
 
 Error:

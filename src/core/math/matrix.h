@@ -49,6 +49,10 @@ public:
 	matrix() = default;
 	virtual ~matrix() override = default;
 
+	matrix(std::initializer_list<TValue> values) {
+		memcpy(data, &values, sizeof(data));
+	}
+
 	matrix(const matrix& rhs) {
 		memcpy(data, rhs.data, sizeof(TValue) * N * M);
 	}

@@ -1,28 +1,23 @@
-#ifndef POINT_H_
-#define POINT_H_
+#ifndef VECTOR_H_
+#define VECTOR_H_
 
 #include "core/ehm/result.h"
 
-// epoch point
-// epoch/src/core/math/point.h
+// epoch vector
+// epoch/src/core/math/vector.h
 
 #include "matrix.h"
 
 template <typename TValue, int N>
-class point :
+class vector :
 	public matrix<TValue, N, 1>
 {
 public:
-	point() = default;
-	virtual ~point() override = default;
+	vector() = default;
+	virtual ~vector() override = default;
 
-	point(std::initializer_list<TValue> values) {
+	vector(std::initializer_list<TValue> values) {
 		memcpy(data, &values, sizeof(data));
-	}
-
-	point& operator=(std::initializer_list<TValue> values) {
-		memcpy(data, &values, sizeof(data));
-		return *this;
 	}
 
 	RESULT set(std::initializer_list<TValue> values) {
@@ -41,16 +36,5 @@ public:
 	inline TValue& w(const TValue &val) { return this->data[3] = val; }
 
 };
-
-//// Not sure if this will work
-//template <typename TValue>
-//point<TValue, 4>::point(TValue x, TValue y, TValue z, TValue w) {
-//	data[0] = x;
-//	data[1] = y;
-//	data[2] = z;
-//	data[3] = w;
-//}
-
-
 
 #endif // ! POINT_H_

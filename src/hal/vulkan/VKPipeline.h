@@ -14,35 +14,31 @@
 #include "core/types/EPRef.h"
 #include "core/types/EPFactoryMethod.h"
 
-#include "VKShader.h"
-#include "VKSwapchain.h"
+class VKShader;
+class VKSwapchain;
+template<typename TValue, int dimension> class VKVertex;
+class VKBuffer;
 
 class VKPipeline :
 	public pipeline,
-	public EPFactoryMethod<VKPipeline, VkDevice, const EPRef<VKSwapchain>&>
+	public EPFactoryMethod<VKPipeline, VkPhysicalDevice, VkDevice, const EPRef<VKSwapchain>&>
 {
 private:
-	VKPipeline(VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain)  :
-		m_vkLogicalDevice(vkLogicalDevice),
-		m_pVKSwapchain(pVKSwapchain)
-	{
-		//
-	}
+	VKPipeline(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
 public:
-	virtual ~VKPipeline() override {
-		Kill();
-	}
+	virtual ~VKPipeline() override;
 
-	static EPRef<VKPipeline> InternalMake(VkDevice, const EPRef<VKSwapchain>&);
+	static EPRef<VKPipeline> InternalMake(VkPhysicalDevice, VkDevice, const EPRef<VKSwapchain>&);
 
 	const VkRenderPass GetVKRenderPassHandle() const { return m_vkRenderPass; }
 	const VkPipeline GetVKPipelineHandle() const { return m_vkGraphicsPipeline; }
 
 private:
+	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 
@@ -88,6 +84,11 @@ private:
 	VkGraphicsPipelineCreateInfo m_vkGraphicsPipelineCreateInfo = {};
 
 	VkPipeline m_vkGraphicsPipeline = nullptr;
+
+	// Vertex Buffer
+	// TODO: Get it out of here
+	EPVector<VKVertex<float, 2>> m_vertices;
+	EPRef<VKBuffer> m_pVKVertexBuffer = nullptr;
 
 };
 
