@@ -17,22 +17,22 @@
 
 #include "VulkanUtilities.h"
 
+class VKCommandPool;
+
 class VKVertexBuffer : 
 	public buffer,
-	virtual public EPFactoryMethod<VKVertexBuffer, VkPhysicalDevice, VkDevice, size_t>
+	virtual public EPFactoryMethod<VKVertexBuffer, VkPhysicalDevice, VkDevice, EPRef<VKCommandPool>, VkQueue, size_t>
 {
 protected:
-	VKVertexBuffer(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, size_t size) :
-		m_vkPhysicalDevice(vkPhysicalDevice),
-		m_vkLogicalDevice(vkLogicalDevice),
-		m_size(size)
-	{
-		//
-	}
+	VKVertexBuffer(
+		VkPhysicalDevice vkPhysicalDevice, 
+		VkDevice vkLogicalDevice, 
+		EPRef<VKCommandPool> pVKCommandPool, 
+		VkQueue vkQueue,
+		size_t size);
+
 public:
-	virtual ~VKVertexBuffer() override {
-		Kill();
-	}
+	virtual ~VKVertexBuffer() override;
 
 	virtual RESULT Bind() override {
 		return R::NOT_IMPLEMENTED;
@@ -40,7 +40,7 @@ public:
 
 	RESULT Bind(VkCommandBuffer vkCommandBuffer);
 
-	static EPRef<VKVertexBuffer> InternalMake(VkPhysicalDevice, VkDevice, size_t);
+	static EPRef<VKVertexBuffer> InternalMake(VkPhysicalDevice, VkDevice, EPRef<VKCommandPool>, VkQueue, size_t);
 
 	// TODO: make it like... better
 	RESULT InitializeAsTriangle();
@@ -51,6 +51,8 @@ public:
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
+	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
+	VkQueue m_vkQueue = nullptr;
 
 	size_t m_size = 0;
 

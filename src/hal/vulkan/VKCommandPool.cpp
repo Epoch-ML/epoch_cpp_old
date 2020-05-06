@@ -43,13 +43,14 @@ EPRef<VKCommandPool> VKCommandPool::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice, 
 	VkSurfaceKHR vkSurface,
+	VkQueue vkQueue,
 	const EPRef<VKPipeline>& pVKPipeline, 
 	const EPRef<VKSwapchain>& pVKSwapchain
 ) {
 	RESULT r = R::OK;
 	EPRef<VKCommandPool> pVKCommandPool = nullptr;
 
-	pVKCommandPool = new VKCommandPool(vkPhysicalDevice, vkLogicalDevice, vkSurface, pVKPipeline, pVKSwapchain);
+	pVKCommandPool = new VKCommandPool(vkPhysicalDevice, vkLogicalDevice, vkSurface, vkQueue, pVKPipeline, pVKSwapchain);
 	CNM(pVKCommandPool, "Failed to allocate vk command pool");
 
 	CRM(pVKCommandPool->Initialize(), "Failed to initialize VK command pool");

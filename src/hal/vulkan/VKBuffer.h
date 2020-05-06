@@ -65,6 +65,14 @@ public:
 		void* pBufferToCopy, 
 		size_t pBufferToCopy_n);
 
+	static RESULT CopyBuffer(
+		VkDevice vkLogicalDevice,
+		VkCommandPool vkCommandPool,
+		VkQueue vkQueue,
+		VkBuffer vkBufferSource,
+		VkBuffer vkBufferDestination,
+		VkDeviceSize size);
+
 	virtual RESULT Bind() override;
 	RESULT BindAsVertexBuffer(VkCommandBuffer vkCommandBuffer);
 

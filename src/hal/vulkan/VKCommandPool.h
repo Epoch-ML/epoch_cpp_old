@@ -21,13 +21,27 @@
 
 class VKCommandPool :
 	public command_pool,
-	public EPFactoryMethod<VKCommandPool, VkPhysicalDevice, VkDevice, VkSurfaceKHR, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&>
+	public EPFactoryMethod<VKCommandPool, 
+		VkPhysicalDevice, 
+		VkDevice, 
+		VkSurfaceKHR, 
+		VkQueue,
+		const EPRef<VKPipeline>&, 
+		const EPRef<VKSwapchain>&>
 {
 private:
-	VKCommandPool(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, VkSurfaceKHR vkSurface, const EPRef<VKPipeline>& pVKPipeline, const EPRef<VKSwapchain>& pVKSwapchain) :
+	VKCommandPool(
+		VkPhysicalDevice vkPhysicalDevice, 
+		VkDevice vkLogicalDevice, 
+		VkSurfaceKHR vkSurface, 
+		VkQueue vkQueue,
+		const EPRef<VKPipeline>& pVKPipeline, 
+		const EPRef<VKSwapchain>& pVKSwapchain
+	) :
 		m_vkPhysicalDevice(vkPhysicalDevice),
 		m_vkLogicalDevice(vkLogicalDevice),
 		m_vkSurface(vkSurface),
+		m_vkQueue(vkQueue),
 		m_pVKPipeline(pVKPipeline),
 		m_pVKSwapchain(pVKSwapchain)
 	{
@@ -48,6 +62,7 @@ public:
 	VkPhysicalDevice GetVKPhyscialDeviceHandle() { return m_vkPhysicalDevice; }
 	VkDevice GetVKLogicalDeviceHandle() { return m_vkLogicalDevice; }
 	VkSurfaceKHR GetVKSurfaceHandle() { return m_vkSurface; }
+	VkQueue GetVKQueueHandle() { return m_vkQueue; }
 
 	const EPRef<VKSwapchain>& GetVKSwapchain() const { return m_pVKSwapchain; }
 	const EPRef<VKPipeline>& GetVKPipeline() const { return m_pVKPipeline; }
@@ -59,12 +74,19 @@ public:
 		return m_pVKCommandBuffers->GetCommandBufferHandle(index); 
 	}
 
-	static EPRef<VKCommandPool> InternalMake(VkPhysicalDevice, VkDevice, VkSurfaceKHR, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&);
+	static EPRef<VKCommandPool> InternalMake(
+		VkPhysicalDevice, 
+		VkDevice, 
+		VkSurfaceKHR, 
+		VkQueue,
+		const EPRef<VKPipeline>&, 
+		const EPRef<VKSwapchain>&);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
 	VkSurfaceKHR m_vkSurface = nullptr;
+	VkQueue m_vkQueue = nullptr;
 
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 	EPRef<VKPipeline> m_pVKPipeline = nullptr;

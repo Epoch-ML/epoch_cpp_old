@@ -633,8 +633,17 @@ RESULT VKHAL::InitializeCommandPool() {
 	CNM(m_vkSurface, "Command pool needs valid surface");
 	CNM(m_vkLogicalDevice, "Command pool needs valid logical device");
 	CNM(m_pVKSwapchain, "Command pool needs valid swapchain");
+	CNM(m_vkGraphicsQueueHandle, "Need valid graphics queue handle");
 
-	m_pVKCommandPool = VKCommandPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_vkSurface, m_pVKPipeline, m_pVKSwapchain);
+	m_pVKCommandPool = VKCommandPool::make(
+		m_vkPhysicalDevice, 
+		m_vkLogicalDevice, 
+		m_vkSurface, 
+		m_vkGraphicsQueueHandle,
+		m_pVKPipeline, 
+		m_pVKSwapchain
+	);
+
 	CNM(m_pVKCommandPool, "Failed to make vk command pool");
 
 Error:

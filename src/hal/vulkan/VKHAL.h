@@ -142,7 +142,9 @@ private:
 	VkDeviceCreateInfo m_vkDeviceCreateInfo{};
 
 	VkDevice m_vkLogicalDevice = nullptr;
+
 	VkQueue m_vkGraphicsQueueHandle = nullptr;
+	VkQueue m_vkTransferQueueHandle = nullptr;	// TODO: Add this
 	VkQueue m_vkPresentationQueueHandle = nullptr;
 
 // Window Surface

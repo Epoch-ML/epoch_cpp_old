@@ -1,5 +1,7 @@
 #include "VKVertexBuffer.h"
 
+#include "VKCommandPool.h"
+
 #include "VKVertex.h"
 #include "VKBuffer.h"
 
@@ -34,6 +36,18 @@ RESULT VKVertexBuffer::Initialize() {
 		"Failed to Create Vertex Buffer");
 	CN(m_vkVertexBuffer);
 	CN(m_vkVertexBufferDeviceMemory);
+
+	CRM(VKBuffer::CopyBuffer(
+		m_vkLogicalDevice,
+		m_pVKCommandPool->GetVKCommandPoolHandle(),
+		m_vkQueue,
+		m_vkStagingBuffer,
+		m_vkVertexBuffer,
+		m_size),
+		"Copy from staging to vertex buffer failed");
+
+	vkDestroyBuffer(m_vkLogicalDevice, m_vkStagingBuffer, nullptr);
+	vkFreeMemory(m_vkLogicalDevice, m_vkStagingBufferDeviceMemory, nullptr);
 
 Error:
 	return r;
@@ -92,14 +106,16 @@ Error:
 }
 
 EPRef<VKVertexBuffer> VKVertexBuffer::InternalMake(
-	VkPhysicalDevice vkPhysicalDevice, 
-	VkDevice vkLogicalDevice, 
-	size_t size) 
-{
+	VkPhysicalDevice vkPhysicalDevice,
+	VkDevice vkLogicalDevice,
+	EPRef<VKCommandPool> pVKCommandPool,
+	VkQueue vkQueue,
+	size_t size
+) {
 	RESULT r = R::OK;
 	EPRef<VKVertexBuffer> pVKVertexBuffer = nullptr;
 
-	pVKVertexBuffer = new VKVertexBuffer(vkPhysicalDevice, vkLogicalDevice, size);
+	pVKVertexBuffer = new VKVertexBuffer(vkPhysicalDevice, vkLogicalDevice, pVKCommandPool, vkQueue, size);
 	CNM(pVKVertexBuffer, "Failed to allocate vk vertex buffer");
 
 	CRM(pVKVertexBuffer->Initialize(), "Failed to initialize VK vertex buffer");
@@ -110,4 +126,23 @@ Success:
 Error:
 	pVKVertexBuffer = nullptr;
 	return nullptr;
+}
+
+VKVertexBuffer::VKVertexBuffer(VkPhysicalDevice vkPhysicalDevice,
+	VkDevice vkLogicalDevice,
+	EPRef<VKCommandPool> pVKCommandPool,
+	VkQueue vkQueue,
+	size_t size
+) :
+	m_vkPhysicalDevice(vkPhysicalDevice),
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_pVKCommandPool(pVKCommandPool),
+	m_vkQueue(vkQueue),
+	m_size(size)
+{
+	//
+}
+
+VKVertexBuffer::~VKVertexBuffer() {
+	Kill();
 }

@@ -84,6 +84,57 @@ Error:
 	return r;
 }
 
+RESULT VKBuffer::CopyBuffer(
+	VkDevice vkLogicalDevice, 
+	VkCommandPool vkCommandPool, 
+	VkQueue vkQueue,
+	VkBuffer vkBufferSource, 
+	VkBuffer vkBufferDestination, 
+	VkDeviceSize size
+) {
+	RESULT r = R::OK;
+
+	VkCommandBuffer vkCommandBuffer = nullptr;
+	VkCommandBufferAllocateInfo vkCommandBufferAllocateInfo = {};
+	VkCommandBufferBeginInfo vkCommandBufferBeginInfo{};
+	VkBufferCopy vkBufferCopy{};
+	VkSubmitInfo vkSubmitInfo{};
+
+	vkCommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	vkCommandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	vkCommandBufferAllocateInfo.commandPool = vkCommandPool;
+	vkCommandBufferAllocateInfo.commandBufferCount = 1;
+
+	CVKRM(vkAllocateCommandBuffers(vkLogicalDevice, &vkCommandBufferAllocateInfo, &vkCommandBuffer),
+		"Failed to allocate command buffer");
+
+	vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	CVKRM(vkBeginCommandBuffer(vkCommandBuffer, &vkCommandBufferBeginInfo),
+		"Begin command buffer failed");
+
+	vkBufferCopy.srcOffset = 0; // Optional
+	vkBufferCopy.dstOffset = 0; // Optional
+	vkBufferCopy.size = size;
+	vkCmdCopyBuffer(vkCommandBuffer, vkBufferSource, vkBufferDestination, 1, &vkBufferCopy);
+
+	CVKRM(vkEndCommandBuffer(vkCommandBuffer),
+		"Failed to end command buffer");
+
+	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	vkSubmitInfo.commandBufferCount = 1;
+	vkSubmitInfo.pCommandBuffers = &vkCommandBuffer;
+
+	CVKRM(vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, nullptr), "Failed to submit queue");
+	CVKRM(vkQueueWaitIdle(vkQueue), "Failed to wait on queue");
+
+	vkFreeCommandBuffers(vkLogicalDevice, vkCommandPool, 1, &vkCommandBuffer);
+
+Error:
+	return r;
+}
+
 RESULT VKBuffer::Initialize() {
 	RESULT r = R::OK;
 

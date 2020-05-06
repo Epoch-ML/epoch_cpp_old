@@ -77,6 +77,8 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 	m_pVKVertexBuffer = VKVertexBuffer::make(
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
 		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
+		m_pVKCommandPool,
+		m_pVKCommandPool->GetVKQueueHandle(),
 		sizeof(VKVertex<float, 2>) * 3);	 
 	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
 
