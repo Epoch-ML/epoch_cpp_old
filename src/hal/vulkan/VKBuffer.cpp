@@ -62,6 +62,28 @@ Error:
 	return r;
 }
 
+RESULT VKBuffer::CopyDataToBuffer(
+	VkPhysicalDevice vkPhysicalDevice,
+	VkDevice vkLogicalDevice,
+	VkDeviceMemory& r_vkDeviceMemory,
+	void* pBufferToCopy,
+	size_t pBufferToCopy_n
+) {
+	RESULT r = R::OK;
+
+	void* pMemoryMappedData = nullptr;
+
+	CVKRM(vkMapMemory(vkLogicalDevice, r_vkDeviceMemory, 0, pBufferToCopy_n, 0, &pMemoryMappedData),
+		"Failed to map memory to pointer");
+
+	memcpy(pMemoryMappedData, pBufferToCopy, pBufferToCopy_n);
+
+	vkUnmapMemory(vkLogicalDevice, r_vkDeviceMemory);
+
+Error:
+	return r;
+}
+
 RESULT VKBuffer::Initialize() {
 	RESULT r = R::OK;
 

@@ -58,6 +58,13 @@ public:
 		VkBuffer& r_vkBuffer,
 		VkDeviceMemory& r_vkDeviceMemory);
 
+	static RESULT CopyDataToBuffer(
+		VkPhysicalDevice vkPhysicalDevice,
+		VkDevice vkLogicalDevice,
+		VkDeviceMemory& r_vkDeviceMemory,
+		void* pBufferToCopy, 
+		size_t pBufferToCopy_n);
+
 	virtual RESULT Bind() override;
 	RESULT BindAsVertexBuffer(VkCommandBuffer vkCommandBuffer);
 

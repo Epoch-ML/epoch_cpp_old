@@ -6,13 +6,29 @@
 RESULT VKVertexBuffer::Initialize() {
 	RESULT r = R::OK;
 
+// Staging Buffer
+	CVKRM(VKBuffer::CreateBuffer(
+		m_vkPhysicalDevice,
+		m_vkLogicalDevice,
+		m_size,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		m_vkStagingBuffer,
+		m_vkStagingBufferDeviceMemory),
+		"Failed to Create Vertex Buffer");
+	CN(m_vkStagingBuffer);
+	CN(m_vkStagingBufferDeviceMemory);
+
+	// TODO: obviously temp
+	CR(InitializeAsTriangle());
+
 // Vertex Buffer
 	CVKRM(VKBuffer::CreateBuffer(
 		m_vkPhysicalDevice,
 		m_vkLogicalDevice,
 		m_size,
-		m_vkBufferUsageFlags,
-		m_vkMemoryPropertyFlags,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		m_vkVertexBuffer,
 		m_vkVertexBufferDeviceMemory),
 		"Failed to Create Vertex Buffer");
@@ -32,22 +48,6 @@ RESULT VKVertexBuffer::Bind(VkCommandBuffer vkCommandBuffer) {
 	CN(vkCommandBuffer);
 
 	vkCmdBindVertexBuffers(vkCommandBuffer, 0, 1, vkBuffers, vkOffsets);
-
-Error:
-	return r;
-}
-
-RESULT VKVertexBuffer::CopyDataToBuffer(void* pVufferToCopy, size_t pVufferToCopy_n){
-	RESULT r = R::OK;
-
-	void* pMemoryMappedData = nullptr;
-
-	CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkVertexBufferDeviceMemory, 0, pVufferToCopy_n, 0, &pMemoryMappedData),
-		"Failed to map memory to pointer");
-
-	memcpy(pMemoryMappedData, pVufferToCopy, pVufferToCopy_n);
-
-	vkUnmapMemory(m_vkLogicalDevice, m_vkVertexBufferDeviceMemory);
 
 Error:
 	return r;
@@ -79,7 +79,12 @@ RESULT VKVertexBuffer::InitializeAsTriangle() {
 		VKVertex<float, 2>({-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f, 1.0f})
 	};
 
-	CRM(CopyDataToBuffer(vertices.data(), sizeof(VKVertex<float, 2>) * vertices.size()),
+	CRM(VKBuffer::CopyDataToBuffer(
+		m_vkPhysicalDevice,
+		m_vkLogicalDevice,
+		m_vkStagingBufferDeviceMemory,
+		vertices.data(), 
+		sizeof(VKVertex<float, 2>) * vertices.size()),
 		"Failed to copy triangle vertex data");
 
 Error:
@@ -98,9 +103,6 @@ EPRef<VKVertexBuffer> VKVertexBuffer::InternalMake(
 	CNM(pVKVertexBuffer, "Failed to allocate vk vertex buffer");
 
 	CRM(pVKVertexBuffer->Initialize(), "Failed to initialize VK vertex buffer");
-
-	// TODO: obviously temp
-	CR(pVKVertexBuffer->InitializeAsTriangle());
 
 Success:
 	return pVKVertexBuffer;

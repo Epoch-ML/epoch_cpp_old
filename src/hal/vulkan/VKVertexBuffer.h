@@ -48,16 +48,11 @@ public:
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
-	RESULT CopyDataToBuffer(void* pVufferToCopy, size_t pVufferToCopy_n);
-
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
 
 	size_t m_size = 0;
-
-	VkBufferUsageFlags m_vkBufferUsageFlags = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	VkMemoryPropertyFlags m_vkMemoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
 // Staging Buffer
 	VkBuffer m_vkStagingBuffer = nullptr;
