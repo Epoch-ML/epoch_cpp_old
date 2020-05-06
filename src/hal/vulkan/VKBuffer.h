@@ -46,7 +46,7 @@ public:
 	virtual RESULT Bind() override;
 
 	template <typename T>
-	RESULT CopyDataToBuffer(EPVector<T> bufferToCopy) {
+	RESULT CopyDataToBuffer(const EPVector<T> &bufferToCopy) {
 		RESULT r = R::OK;
 
 		void* pMemoryMappedData = nullptr;
