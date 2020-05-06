@@ -6,6 +6,7 @@
 
 #include "VKVertex.h"
 #include "VKBuffer.h"
+#include "VKVertexBuffer.h"
 
 VKCommandBuffers::VKCommandBuffers(const EPRef<VKCommandPool>& pVKCommandPool) :
 	m_pVKCommandPool(pVKCommandPool)
@@ -83,10 +84,10 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 	size_t vertices_size = sizeof(VKVertex<float, 2>);
 	size_t floatSize = sizeof(point<float, 2>) + sizeof(color);
 
-	m_pVKVertexBuffer = VKBuffer::make(
+	m_pVKVertexBuffer = VKVertexBuffer::make(
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
 		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
-		sizeof(VKVertex<float, 2>) * vertices.size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		sizeof(VKVertex<float, 2>) * vertices.size());
 	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
 
 	m_pVKVertexBuffer->CopyDataToBuffer(vertices);
@@ -127,7 +128,7 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		);
 
 		//// TODO: wtf land
-		m_pVKVertexBuffer->BindAsVertexBuffer(m_vkCommandBuffers[i]);
+		m_pVKVertexBuffer->Bind(m_vkCommandBuffers[i]);
 
 		vkCmdDraw(m_vkCommandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 

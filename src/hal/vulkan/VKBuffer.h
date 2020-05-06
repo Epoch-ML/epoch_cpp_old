@@ -19,10 +19,10 @@
 #include "VKPipeline.h"
 
 class VKBuffer :
-	public buffer,
-	public EPFactoryMethod<VKBuffer, VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags>
+	public buffer
+	//virtual public EPFactoryMethod<VKBuffer, VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags>
 {
-private:
+protected:
 	VKBuffer(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, size_t size, VkBufferUsageFlags vkBufferUsageFlags) :
 		m_vkPhysicalDevice(vkPhysicalDevice),
 		m_vkLogicalDevice(vkLogicalDevice),
@@ -41,7 +41,7 @@ public:
 		Kill();
 	}
 
-	RESULT Allocate();
+	RESULT AllocateMemory();
 
 	virtual RESULT Bind() override;
 	RESULT BindAsVertexBuffer(VkCommandBuffer vkCommandBuffer);
@@ -64,10 +64,11 @@ public:
 		return r;
 	}
 
-	static EPRef<VKBuffer> InternalMake(VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags);
+	//static EPRef<VKBuffer> InternalMake(VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags);
+
 	const VkBuffer GetVKBufferHandle() const { return m_vkBuffer; }
 
-private:
+protected:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
 

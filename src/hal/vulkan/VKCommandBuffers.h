@@ -17,6 +17,7 @@
 
 class VKCommandPool;
 class VKBuffer;
+class VKVertexBuffer;
 
 class VKCommandBuffers :
 	public command_buffer,
@@ -46,7 +47,7 @@ private:
 	EPVector<VkCommandBuffer> m_vkCommandBuffers;
 
 	// TODO: temp
-	EPRef<VKBuffer> m_pVKVertexBuffer = nullptr;
+	EPRef<VKVertexBuffer> m_pVKVertexBuffer = nullptr;
 };
 
 #endif // ! VULKAN_COMMAND_BUFFER_H_

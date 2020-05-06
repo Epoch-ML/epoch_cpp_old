@@ -16,13 +16,13 @@ RESULT VKBuffer::Initialize() {
 		"Failed to create vk buffer");
 	CNM(m_vkBuffer, "Failed to create vk buffer");
 
-	CRM(Allocate(), "Failed to allocate buffer");
+	CRM(AllocateMemory(), "Failed to allocate buffer");
 
 Error:
 	return r;
 }
 
-RESULT VKBuffer::Allocate() {
+RESULT VKBuffer::AllocateMemory() {
 	RESULT r = R::OK;
 	VkPhysicalDeviceMemoryProperties vkPhysicalDeviceMemoryProperties = {};
 
@@ -92,6 +92,7 @@ Error:
 	return r;
 }
 
+/*
 EPRef<VKBuffer> VKBuffer::InternalMake(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, size_t size, VkBufferUsageFlags vkBufferUsageFlags) {
 	RESULT r = R::OK;
 	EPRef<VKBuffer> pVKBuffer = nullptr;
@@ -108,3 +109,4 @@ Error:
 	pVKBuffer = nullptr;
 	return nullptr;
 }
+*/
