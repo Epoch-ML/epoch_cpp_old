@@ -234,6 +234,13 @@ public:
 		return r;
 	}
 
+	RESULT PushBackUnique(const TStorage &value) noexcept {
+		if (exists(value))
+			return R::NOT_UNIQUE;
+
+		return PushBack(value);
+	}
+
 	inline RESULT PushFront(const TStorage& value) noexcept {
 		if (m_pBuffer == nullptr) {
 			if (this->Allocate(1) != R::OK)

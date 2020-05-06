@@ -197,7 +197,7 @@ Error:
 RESULT VKSwapchain::CreateSwapchain() {
 	RESULT r = R::OK;
 
-	EPVector<uint32_t> familyQueueIndexes;
+	VKQueueFamilies vkQueueFamilies;
 
 	CNM(m_vkPhysicalDevice, "Cannot create swapchain without a valid physical device");
 	CNM(m_vkSurface, "Cannot create swapchain without a valid surface");
@@ -218,18 +218,19 @@ RESULT VKSwapchain::CreateSwapchain() {
 	m_vkSwapchainCreateInfo.imageArrayLayers = 1;
 	m_vkSwapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	familyQueueIndexes = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
+	vkQueueFamilies = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
 
-	if (familyQueueIndexes.size() > 1) {
-		m_vkSwapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		m_vkSwapchainCreateInfo.queueFamilyIndexCount = 2;
-		m_vkSwapchainCreateInfo.pQueueFamilyIndices = familyQueueIndexes.data();
-	}
-	else {
+	// TODO: Actually use this
+	//if (vkQueueFamilies.GetUniqueIndexes().size() > 1) {
+	//	m_vkSwapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+	//	m_vkSwapchainCreateInfo.queueFamilyIndexCount = (uint32_t)vkQueueFamilies.GetUniqueIndexes().size();
+	//	m_vkSwapchainCreateInfo.pQueueFamilyIndices = vkQueueFamilies.GetUniqueIndexes().data();
+	//}
+	//else {
 		m_vkSwapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		m_vkSwapchainCreateInfo.queueFamilyIndexCount = 0; // Optional
 		m_vkSwapchainCreateInfo.pQueueFamilyIndices = nullptr; // Optional
-	}
+	//}
 
 	m_vkSwapchainCreateInfo.preTransform = m_vkSurfaceCapabilities.currentTransform;
 	m_vkSwapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;

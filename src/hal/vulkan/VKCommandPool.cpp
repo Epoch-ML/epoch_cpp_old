@@ -4,7 +4,7 @@
 
 RESULT VKCommandPool::Initialize() {
 	RESULT r = R::OK;
-	EPVector<uint32_t> queueFamilies;
+	VKQueueFamilies vkQueueFamilies;
 
 	CNM(m_vkLogicalDevice, "Cannot initialize command pool without valid logical device");
 	CNM(m_pVKPipeline, "Cannot initialize command pool without valid pipeline");
@@ -12,10 +12,11 @@ RESULT VKCommandPool::Initialize() {
 	CN(m_vkSurface);
 
 	// TODO: This is too loosey goosey 
-	queueFamilies = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
+
+	vkQueueFamilies = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
 
 	m_vkCommandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	m_vkCommandPoolCreateInfo.queueFamilyIndex = queueFamilies[0];
+	m_vkCommandPoolCreateInfo.queueFamilyIndex = vkQueueFamilies.GetGraphicsQueueIndex();
 	m_vkCommandPoolCreateInfo.flags = 0; // Optional
 
 	CVKRM(vkCreateCommandPool(m_vkLogicalDevice, &m_vkCommandPoolCreateInfo, nullptr, &m_vkCommandPool),

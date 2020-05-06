@@ -144,7 +144,8 @@ private:
 	VkDevice m_vkLogicalDevice = nullptr;
 
 	VkQueue m_vkGraphicsQueueHandle = nullptr;
-	VkQueue m_vkTransferQueueHandle = nullptr;	// TODO: Add this
+	VkQueue m_vkComputeQueueHandle = nullptr;
+	VkQueue m_vkTransferQueueHandle = nullptr;	
 	VkQueue m_vkPresentationQueueHandle = nullptr;
 
 // Window Surface

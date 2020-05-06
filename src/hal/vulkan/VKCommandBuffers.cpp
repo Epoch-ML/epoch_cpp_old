@@ -73,6 +73,8 @@ Error:
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
 
+	VKQueueFamilies vkQueueFamilies;
+
 	// TODO: not hard coded vertex count
 	m_pVKVertexBuffer = VKVertexBuffer::make(
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
@@ -82,10 +84,12 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		sizeof(VKVertex<float, 2>) * 3);	 
 	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
 
-	uint32_t graphicsPipeline = FindQueueFamilies(
-		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
+	vkQueueFamilies = FindQueueFamilies(
+		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
 		m_pVKCommandPool->GetVKSurfaceHandle()
-	)[0];
+	);
+
+	uint32_t graphicsPipeline = vkQueueFamilies.GetGraphicsQueueIndex();
 
 	for (uint32_t i = 0; i < m_vkCommandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};

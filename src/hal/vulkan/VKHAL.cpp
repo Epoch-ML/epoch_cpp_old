@@ -483,16 +483,14 @@ RESULT VKHAL::InitializeLogicalDevice() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 	
-	EPVector<uint32_t> familyQueueIndexes;
-	uint32_t graphicsFamilyQueueIndex;
-	uint32_t presentFamilyQueueIndex;
+	VKQueueFamilies vkQueueFamilies;
 
 	CNM(m_vkPhysicalDevice, "Cannot initialize logical device without a valid physical device");
 	CNM(m_vkSurface, "Cannot initialize logical device without a valid surface");
 
-	familyQueueIndexes = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
+	vkQueueFamilies = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
 	 
-	for (auto& queueFamilyIndex : familyQueueIndexes) {
+	for (auto& queueFamilyIndex : vkQueueFamilies.GetUniqueIndexes()) {
 
 		VkDeviceQueueCreateInfo vkDeviceQueueCreateInfo = {};
 
@@ -530,14 +528,25 @@ RESULT VKHAL::InitializeLogicalDevice() {
 		"Failed to create logitcal device");
 	CNM(m_vkLogicalDevice, "Failed to create logical vulkan device");
 
-	// TODO: If the family queue index is the same the handle is equivalent
-	graphicsFamilyQueueIndex = familyQueueIndexes[0];
-	vkGetDeviceQueue(m_vkLogicalDevice, graphicsFamilyQueueIndex, 0, &m_vkGraphicsQueueHandle);
-	CNM(m_vkGraphicsQueueHandle, "Failed to retrieve graphics queue handle");
+	if (vkQueueFamilies.HasGraphicsQueue()) {
+		vkGetDeviceQueue(m_vkLogicalDevice, vkQueueFamilies.GetGraphicsQueueIndex(), 0, &m_vkGraphicsQueueHandle);
+		CNM(m_vkGraphicsQueueHandle, "Failed to retrieve graphics queue handle");
+	}
 
-	presentFamilyQueueIndex = (familyQueueIndexes.size() > 1) ? familyQueueIndexes[1] : familyQueueIndexes[0];
-	vkGetDeviceQueue(m_vkLogicalDevice, presentFamilyQueueIndex, 0, &m_vkPresentationQueueHandle);
-	CNM(m_vkPresentationQueueHandle, "Failed to retrieve presentation queue handle");
+	if (vkQueueFamilies.HasPresentationQueue()) {
+		vkGetDeviceQueue(m_vkLogicalDevice, vkQueueFamilies.GetPresentationQueueIndex(), 0, &m_vkPresentationQueueHandle);
+		CNM(m_vkPresentationQueueHandle, "Failed to retrieve presentation queue handle");
+	}
+
+	if (vkQueueFamilies.HasComputeQueue()) {
+		vkGetDeviceQueue(m_vkLogicalDevice, vkQueueFamilies.GetComputeQueueIndex(), 0, &m_vkComputeQueueHandle);
+		CNM(m_vkComputeQueueHandle, "Failed to retrieve compute queue handle");
+	}
+
+	if (vkQueueFamilies.HasTransferQueue()) {
+		vkGetDeviceQueue(m_vkLogicalDevice, vkQueueFamilies.GetTransferQueueIndex(), 0, &m_vkTransferQueueHandle);
+		CNM(m_vkTransferQueueHandle, "Failed to retrieve transfer queue handle");
+	}
 
 Error:
 	return r;

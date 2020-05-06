@@ -51,6 +51,8 @@ typedef enum class RESULT : uint32_t {
 
 	MEMORY_ALLOCATION_FAILED,
 
+	NOT_UNIQUE,
+
 	PLATFORM_NOT_SUPPORTED
 } R ;
 
