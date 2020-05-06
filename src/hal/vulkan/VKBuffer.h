@@ -44,13 +44,19 @@ protected:
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
-
 public:
 	virtual ~VKBuffer() override {
 		Kill();
 	}
 
-	RESULT AllocateMemory();
+	static RESULT CreateBuffer(
+		VkPhysicalDevice vkPhysicalDevice,
+		VkDevice vkLogicalDevice,
+		VkDeviceSize bufferSize,
+		VkBufferUsageFlags vkBufferUsageFlags,
+		VkMemoryPropertyFlags vkMemoryPropertyFlags,
+		VkBuffer& r_vkBuffer,
+		VkDeviceMemory& r_vkDeviceMemory);
 
 	virtual RESULT Bind() override;
 	RESULT BindAsVertexBuffer(VkCommandBuffer vkCommandBuffer);
@@ -60,12 +66,12 @@ public:
 		RESULT r = R::OK;
 
 		void* pMemoryMappedData = nullptr;
-		//VkDeviceSize sizeToWrite = std::min(bufferToCopy.size(), m_vkMemoryRequirements.size);
+		size_t byteSize = (size_t)bufferToCopy.size() * sizeof(T);
 
-		CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory, 0, m_vkMemoryRequirements.size, 0, &pMemoryMappedData),
+		CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory, 0, byteSize, 0, &pMemoryMappedData),
 			"Failed to map memory to pointer");
 
-		memcpy(pMemoryMappedData, bufferToCopy.data(), (size_t)bufferToCopy.size() * sizeof(T));
+		memcpy(pMemoryMappedData, bufferToCopy.data(), byteSize);
 
 		vkUnmapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory);
 
@@ -82,14 +88,11 @@ protected:
 	VkDevice m_vkLogicalDevice = nullptr;
 
 	size_t m_size = 0;
+	
 	VkBufferUsageFlags m_vkBufferUsageFlags;
 	VkMemoryPropertyFlags m_vkMemoryPropertyFlags;
-	VkBufferCreateInfo m_vkBufferCreateInfo = {};
+	
 	VkBuffer m_vkBuffer = nullptr;
-
-	// Memory
-	VkMemoryRequirements m_vkMemoryRequirements = {};
-	VkMemoryAllocateInfo m_vkMemoryAllocateInfo = {};
 	VkDeviceMemory m_vkBufferDeviceMemory = nullptr;
 };
 

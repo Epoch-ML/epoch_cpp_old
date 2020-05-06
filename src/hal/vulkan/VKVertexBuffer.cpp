@@ -1,56 +1,23 @@
 #include "VKVertexBuffer.h"
 
 #include "VKVertex.h"
+#include "VKBuffer.h"
 
 RESULT VKVertexBuffer::Initialize() {
 	RESULT r = R::OK;
 
-	VkPhysicalDeviceMemoryProperties vkPhysicalDeviceMemoryProperties = {};
-
-	CNM(m_vkLogicalDevice, "Cannot initialize framebuffer without valid logical device");
-
-	m_vkBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	m_vkBufferCreateInfo.size = (uint64_t)(m_size);
-	m_vkBufferCreateInfo.usage = m_vkBufferUsageFlags;
-	m_vkBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-	CVKRM(vkCreateBuffer(m_vkLogicalDevice, &m_vkBufferCreateInfo, nullptr, &m_vkBuffer),
-		"Failed to create vk buffer");
-	CNM(m_vkBuffer, "Failed to create vk buffer");
-
-	VkMemoryPropertyFlags vkMemoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-
-	CN(m_vkBuffer);
-
-	// Get memory requirements and physical device memory properties 
-	vkGetBufferMemoryRequirements(m_vkLogicalDevice, m_vkBuffer, &m_vkMemoryRequirements);
-	vkGetPhysicalDeviceMemoryProperties(m_vkPhysicalDevice, &vkPhysicalDeviceMemoryProperties);
-
-	// Find suitable memory type
-	uint32_t memoryTypeIndex;
-	bool fFound = false;
-	for (memoryTypeIndex = 0; memoryTypeIndex < vkPhysicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
-		if ((m_vkMemoryRequirements.memoryTypeBits & (1 << memoryTypeIndex)) &&
-			(vkPhysicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags & vkMemoryPropertyFlags) == vkMemoryPropertyFlags)
-		{
-			fFound = true;
-			break;
-		}
-	}
-
-	CBM(fFound, "Failed to find suitable memory type");
-
-	// Allocate 
-	m_vkMemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	m_vkMemoryAllocateInfo.allocationSize = m_vkMemoryRequirements.size;
-	m_vkMemoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
-
-	CVKRM(vkAllocateMemory(m_vkLogicalDevice, &m_vkMemoryAllocateInfo, nullptr, &m_vkBufferDeviceMemory),
-		"Failed to allocate buffer memory");
-	CNM(m_vkBufferDeviceMemory, "Failed to allocate buffer memory");
-
-	CVKRM(vkBindBufferMemory(m_vkLogicalDevice, m_vkBuffer, m_vkBufferDeviceMemory, 0),
-		"Failed to bing memory to buffer");
+// Vertex Buffer
+	CVKRM(VKBuffer::CreateBuffer(
+		m_vkPhysicalDevice,
+		m_vkLogicalDevice,
+		m_size,
+		m_vkBufferUsageFlags,
+		m_vkMemoryPropertyFlags,
+		m_vkVertexBuffer,
+		m_vkVertexBufferDeviceMemory),
+		"Failed to Create Vertex Buffer");
+	CN(m_vkVertexBuffer);
+	CN(m_vkVertexBufferDeviceMemory);
 
 Error:
 	return r;
@@ -59,7 +26,7 @@ Error:
 RESULT VKVertexBuffer::Bind(VkCommandBuffer vkCommandBuffer) {
 	RESULT r = R::OK;
 
-	VkBuffer vkBuffers[] = { m_vkBuffer };
+	VkBuffer vkBuffers[] = { m_vkVertexBuffer };
 	VkDeviceSize vkOffsets[] = { 0 };
 
 	CN(vkCommandBuffer);
@@ -75,12 +42,12 @@ RESULT VKVertexBuffer::CopyDataToBuffer(void* pVufferToCopy, size_t pVufferToCop
 
 	void* pMemoryMappedData = nullptr;
 
-	CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory, 0, m_vkMemoryRequirements.size, 0, &pMemoryMappedData),
+	CVKRM(vkMapMemory(m_vkLogicalDevice, m_vkVertexBufferDeviceMemory, 0, pVufferToCopy_n, 0, &pMemoryMappedData),
 		"Failed to map memory to pointer");
 
 	memcpy(pMemoryMappedData, pVufferToCopy, pVufferToCopy_n);
 
-	vkUnmapMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory);
+	vkUnmapMemory(m_vkLogicalDevice, m_vkVertexBufferDeviceMemory);
 
 Error:
 	return r;
@@ -90,12 +57,12 @@ RESULT VKVertexBuffer::Kill() {
 	RESULT r = R::OK;
 
 	CN(m_vkLogicalDevice);
-	CN(m_vkBuffer);
+	CN(m_vkVertexBuffer);
 
-	vkDestroyBuffer(m_vkLogicalDevice, m_vkBuffer, nullptr);
+	vkDestroyBuffer(m_vkLogicalDevice, m_vkVertexBuffer, nullptr);
 
-	CN(m_vkBufferDeviceMemory);
-	vkFreeMemory(m_vkLogicalDevice, m_vkBufferDeviceMemory, nullptr);
+	CN(m_vkVertexBufferDeviceMemory);
+	vkFreeMemory(m_vkLogicalDevice, m_vkVertexBufferDeviceMemory, nullptr);
 
 Error:
 	return r;
