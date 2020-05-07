@@ -69,6 +69,7 @@ private:
 
 	VkPipelineLayoutCreateInfo m_vkPipelineLayoutCreateInfo = {};
 	VkPipelineLayout m_vkPipelineLayout = nullptr;
+	VkDescriptorSetLayout m_vkDescriptorSetLayoutUniformBufferObject = nullptr;
 
 	// TODO: Render pass is here, move into an object
 	VkAttachmentDescription m_vkAttachmentDescription = {};

@@ -7,9 +7,15 @@
 #include "VKVertex.h"
 #include "VKBuffer.h"
 
+#include "core/math/matrix.h"
+
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
 	EPArray<VkVertexInputAttributeDescription, 2> vkVertexAttributeDescriptions = {};
+
+	// Uniform Descriptor Set Layout
+	VkDescriptorSetLayoutBinding vkDescriptorLayoutBindingUniformBufferObject = {};
+	VkDescriptorSetLayoutCreateInfo vkDescriptorSetLayoutCreateInfoUniformBufferObject = {};
 
 	CNM(m_vkLogicalDevice, "Cannot create pipeline without a valid logical device");
 
@@ -18,6 +24,36 @@ RESULT VKPipeline::Initialize() {
 
 	m_pFragmentShader = VKShader::make(m_vkLogicalDevice, "frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
 	CNM(m_pFragmentShader, "Failed to create fragment shader");
+
+	// Uniform Buffer Object
+
+	struct UniformBufferObject {
+		matrix<float, 4, 4> m_mat4Model;
+		matrix<float, 4, 4> m_mat4View;
+		matrix<float, 4, 4> m_mat4Projection;
+	} uboTransforms;
+
+	// Create descriptor set layout (for vertex shader)
+	// TODO: Move this into the shaders bruv / object or something
+	// Layout binding
+	vkDescriptorLayoutBindingUniformBufferObject.binding = 0;
+	vkDescriptorLayoutBindingUniformBufferObject.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	vkDescriptorLayoutBindingUniformBufferObject.descriptorCount = 1;
+	vkDescriptorLayoutBindingUniformBufferObject.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	vkDescriptorLayoutBindingUniformBufferObject.pImmutableSamplers = nullptr; // optional
+
+	// create info
+	vkDescriptorSetLayoutCreateInfoUniformBufferObject.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	vkDescriptorSetLayoutCreateInfoUniformBufferObject.bindingCount = 1;
+	vkDescriptorSetLayoutCreateInfoUniformBufferObject.pBindings = &vkDescriptorLayoutBindingUniformBufferObject;
+
+	// create the descriptor layout set
+	CVKRM(vkCreateDescriptorSetLayout(
+		m_vkLogicalDevice, 
+		&vkDescriptorSetLayoutCreateInfoUniformBufferObject, 
+		nullptr, 
+		&m_vkDescriptorSetLayoutUniformBufferObject),
+		"Failed to create descriptor set layout");
 
 	// Fixed stages
 	// TODO: This should all be moved into objects
@@ -126,8 +162,12 @@ RESULT VKPipeline::Initialize() {
 
 	// Create the pipeline layout
 	m_vkPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	m_vkPipelineLayoutCreateInfo.setLayoutCount = 0; // Optional
-	m_vkPipelineLayoutCreateInfo.pSetLayouts = nullptr; // Optional
+	
+	// TODO: automate
+	m_vkPipelineLayoutCreateInfo.setLayoutCount = 1; 
+	m_vkPipelineLayoutCreateInfo.pSetLayouts = &m_vkDescriptorSetLayoutUniformBufferObject; 
+
+	// TODO: automate and use
 	m_vkPipelineLayoutCreateInfo.pushConstantRangeCount = 0; // Optional
 	m_vkPipelineLayoutCreateInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -226,6 +266,10 @@ RESULT VKPipeline::Kill() {
 	CN(m_vkRenderPass);
 
 	vkDestroyRenderPass(m_vkLogicalDevice, m_vkRenderPass, nullptr);
+
+	CN(m_vkDescriptorSetLayoutUniformBufferObject)
+
+	vkDestroyDescriptorSetLayout(m_vkLogicalDevice, m_vkDescriptorSetLayoutUniformBufferObject, nullptr);
 
 Error:
 	return r;
