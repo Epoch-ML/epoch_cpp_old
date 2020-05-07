@@ -80,8 +80,7 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
 		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
 		m_pVKCommandPool,
-		m_pVKCommandPool->GetVKQueueHandle(),
-		sizeof(VKVertex<float, 2>) * 3);	 
+		m_pVKCommandPool->GetVKQueueHandle());	 
 	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
 
 	vkQueueFamilies = FindQueueFamilies(
@@ -121,13 +120,10 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 			m_pVKCommandPool->GetVKPipeline()->GetVKPipelineHandle()
 		);
 
-		//// TODO: wtf land
+		//// TODO: wtf land - 
+		// a lot of arch needs to go into this
 		m_pVKVertexBuffer->Bind(m_vkCommandBuffers[i]);
-
-		//vkCmdDraw(m_vkCommandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
-
-		// TODO: obviously temp
-		vkCmdDraw(m_vkCommandBuffers[i], 3, 1, 0, 0);
+		m_pVKVertexBuffer->DrawIndexed(m_vkCommandBuffers[i]);
 
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
 

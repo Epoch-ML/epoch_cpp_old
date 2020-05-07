@@ -65,6 +65,21 @@ public:
 		void* pBufferToCopy, 
 		size_t pBufferToCopy_n);
 
+	template <typename TStorage>
+	static RESULT CopyDataToBuffer(
+		VkPhysicalDevice vkPhysicalDevice,
+		VkDevice vkLogicalDevice,
+		VkDeviceMemory& r_vkDeviceMemory,
+		const EPVector<TStorage> &buffer) 
+	{
+		return VKBuffer::CopyDataToBuffer(
+			vkPhysicalDevice, 
+			vkLogicalDevice, 
+			r_vkDeviceMemory, 
+			(void*)(buffer.data()), 
+			buffer.byte_size());
+	}
+
 	static RESULT CopyBuffer(
 		VkDevice vkLogicalDevice,
 		VkCommandPool vkCommandPool,

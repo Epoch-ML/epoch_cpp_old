@@ -293,6 +293,10 @@ public:
 		return m_pBuffer_c;
 	}
 
+	const size_t byte_size() const {
+		return (m_pBuffer_c * sizeof(TStorage));
+	}
+
 	bool exists(const TStorage &obj) {
 		for (int i = 0; i < m_pBuffer_c; i++) {
 			if (obj == m_pBuffer[i])
