@@ -169,12 +169,12 @@ public:
 	static int rows() { return N; }
 	static int cols() { return M; }
 
-	RESULT clear() {
+	inline RESULT clear() {
 		memset(&data, 0, sizeof(TValue) * N * M);
 		return R::OK;
 	}
 
-	RESULT set(TValue val) {
+	inline RESULT set(TValue val) {
 		for (int i = 0; i < (N * M); i++) {
 			m_data[i] = val;
 		}
@@ -182,7 +182,7 @@ public:
 		return R::OK;
 	}
 
-	RESULT identity(TValue val = 1.0f) {
+	inline RESULT identity(TValue val = 1.0f) {
 		RESULT r = R::OK;
 
 		// Ensure square matrix

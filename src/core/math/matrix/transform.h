@@ -18,6 +18,7 @@ class transform :
 public:
 	enum class type : uint8_t {
 		TRANSFORM,
+		PROJECTION,
 		ROTATION,
 		TRANSLATION,
 		SCALE,

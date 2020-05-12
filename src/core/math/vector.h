@@ -46,6 +46,10 @@ public:
 	inline TValue& z(const TValue &val) { return this->data[2] = val; }
 	inline TValue& w(const TValue &val) { return this->data[3] = val; }
 
+	static vector i(TValue value = 1.0f) { return vector(value, 0.0f, 0.0f); }
+	static vector j(TValue value = 1.0f) { return vector(0.0f, value, 0.0f); }
+	static vector k(TValue value = 1.0f) { return vector(0.0f, 0.0f, value); }
+
 };
 
 #endif // ! POINT_H_
