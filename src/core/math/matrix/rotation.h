@@ -8,12 +8,10 @@
 
 // Rotation matrix
 
-#include "core/math/matrix/rotation.h"
+#include "core/math/matrix/transform.h"
 
 #include "core/math/vector.h"
 #include "core/math/math.h"
-
-
 
 template <typename TValue = float>
 class rotation :
@@ -24,10 +22,9 @@ public:
 		this->identity(1.0f);
 	}
 
-	scale(math::axis axis, TValue theta) {
+	rotation(math::axis axis, TValue theta) {
 		this->clear();
-
-		
+		SetRotationMatrix(axis, theta);
 	}
 
 	RESULT SetRotationMatrix(math::axis axis, TValue theta) {

@@ -1,9 +1,19 @@
 #include "VKUniformBuffer.h"
 
+#include <chrono>
+
 #include "VKCommandPool.h"
 
 #include "VKVertex.h"
 #include "VKBuffer.h"
+
+#include "core/math/math.h"
+#include "core/math/matrix/rotation.h"
+#include "core/math/matrix/projection.h"
+#include "core/math/matrix/view.h"
+
+#include "core/math/vector.h"
+#include "core/math/point.h"
 
 RESULT VKUniformBuffer::Initialize() {
 	RESULT r = R::OK;
@@ -35,10 +45,24 @@ Error:
 	return r;
 }
 
-RESULT VKUniformBuffer::Update(uint32_t currentImage) {
+RESULT VKUniformBuffer::Update(uint32_t current1Image) {
 	RESULT r = R::OK;
 
+	point<> ptEye = point<>(2.0f, 2.0f, 2.0f);
+	point<> ptOrigin = point<>();
 
+	// TODO: get rid of this from here (for testing)
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	m_uniformBufferObject.m_mat4Model = rotation(math::axis::Y, 0.0f);
+	m_uniformBufferObject.m_mat4View = view<>::MakeLookAtViewMatrix(ptEye, ptOrigin, vector<>::j());
+	m_uniformBufferObject.m_mat4Projection = projection<float>(
+		projection<float>::type::PERSPECTIVE,
+		(float)m_pVKSwapchain->GetExtentsWidth(), (float)m_pVKSwapchain->GetExtentsHeight(),
+		0.1f, 10.0f, 45.0f);
 
 Error:
 	return r;

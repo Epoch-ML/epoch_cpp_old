@@ -16,6 +16,8 @@ public:
 	vector() = default;
 	~vector() = default;
 
+	vector(TValue x, TValue y, TValue z) { x(x); y(y); z(z); w(0.0f); }
+
 	vector(std::initializer_list<TValue> values) {
 		//memcpy(data, &values, sizeof(data));
 
@@ -23,6 +25,15 @@ public:
 		for (auto val : values) {
 			data[index++] = val;
 		}
+	}
+
+	// Cross product constructor
+	vector(const vector& lhs, const vector& rhs) {
+		this->clear();
+
+		x((rhs(1) * lhs(2)) - (rhs(2) * lhs(1)));
+		y((rhs(2) * lhs(0)) - (rhs(0) * lhs(2)));
+		z((rhs(0) * lhs(1)) - (rhs(1) * lhs(0)));
 	}
 
 	RESULT set(std::initializer_list<TValue> values) {
@@ -34,6 +45,28 @@ public:
 		}
 
 		return R::OK;
+	}
+
+	RESULT invert() {
+		this->data[0] *= -1.0f;
+		this->data[1] *= -1.0f;
+		this->data[2] *= -1.0f;
+
+		return R::OK;
+	}
+
+	static vector cross(const vector &lhs, const vector &rhs) {
+		return vector(lhs, rhs);
+	}
+
+	static TValue dot(const vector& lhs, const vector& rhs) {
+		TValue dotProd = 0.0f;
+
+		for (uint8_t i = 0; i < 4; i++) {
+			dotProd += lhs.data[i] * rhs.data[i];
+		}
+
+		return dotProd;
 	}
 
 	inline TValue& x() { return this->data[0]; }

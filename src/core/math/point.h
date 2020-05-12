@@ -16,6 +16,8 @@ public:
 	point() = default;
 	~point() = default;
 
+	point(TValue x, TValue y, TValue z) { x(x); y(y); z(z); w(1.0f); }
+
 	point(std::initializer_list<TValue> values) {
 		// TODO: this should work / be faster
 		//memcpy(data, &values, sizeof(data));

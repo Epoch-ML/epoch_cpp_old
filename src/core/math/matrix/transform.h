@@ -22,6 +22,7 @@ public:
 		ROTATION,
 		TRANSLATION,
 		SCALE,
+		VIEW,
 		CUSTOM
 	};
 

@@ -10,7 +10,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "core/math/matrix/matrix.h"
+#include "core/math/matrix/transform.h"
 
 #include "core/types/EPVector.h"
 #include "core/types/EPRef.h"
@@ -35,9 +35,9 @@ public:
 #pragma pack(push)  /* push current alignment to stack */
 #pragma pack(1)     /* set alignment to 1 byte boundary */
 	struct UniformBufferObject {
-		matrix<float, 4, 4> m_mat4Model;
-		matrix<float, 4, 4> m_mat4View;
-		matrix<float, 4, 4> m_mat4Projection;
+		transform<> m_mat4Model;
+		transform<> m_mat4View;
+		transform<> m_mat4Projection;
 	} m_uniformBufferObject;
 #pragma pack(pop)
 
