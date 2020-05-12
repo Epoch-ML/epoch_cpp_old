@@ -24,6 +24,7 @@ public:
 	virtual RESULT Initialize() = 0;
 	virtual RESULT Kill() = 0;
 	virtual RESULT Bind() = 0;
+	virtual RESULT Update(uint32_t index) { return R::NOT_IMPLEMENTED; }
 };
 
 #endif // ! BUFFER_H_

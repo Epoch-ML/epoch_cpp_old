@@ -6,8 +6,9 @@
 #include "VKSwapchain.h"
 #include "VKVertex.h"
 #include "VKBuffer.h"
+#include "VKUniformBuffer.h"
 
-#include "core/math/matrix.h"
+#include "core/math/matrix/matrix.h"
 
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
@@ -17,7 +18,9 @@ RESULT VKPipeline::Initialize() {
 	VkDescriptorSetLayoutBinding vkDescriptorLayoutBindingUniformBufferObject = {};
 	VkDescriptorSetLayoutCreateInfo vkDescriptorSetLayoutCreateInfoUniformBufferObject = {};
 
+	CNM(m_vkPhysicalDevice, "Cannot create pipeline without a valid physical device");
 	CNM(m_vkLogicalDevice, "Cannot create pipeline without a valid logical device");
+	CNM(m_pVKSwapchain, "Cannot create pipeline without a valid swapchain");
 
 	m_pVertexShader = VKShader::make(m_vkLogicalDevice, "vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
 	CNM(m_pVertexShader, "Failed to create vertex shader");
@@ -27,11 +30,13 @@ RESULT VKPipeline::Initialize() {
 
 	// Uniform Buffer Object
 
-	struct UniformBufferObject {
-		matrix<float, 4, 4> m_mat4Model;
-		matrix<float, 4, 4> m_mat4View;
-		matrix<float, 4, 4> m_mat4Projection;
-	} uboTransforms;
+	//struct UniformBufferObject {
+	//	matrix<float, 4, 4> m_mat4Model;
+	//	matrix<float, 4, 4> m_mat4View;
+	//	matrix<float, 4, 4> m_mat4Projection;
+	//} uboTransforms;
+
+	
 
 	// Create descriptor set layout (for vertex shader)
 	// TODO: Move this into the shaders bruv / object or something
@@ -43,9 +48,16 @@ RESULT VKPipeline::Initialize() {
 	vkDescriptorLayoutBindingUniformBufferObject.pImmutableSamplers = nullptr; // optional
 
 	// create info
+	// Uniform 
+
+	// Create the actual object
+	m_pVKUniformBuffer = VKUniformBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	CNM(m_pVKUniformBuffer, "Failed to create valid uniform buffer");
+
 	vkDescriptorSetLayoutCreateInfoUniformBufferObject.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	vkDescriptorSetLayoutCreateInfoUniformBufferObject.bindingCount = 1;
 	vkDescriptorSetLayoutCreateInfoUniformBufferObject.pBindings = &vkDescriptorLayoutBindingUniformBufferObject;
+
 
 	// create the descriptor layout set
 	CVKRM(vkCreateDescriptorSetLayout(
@@ -54,9 +66,6 @@ RESULT VKPipeline::Initialize() {
 		nullptr, 
 		&m_vkDescriptorSetLayoutUniformBufferObject),
 		"Failed to create descriptor set layout");
-
-	// Fixed stages
-	// TODO: This should all be moved into objects
 
 	// Set up the vertex input description (TODO: generalize this)
 	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 2>::GetVKVertexBindingDescription();
@@ -68,6 +77,9 @@ RESULT VKPipeline::Initialize() {
 	m_vkPipelineVertexInputStateCreateInfo .pVertexBindingDescriptions = &vkVertexBindingDescription; 
 	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = (uint32_t)vkVertexAttributeDescriptions.size();
 	m_vkPipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions = vkVertexAttributeDescriptions.data; // Optional
+
+	// Fixed stages
+	// TODO: This should all be moved into objects
 
 	// Input assembly
 	m_vkPipelineInputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -243,6 +255,16 @@ RESULT VKPipeline::Initialize() {
 		"Failed to create vk graphics pipeline");
 
 	CNM(m_vkGraphicsPipeline, "Failed to create graphics pipeline");
+
+Error:
+	return r;
+}
+
+RESULT VKPipeline::Update(uint32_t index) {
+	RESULT r = R::OK;
+
+	// TODO: This needs to be more general
+	CRM(m_pVKUniformBuffer->Update(index), "Failed to update uniform buffer");
 
 Error:
 	return r;

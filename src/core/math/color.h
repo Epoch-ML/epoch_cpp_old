@@ -6,7 +6,7 @@
 // epoch color
 // epoch/src/core/math/color.h
 
-#include "matrix.h"
+#include "core/math/matrix/matrix.h"
 
 class color :
 	public matrix<float, 4, 1>

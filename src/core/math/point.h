@@ -6,9 +6,9 @@
 // epoch point
 // epoch/src/core/math/point.h
 
-#include "matrix.h"
+#include "core/math/matrix/matrix.h"
 
-template <typename TValue, int N>
+template <typename TValue = float, int N = 4>
 class point :
 	public matrix<TValue, N, 1>
 {

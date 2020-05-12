@@ -200,6 +200,9 @@ RESULT VKHAL::Render(void) {
 	}
 	m_currentlyUsedFrameFences[imageIndex] = m_concurrentFrameFences[m_currentFrame];
 
+	// Update uniform buffers 
+	m_pVKPipeline->Update(imageIndex);
+
 	// This submits the command buffer itself
 	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	vkSubmitInfo.waitSemaphoreCount = 1;

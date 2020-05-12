@@ -18,6 +18,7 @@ class VKShader;
 class VKSwapchain;
 template<typename TValue, int dimension> class VKVertex;
 class VKBuffer;
+class VKUniformBuffer;
 
 class VKPipeline :
 	public pipeline,
@@ -28,6 +29,7 @@ private:
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
+	virtual RESULT Update(uint32_t index) override;
 
 public:
 	virtual ~VKPipeline() override;
@@ -69,7 +71,10 @@ private:
 
 	VkPipelineLayoutCreateInfo m_vkPipelineLayoutCreateInfo = {};
 	VkPipelineLayout m_vkPipelineLayout = nullptr;
+	
+	// Uniforms
 	VkDescriptorSetLayout m_vkDescriptorSetLayoutUniformBufferObject = nullptr;
+	EPRef<VKUniformBuffer> m_pVKUniformBuffer = nullptr;
 
 	// TODO: Render pass is here, move into an object
 	VkAttachmentDescription m_vkAttachmentDescription = {};

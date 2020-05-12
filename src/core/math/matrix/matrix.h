@@ -174,7 +174,58 @@ public:
 		return R::OK;
 	}
 
-	
+	RESULT set(TValue val) {
+		for (int i = 0; i < (N * M); i++) {
+			m_data[i] = val;
+		}
+
+		return R::OK;
+	}
+
+	RESULT identity(TValue val = 1.0f) {
+		RESULT r = R::OK;
+
+		// Ensure square matrix
+		CBM((N == M), "Cant sent identity matrix on %dx%d dimensions", N, M);
+
+		clear();
+
+		for (int i = 0; i < N; i++) {
+			this->element(i, i) = val;
+		}
+
+	Error:
+		return r;
+	}
+
+	RESULT randomize(TValue maxval = 10.0f) {
+		srand(time(nullptr));
+
+		for (int i = 0; i < (N * M); i++) {
+			float randval = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+			m_data[i] = maxval * randval;
+		}
+
+		return R::OK;
+	}
+
+	static matrix<TValue, N, M> identity(TValue val = 1.0f) {
+		matrix<TValue, N, M> retMatrix;
+		retMatrix.identity(val);
+		return retMatrix;
+	}
+
+	static matrix<TValue, N, M> zeros() {
+		matrix<TValue, N, M> retMatrix;
+		retMatrix.clear();
+		return retMatrix;
+	}
+
+	static matrix<TValue, N, M> ones() {
+		matrix<TValue, N, M> retMatrix;
+		retMatrix.set(1.0f);
+		return retMatrix;
+	}
 };
 
 #endif // ! MATRIX_H_
