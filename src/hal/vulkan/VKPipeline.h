@@ -46,6 +46,10 @@ public:
 		return m_pVKDescriptorSet;
 	}
 
+	const VkPipelineLayout GetVKPipelineLayout() const {
+		return m_vkPipelineLayout;
+	}
+
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;

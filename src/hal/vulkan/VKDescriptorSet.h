@@ -53,6 +53,8 @@ public:
 		const EPRef<VKUniformBuffer>&,
 		VkDescriptorSetLayout);
 
+	RESULT Bind(VkCommandBuffer vkCommandBuffer, VkPipelineLayout vkPipelineLayout, uint32_t index);
+
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;

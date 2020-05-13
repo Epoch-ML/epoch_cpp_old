@@ -23,15 +23,15 @@ public:
 	}
 
 	rotation(math::axis axis, TValue theta) {
-		this->clear();
+		this->SetIdentity(1.0f);
 		SetRotationMatrix(axis, theta);
 	}
 
 	RESULT SetRotationMatrix(math::axis axis, TValue theta) {
 		switch (axis) {
-			case math::axis::X:    return SetRotationMatrix(theta, 0.0f, 0.0f); break;
-			case math::axis::Y:    return SetRotationMatrix(0.0f, theta, 0.0f); break;
-			case math::axis::Z:    return SetRotationMatrix(0.0f, 0.0f, theta); break;
+		case math::axis::X:    return SetRotationMatrix(theta, 0.0f, 0.0f); break;
+		case math::axis::Y:    return SetRotationMatrix(0.0f, theta, 0.0f); break;
+		case math::axis::Z:    return SetRotationMatrix(0.0f, 0.0f, theta); break;
 		}
 
 		return R::NOT_IMPLEMENTED;
@@ -62,11 +62,9 @@ public:
 
 		return R::OK;
 	}
-	
+
 
 	~rotation() = default;
-
-	virtual transform::type GetType() { return transform::type::ROTATION; }
 };
 
 

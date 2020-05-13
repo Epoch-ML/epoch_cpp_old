@@ -32,8 +32,6 @@ public:
 	}
 
 	~transform() = default;
-
-	virtual transform::type GetType() { return transform::type::TRANSFORM; }
 };
 
 

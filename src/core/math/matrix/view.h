@@ -27,7 +27,6 @@ public:
 
 	~view() = default;
 
-	virtual transform::type GetType() { return transform::type::VIEW; }
 
 	static view<TValue> MakeLookAtViewMatrix(point<TValue> ptEye, point<TValue> ptLookAt, vector<TValue> vUp) {
 		
@@ -37,7 +36,7 @@ public:
 		vector<TValue> vLeft = vView.cross(vUp);
 		vector<TValue> vUpDirection = vLeft.cross(vView);
 
-		vView.invert();
+		//vView.invert();
 
 		// View is essentially basis * translation of -ptEye
 
@@ -52,10 +51,10 @@ public:
 		matView.element(1, 2) = vUpDirection.z();
 		matView.element(1, 3) = -1.0f * vUpDirection.dot(ptEye);
 
-		matView.element(1, 0) = vView.x();
-		matView.element(1, 1) = vView.y();
-		matView.element(1, 2) = vView.z();
-		matView.element(1, 3) = -1.0f * vView.dot(ptEye);
+		matView.element(2, 0) = vView.x();
+		matView.element(2, 1) = vView.y();
+		matView.element(2, 2) = vView.z();
+		matView.element(2, 3) = -1.0f * vView.dot(ptEye);
 
 		return matView;
 	}

@@ -43,10 +43,22 @@ RESULT VKDescriptorSet::Initialize() {
 		vkUpdateDescriptorSets(m_vkLogicalDevice, 1, &vkWriteDescriptorSet, 0, nullptr);
 	}
 
-	
-
 Error:
 	return r;
+}
+
+RESULT VKDescriptorSet::Bind(VkCommandBuffer vkCommandBuffer, VkPipelineLayout vkPipelineLayout, uint32_t index) {
+
+	vkCmdBindDescriptorSets(
+		vkCommandBuffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		vkPipelineLayout,
+		0,
+		1,
+		&m_vkDescriptorSets[index], 0, nullptr
+	);
+
+	return R::RETURN_VOID;
 }
 
 RESULT VKDescriptorSet::Kill() {

@@ -122,6 +122,7 @@ RESULT VKPipeline::Initialize() {
 	m_vkPipelineRasterizationStateCreateInfo.lineWidth = 1.0f;
 	m_vkPipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 	m_vkPipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	//m_vkPipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	m_vkPipelineRasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
 	m_vkPipelineRasterizationStateCreateInfo.depthBiasConstantFactor = 0.0f; // Optional
 	m_vkPipelineRasterizationStateCreateInfo.depthBiasClamp = 0.0f; // Optional

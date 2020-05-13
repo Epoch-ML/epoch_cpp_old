@@ -43,7 +43,6 @@ public:
 
 	~translation() = default;
 
-	virtual transform::type GetType() { return transform::type::TRANSLATION; }
 };
 
 

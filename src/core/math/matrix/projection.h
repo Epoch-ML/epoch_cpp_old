@@ -42,8 +42,6 @@ public:
 
 	~projection() = default;
 
-	virtual transform::type GetType() { return transform::type::PROJECTION; }
-
 	// https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/
 	// https://unspecified.wordpress.com/2012/06/21/calculating-the-gluperspective-matrix-and-other-opengl-matrix-maths/
 	RESULT SetPerspective(

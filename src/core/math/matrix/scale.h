@@ -49,7 +49,6 @@ public:
 
 	~scale() = default;
 
-	virtual transform::type GetType() { return transform::type::SCALE; }
 };
 
 

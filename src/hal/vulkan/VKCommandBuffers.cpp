@@ -130,6 +130,8 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		//// TODO: wtf land - 
 		// a lot of arch needs to go into this
 		m_pVKVertexBuffer->Bind(m_vkCommandBuffers[i]);
+		m_pVKDescriptorSet->Bind(m_vkCommandBuffers[i], m_pVKCommandPool->GetVKPipeline()->GetVKPipelineLayout(), i);
+
 		m_pVKVertexBuffer->DrawIndexed(m_vkCommandBuffers[i]);
 
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
