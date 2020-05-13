@@ -6,7 +6,7 @@
 // epoch Vulkan Framebuffer
 // epoch/src/hal/vulkan/VKFramebuffer.h
 
-#include "hal/command_pool.h"
+#include "hal/pool.h"
 
 #include <vulkan/vulkan.h>
 
@@ -20,7 +20,7 @@
 #include "VKCommandBuffers.h"
 
 class VKCommandPool :
-	public command_pool,
+	public pool,
 	public EPFactoryMethod<VKCommandPool, 
 		VkPhysicalDevice, 
 		VkDevice, 

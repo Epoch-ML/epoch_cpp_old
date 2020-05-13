@@ -19,6 +19,7 @@ class VKSwapchain;
 template<typename TValue, int dimension> class VKVertex;
 class VKBuffer;
 class VKUniformBuffer;
+class VKDescriptorPool;
 
 class VKPipeline :
 	public pipeline,
@@ -76,6 +77,7 @@ private:
 	// Uniforms
 	VkDescriptorSetLayout m_vkDescriptorSetLayoutUniformBufferObject = nullptr;
 	EPRef<VKUniformBuffer> m_pVKUniformBuffer = nullptr;
+	EPRef<VKDescriptorPool> m_pVKDescriptorPool = nullptr;
 
 	// TODO: Render pass is here, move into an object
 	VkAttachmentDescription m_vkAttachmentDescription = {};

@@ -64,6 +64,15 @@ RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 		(float)m_pVKSwapchain->GetExtentsWidth(), (float)m_pVKSwapchain->GetExtentsHeight(),
 		0.1f, 10.0f, 45.0f);
 
+	// Copy the data of uniform buffer object to the device memory
+	CVKRM(VKBuffer::CopyDataToBuffer(
+		m_vkPhysicalDevice,
+		m_vkLogicalDevice,
+		m_vkUniformBufferDeviceMemories[currentImage],
+		&m_uniformBufferObject,
+		sizeof(m_uniformBufferObject)),
+		"Failed to copy data to uniform buffer");
+
 Error:
 	return r;
 }

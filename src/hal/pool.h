@@ -8,12 +8,12 @@
 
 #include "core/types/EPObj.h"
 
-class command_pool :
+class pool :
 	public EPObj
 {
 public:
-	command_pool() = default;
-	virtual ~command_pool() = default;
+	pool() = default;
+	virtual ~pool() = default;
 
 public:
 	virtual RESULT Initialize() = 0;

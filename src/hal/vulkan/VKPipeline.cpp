@@ -7,6 +7,7 @@
 #include "VKVertex.h"
 #include "VKBuffer.h"
 #include "VKUniformBuffer.h"
+#include "VKDescriptorPool.h"
 
 #include "core/math/matrix/matrix.h"
 
@@ -58,6 +59,9 @@ RESULT VKPipeline::Initialize() {
 	vkDescriptorSetLayoutCreateInfoUniformBufferObject.bindingCount = 1;
 	vkDescriptorSetLayoutCreateInfoUniformBufferObject.pBindings = &vkDescriptorLayoutBindingUniformBufferObject;
 
+	// Descriptor Pool for the uniform buffer
+	m_pVKDescriptorPool = VKDescriptorPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	CNM(m_pVKDescriptorPool, "Failed to create valid descriptor pool");
 
 	// create the descriptor layout set
 	CVKRM(vkCreateDescriptorSetLayout(
@@ -275,6 +279,9 @@ RESULT VKPipeline::Kill() {
 
 	m_pVertexShader = nullptr;
 	m_pFragmentShader = nullptr;
+
+	m_pVKDescriptorPool = nullptr;
+	m_pVKUniformBuffer = nullptr;
 
 	CN(m_vkLogicalDevice);
 	CN(m_vkGraphicsPipeline);
