@@ -2,6 +2,8 @@
 
 #include "VulkanUtilities.h"
 
+#include "VKDescriptorSet.h"
+
 RESULT VKDescriptorPool::Initialize() {
 	RESULT r = R::OK;
 
@@ -34,6 +36,29 @@ Error:
 	return r;
 }
 
+EPRef<VKDescriptorSet> VKDescriptorPool::MakeDescriptorSet(
+	VkDescriptorSetLayout vkDescriptorSetLayout, 
+	const EPRef<VKUniformBuffer>& pVKUniformBuffer
+) {
+	RESULT r = R::OK;
+	EPRef<VKDescriptorSet> pVKDescriptorSet = nullptr;
+
+	pVKDescriptorSet = VKDescriptorSet::make(
+		m_vkPhysicalDevice,
+		m_vkLogicalDevice,
+		this,
+		pVKUniformBuffer,
+		vkDescriptorSetLayout);
+
+	CNM(pVKDescriptorSet, "Failed to create descriptor set");
+
+Success:
+	return pVKDescriptorSet;
+
+Error:
+	return nullptr;
+}
+
 EPRef<VKDescriptorPool> VKDescriptorPool::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
@@ -53,4 +78,20 @@ Success:
 Error:
 	pVKDescriptorPool = nullptr;
 	return nullptr;
+}
+
+VKDescriptorPool::VKDescriptorPool(
+	VkPhysicalDevice vkPhysicalDevice,
+	VkDevice vkLogicalDevice,
+	const EPRef<VKSwapchain>& pVKSwapchain
+) :
+	m_vkPhysicalDevice(vkPhysicalDevice),
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_pVKSwapchain(pVKSwapchain)
+{
+	//
+}
+
+VKDescriptorPool::~VKDescriptorPool() {
+	Kill();
 }

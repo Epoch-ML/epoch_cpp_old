@@ -8,6 +8,7 @@
 #include "VKBuffer.h"
 #include "VKUniformBuffer.h"
 #include "VKDescriptorPool.h"
+#include "VKDescriptorSet.h"
 
 #include "core/math/matrix/matrix.h"
 
@@ -70,6 +71,10 @@ RESULT VKPipeline::Initialize() {
 		nullptr, 
 		&m_vkDescriptorSetLayoutUniformBufferObject),
 		"Failed to create descriptor set layout");
+
+	// Descriptor Set
+	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(m_vkDescriptorSetLayoutUniformBufferObject, m_pVKUniformBuffer);
+	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
 
 	// Set up the vertex input description (TODO: generalize this)
 	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 2>::GetVKVertexBindingDescription();
@@ -280,6 +285,7 @@ RESULT VKPipeline::Kill() {
 	m_pVertexShader = nullptr;
 	m_pFragmentShader = nullptr;
 
+	m_pVKDescriptorSet = nullptr;
 	m_pVKDescriptorPool = nullptr;
 	m_pVKUniformBuffer = nullptr;
 

@@ -58,6 +58,15 @@ public:
 
 	virtual RESULT Update(uint32_t currentImage) override;
 
+	VkBuffer GetUniformBuffer(uint32_t index) {
+		return m_vkUniformBuffers[index];
+	}
+
+	// TODO: this is dumb as shit
+	size_t GetUniforBufferObjectSize() {
+		return sizeof(UniformBufferObject);
+	}
+
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;

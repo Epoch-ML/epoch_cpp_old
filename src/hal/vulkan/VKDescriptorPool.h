@@ -17,11 +17,12 @@
 
 #include "VKSwapchain.h"
 #include "VKPipeline.h"
-#include "VKCommandBuffers.h"
+
+class VKDescriptorSet;
 
 class VKDescriptorPool :
 	public pool,
-	public EPFactoryMethod< VKDescriptorPool,
+	public EPFactoryMethod<VKDescriptorPool,
 	VkPhysicalDevice,
 	VkDevice,
 	const EPRef<VKSwapchain>&>
@@ -31,28 +32,26 @@ private:
 		VkPhysicalDevice vkPhysicalDevice,
 		VkDevice vkLogicalDevice,
 		const EPRef<VKSwapchain>& pVKSwapchain
-	) :
-		m_vkPhysicalDevice(vkPhysicalDevice),
-		m_vkLogicalDevice(vkLogicalDevice),
-		m_pVKSwapchain(pVKSwapchain)
-	{
-		//
-	}
+	);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
 public:
-	virtual ~VKDescriptorPool() override {
-		Kill();
-	}
+	virtual ~VKDescriptorPool() override;
 
 	const EPRef<VKSwapchain>& GetVKSwapchain() const { return m_pVKSwapchain; }
+
+	VkDescriptorPool GetVKDescriptorPoolHandle() const { return m_vkDescriptorPool; }
 
 	static EPRef<VKDescriptorPool> InternalMake(
 		VkPhysicalDevice,
 		VkDevice,
 		const EPRef<VKSwapchain>&);
+
+	// Make a DescriptorSet
+	// TODO: make more general, for different things
+	EPRef<VKDescriptorSet> MakeDescriptorSet(VkDescriptorSetLayout, const EPRef<VKUniformBuffer>&);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;

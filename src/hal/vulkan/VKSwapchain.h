@@ -43,7 +43,7 @@ public:
 	virtual uint32_t GetExtentsHeight() override { return m_vkSelectedExtent2D.height; }
 
 	VkFormat GetVKSwapchainImageFormat() { return m_vkSwapchainImageFormat; }
-	uint32_t GetSwapchainImageCount() { return (uint32_t)m_swapchainImages.size(); }
+	uint32_t GetSwapchainImageCount() const { return (uint32_t)m_swapchainImages.size(); }
 	
 	const VkImageView* GetSwapchainImageViews() { 
 		return m_swapchainImageViews.data(); 
