@@ -16,9 +16,13 @@
 // TODO: split off the platform specific implementation
 #include <vulkan/vulkan_win32.h>
 
-#include "VKSwapchain.h"
-#include "VKPipeline.h"
-#include "VKCommandPool.h"
+class VKSwapchain;
+class VKPipeline;
+
+class VKCommandPool;
+class VKCommandBuffers;
+
+class VKVertexBuffer;
 
 template<typename TValue, int dimension> class VKVertex;
 class VKBuffer;
@@ -28,14 +32,10 @@ class VKHAL :
 {
 
 public:
-	VKHAL() {
-		//
-	}
+	VKHAL() = default;
 
 protected:
-	virtual ~VKHAL() override {
-		//
-	}
+	virtual ~VKHAL() override = default;
 
 public:
 	virtual RESULT Initialize(void) override;
@@ -99,6 +99,12 @@ private:
 // Command pool
 	RESULT InitializeCommandPool();
 
+// Vertex Buffer
+	RESULT InitializeVertexBuffer();
+
+// Command Buffers
+	RESULT InitializeCommandBuffers();
+
 // Debugging
 	RESULT InitializeDebugMessenger(bool fCreate);
 
@@ -159,8 +165,12 @@ private:
 // Pipeline
 	EPRef<VKPipeline> m_pVKPipeline = nullptr;
 
+// Vertex Buffer
+	EPRef<VKVertexBuffer> m_pVKVertexBuffer = nullptr;
+
 // Command pool
 	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
+	EPRef<VKCommandBuffers> m_pVKCommandBuffers = nullptr;
 
 // Debugging
 	VkDebugUtilsMessengerEXT m_vkDebugMessenger = {};

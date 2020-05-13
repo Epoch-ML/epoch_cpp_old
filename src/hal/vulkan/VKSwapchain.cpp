@@ -7,6 +7,8 @@
 #include "VKPipeline.h"
 #include "VKFramebuffer.h"
 
+#include "VKDescriptorSet.h"
+
 RESULT VKSwapchain::Initialize() {
 	RESULT r = R::OK;
 

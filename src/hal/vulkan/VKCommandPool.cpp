@@ -2,6 +2,12 @@
 
 #include "VulkanUtilities.h"
 
+#include "VKSwapchain.h"
+#include "VKPipeline.h"
+#include "VKCommandBuffers.h"
+
+#include "VKDescriptorSet.h"
+
 RESULT VKCommandPool::Initialize() {
 	RESULT r = R::OK;
 	VKQueueFamilies vkQueueFamilies;
@@ -22,8 +28,6 @@ RESULT VKCommandPool::Initialize() {
 	CVKRM(vkCreateCommandPool(m_vkLogicalDevice, &m_vkCommandPoolCreateInfo, nullptr, &m_vkCommandPool),
 		"Failed to create vk command pool");
 	CNM(m_vkCommandPool, "Failed to create command pool");
-
-	CRM(InitializeCommandBuffers(), "Failed to set up command buffers");
 
 Error:
 	return r;
@@ -64,14 +68,44 @@ Error:
 	return nullptr;
 }
 
-RESULT VKCommandPool::InitializeCommandBuffers() {
+EPRef<VKCommandBuffers> VKCommandPool::MakeCommandBuffers(
+	const EPRef<VKVertexBuffer>& pVKVertextBuffer, 
+	const EPRef<VKDescriptorSet>& pVKDescriptorSet
+) {
 	RESULT r = R::OK;
 
-	// TODO: This is nasty (the const ref doesn't create a new reference so when the underlying object 
-	// is killed it will null out the reference and kill our object
-	m_pVKCommandBuffers = VKCommandBuffers::make(*(new EPRef<VKCommandPool>(this)));
-	CNM(m_pVKCommandBuffers, "Failed to make vk command buffers");
+	EPRef<VKCommandBuffers> pVKCommandBuffers = VKCommandBuffers::make(
+		*(new EPRef<VKCommandPool>(this)), 
+		pVKVertextBuffer,
+		pVKDescriptorSet);
+
+	CNM(pVKCommandBuffers, "Failed to make vk command buffers");
+
+Success:
+	return pVKCommandBuffers;
 
 Error:
-	return r;
+	return nullptr;
+}
+
+VKCommandPool::VKCommandPool(
+	VkPhysicalDevice vkPhysicalDevice,
+	VkDevice vkLogicalDevice,
+	VkSurfaceKHR vkSurface,
+	VkQueue vkQueue,
+	const EPRef<VKPipeline>& pVKPipeline,
+	const EPRef<VKSwapchain>& pVKSwapchain
+) :
+	m_vkPhysicalDevice(vkPhysicalDevice),
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_vkSurface(vkSurface),
+	m_vkQueue(vkQueue),
+	m_pVKPipeline(pVKPipeline),
+	m_pVKSwapchain(pVKSwapchain)
+{
+	//
+}
+
+VKCommandPool::~VKCommandPool() {
+	Kill();
 }

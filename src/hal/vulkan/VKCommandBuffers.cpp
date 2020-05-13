@@ -7,9 +7,16 @@
 #include "VKVertex.h"
 #include "VKBuffer.h"
 #include "VKVertexBuffer.h"
+#include "VKDescriptorSet.h"
 
-VKCommandBuffers::VKCommandBuffers(const EPRef<VKCommandPool>& pVKCommandPool) :
-	m_pVKCommandPool(pVKCommandPool)
+VKCommandBuffers::VKCommandBuffers(
+	const EPRef<VKCommandPool>& pVKCommandPool, 
+	const EPRef<VKVertexBuffer>& pVKVertexBuffer, 
+	const EPRef<VKDescriptorSet>& pVKDescriptorSet
+) :
+	m_pVKCommandPool(pVKCommandPool),
+	m_pVKVertexBuffer(pVKVertexBuffer),
+	m_pVKDescriptorSet(pVKDescriptorSet)
 {
 	//
 }
@@ -44,20 +51,25 @@ RESULT VKCommandBuffers::Kill() {
 
 	CN(m_pVKCommandPool);
 
-	// TODO: move this out of here
 	m_pVKVertexBuffer = nullptr;
+
+	m_pVKDescriptorSet = nullptr;
+
+	m_pVKCommandPool = nullptr;
 
 Error:
 	return r;
 }
 
 EPRef<VKCommandBuffers> VKCommandBuffers::InternalMake(
-	const EPRef<VKCommandPool>& pVKCommandPool
+	const EPRef<VKCommandPool>& pVKCommandPool,
+	const EPRef<VKVertexBuffer>& pVKVertexBuffer,
+	const EPRef<VKDescriptorSet>& pVKDescriptorSet
 ) {
 	RESULT r = R::OK;
 	EPRef<VKCommandBuffers> pVKCommandBuffer = nullptr;
 
-	pVKCommandBuffer = new VKCommandBuffers(pVKCommandPool);
+	pVKCommandBuffer = new VKCommandBuffers(pVKCommandPool, pVKVertexBuffer, pVKDescriptorSet);
 	CNM(pVKCommandBuffer, "Failed to allocate vk command buffer");
 
 	CRM(pVKCommandBuffer->Initialize(), "Failed to initialize VK command buffer");
@@ -75,13 +87,8 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 
 	VKQueueFamilies vkQueueFamilies;
 
-	// TODO: not hard coded vertex count
-	m_pVKVertexBuffer = VKVertexBuffer::make(
-		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
-		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
-		m_pVKCommandPool,
-		m_pVKCommandPool->GetVKQueueHandle());	 
-	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
+	CNM(m_pVKVertexBuffer, "Cannot record command buffers without a vertex buffer");
+	CNM(m_pVKDescriptorSet, "Cannot record command buffers without a descriptor set");
 
 	vkQueueFamilies = FindQueueFamilies(
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),

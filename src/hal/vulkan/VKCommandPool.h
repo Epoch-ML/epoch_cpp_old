@@ -15,9 +15,11 @@
 #include "core/types/EPFactoryMethod.h"
 #include "core/types/EPString.h"
 
-#include "VKSwapchain.h"
-#include "VKPipeline.h"
-#include "VKCommandBuffers.h"
+class VKSwapchain;
+class VKPipeline;
+class VKCommandBuffers;
+class VKVertexBuffer;
+class VKDescriptorSet;
 
 class VKCommandPool :
 	public pool,
@@ -31,32 +33,19 @@ class VKCommandPool :
 {
 private:
 	VKCommandPool(
-		VkPhysicalDevice vkPhysicalDevice, 
-		VkDevice vkLogicalDevice, 
-		VkSurfaceKHR vkSurface, 
+		VkPhysicalDevice vkPhysicalDevice,
+		VkDevice vkLogicalDevice,
+		VkSurfaceKHR vkSurface,
 		VkQueue vkQueue,
-		const EPRef<VKPipeline>& pVKPipeline, 
+		const EPRef<VKPipeline>& pVKPipeline,
 		const EPRef<VKSwapchain>& pVKSwapchain
-	) :
-		m_vkPhysicalDevice(vkPhysicalDevice),
-		m_vkLogicalDevice(vkLogicalDevice),
-		m_vkSurface(vkSurface),
-		m_vkQueue(vkQueue),
-		m_pVKPipeline(pVKPipeline),
-		m_pVKSwapchain(pVKSwapchain)
-	{
-		//
-	}
+	);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
-	RESULT InitializeCommandBuffers();
-
 public:
-	virtual ~VKCommandPool() override {
-		Kill();
-	}
+	virtual ~VKCommandPool() override;
 
 	VkCommandPool GetVKCommandPoolHandle() { return m_vkCommandPool; }
 	VkPhysicalDevice GetVKPhyscialDeviceHandle() { return m_vkPhysicalDevice; }
@@ -67,13 +56,6 @@ public:
 	const EPRef<VKSwapchain>& GetVKSwapchain() const { return m_pVKSwapchain; }
 	const EPRef<VKPipeline>& GetVKPipeline() const { return m_pVKPipeline; }
 
-	const VkCommandBuffer* GetCommandBufferHandle(uint32_t index) const { 
-		if (m_pVKCommandBuffers == nullptr)
-			return nullptr;
-
-		return m_pVKCommandBuffers->GetCommandBufferHandle(index); 
-	}
-
 	static EPRef<VKCommandPool> InternalMake(
 		VkPhysicalDevice, 
 		VkDevice, 
@@ -81,6 +63,8 @@ public:
 		VkQueue,
 		const EPRef<VKPipeline>&, 
 		const EPRef<VKSwapchain>&);
+
+	EPRef<VKCommandBuffers> MakeCommandBuffers(const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
@@ -93,8 +77,6 @@ private:
 
 	VkCommandPoolCreateInfo m_vkCommandPoolCreateInfo = {};
 	VkCommandPool m_vkCommandPool = nullptr;
-
-	EPRef<VKCommandBuffers> m_pVKCommandBuffers = nullptr;
 };
 
 #endif // ! VULKAN_COMMAND_POOL_H_

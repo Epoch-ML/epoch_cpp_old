@@ -11,6 +11,15 @@
 #include "VKBuffer.h"
 #include "VKVertex.h"
 
+#include "VKSwapchain.h"
+#include "VKPipeline.h"
+
+#include "VKCommandPool.h"
+#include "VKCommandBuffers.h"
+#include "VKVertexBuffer.h"
+
+#include "VKDescriptorSet.h"
+
 RESULT VKHAL::EnumerateInstanceExtensions() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
@@ -209,7 +218,7 @@ RESULT VKHAL::Render(void) {
 	vkSubmitInfo.pWaitSemaphores = vkWaitSemaphores;
 	vkSubmitInfo.pWaitDstStageMask = vkPipelineStageFlags;
 	vkSubmitInfo.commandBufferCount = 1;
-	vkSubmitInfo.pCommandBuffers = m_pVKCommandPool->GetCommandBufferHandle(imageIndex);  //&commandBuffers[imageIndex];
+	vkSubmitInfo.pCommandBuffers = m_pVKCommandBuffers->GetCommandBufferHandle(imageIndex);		
 	vkSubmitInfo.signalSemaphoreCount = 1;
 	vkSubmitInfo.pSignalSemaphores = vkSignalSemaphores;
 
@@ -601,6 +610,10 @@ RESULT VKHAL::InitializeSwapchain() {
 
 	CRM(InitializeCommandPool(), "Failed to initialize command pool");
 
+	CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
+
+	CRM(InitializeCommandBuffers(), "Failed to initialize command buffers");
+
 Error:
 	return r;
 }
@@ -610,6 +623,8 @@ RESULT VKHAL::CleanupSwapchain() {
 
 	// TODO: only destroy command buffers, not pool
 	// This is an optimization and will get ironed out with better arch
+	m_pVKCommandBuffers = nullptr;
+
 	m_pVKCommandPool = nullptr;
 
 	if (m_pVKSwapchain != nullptr) {
@@ -634,6 +649,41 @@ RESULT VKHAL::InitializePipeline() {
 
 	m_pVKPipeline = VKPipeline::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
 	CNM(m_pVKPipeline, "Failed to make vk pipeline");
+
+Error:
+	return r;
+}
+
+RESULT VKHAL::InitializeVertexBuffer() {
+	RESULT r = R::OK;
+
+	CNM(m_pVKCommandPool, "Vertex buffer needs valid command pool");
+
+	// TODO: not hard coded vertex count
+	m_pVKVertexBuffer = VKVertexBuffer::make(
+		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
+		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
+		m_pVKCommandPool,
+		m_pVKCommandPool->GetVKQueueHandle());
+	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
+
+Error:
+	return r;
+}
+
+RESULT VKHAL::InitializeCommandBuffers() {
+	RESULT r = R::OK;
+
+	// TODO: this is probably not true in a more general pipeline 
+	CNM(m_pVKCommandPool, "Command buffers need valid comman pool");
+	CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
+
+	m_pVKCommandBuffers = m_pVKCommandPool->MakeCommandBuffers(
+		m_pVKVertexBuffer, 
+		m_pVKPipeline->GetVKDescriptorSet()
+	);
+
+	CNM(m_pVKCommandBuffers, "Failed to create command buffers");
 
 Error:
 	return r;

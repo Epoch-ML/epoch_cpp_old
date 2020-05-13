@@ -42,6 +42,10 @@ public:
 	const VkRenderPass GetVKRenderPassHandle() const { return m_vkRenderPass; }
 	const VkPipeline GetVKPipelineHandle() const { return m_vkGraphicsPipeline; }
 
+	EPRef<VKDescriptorSet> GetVKDescriptorSet() {
+		return m_pVKDescriptorSet;
+	}
+
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;

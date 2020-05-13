@@ -1,5 +1,7 @@
 #include "VKBuffer.h"
 
+#include "VKDescriptorSet.h"
+
 RESULT VKBuffer::CreateBuffer(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,

@@ -22,9 +22,6 @@
 class VKCommandPool;
 class VKSwapchain;
 
-//template <typename TValue, int dimension> class VKVertex;
-#include "VKVertex.h"
-
 class VKUniformBuffer :
 	public buffer,
 	virtual public EPFactoryMethod<VKUniformBuffer, VkPhysicalDevice, VkDevice, const EPRef<VKSwapchain>&>

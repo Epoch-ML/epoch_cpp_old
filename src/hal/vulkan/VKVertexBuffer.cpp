@@ -1,9 +1,12 @@
 #include "VKVertexBuffer.h"
 
+#include "VKSwapchain.h"
 #include "VKCommandPool.h"
 
 #include "VKVertex.h"
 #include "VKBuffer.h"
+
+#include "VKDescriptorSet.h"
 
 RESULT VKVertexBuffer::Initialize() {
 	RESULT r = R::OK;

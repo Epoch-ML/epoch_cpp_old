@@ -24,7 +24,6 @@ private:
 
 	virtual RESULT Initialize() override;
 
-
 	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
 	RESULT SelectPresentationMode(VkPresentModeKHR);
 	RESULT SelectSwapchainExtent(VkExtent2D vkExtent2D);

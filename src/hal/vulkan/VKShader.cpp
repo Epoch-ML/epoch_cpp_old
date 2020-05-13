@@ -77,3 +77,16 @@ Error:
 	pVKShader = nullptr;
 	return nullptr;
 }
+
+VKShader::VKShader(const EPString<char>& strFilename, VkDevice vkLogicalDevice, VkShaderStageFlagBits vkShaderStageFlagBits) :
+	m_strFilename(strFilename),
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_vkShaderStageFlagBits(vkShaderStageFlagBits)
+{
+	//
+}
+
+
+VKShader::~VKShader() {
+	Kill();
+}
