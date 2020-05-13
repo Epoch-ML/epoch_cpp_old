@@ -45,7 +45,7 @@ Error:
 	return r;
 }
 
-RESULT VKUniformBuffer::Update(uint32_t current1Image) {
+RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	RESULT r = R::OK;
 
 	point<> ptEye = point<>(2.0f, 2.0f, 2.0f);

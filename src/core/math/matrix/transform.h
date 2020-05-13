@@ -28,12 +28,12 @@ public:
 
 public:
 	transform() {
-		identity(1.0f);
+		this->SetIdentity(1.0f);
 	}
 
 	~transform() = default;
 
-	virtual GetType() { return type::TRANSFORM; }
+	virtual transform::type GetType() { return transform::type::TRANSFORM; }
 };
 
 

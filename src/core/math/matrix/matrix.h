@@ -14,6 +14,8 @@
 // Column Major
 //#define MATRIX_ROW_MAJOR
 
+// TODO: SIMD this stuffff
+
 class matrix_base {
 public:
 	matrix_base() = default;
@@ -182,7 +184,7 @@ public:
 		return R::OK;
 	}
 
-	inline RESULT identity(TValue val = 1.0f) {
+	inline RESULT SetIdentity(TValue val = 1.0f) {
 		RESULT r = R::OK;
 
 		// Ensure square matrix
@@ -209,6 +211,34 @@ public:
 		return R::OK;
 	}
 
+	inline TValue sum() noexcept {
+		TValue sumVal = 0.0f;
+
+		for (size_t i = 0; i < (N * M); i++) {
+			sumVal += m_data[i];
+		}
+
+		return sumVal
+	}
+
+	RESULT normalize() {
+		TValue s = sum();
+		
+		if(s != 0.0f)
+			operator*=(1.0f/sum());
+		
+		return R::OK;
+	}
+
+	matrix normal() {
+		TValue s = sum();
+
+		if (s != 0.0f)
+			return matrix(*this).operator*=(1.0f / sum());
+		else
+			return matrix();
+	}
+
 	static matrix<TValue, N, M> identity(TValue val = 1.0f) {
 		matrix<TValue, N, M> retMatrix;
 		retMatrix.identity(val);
@@ -226,6 +256,64 @@ public:
 		retMatrix.set(1.0f);
 		return retMatrix;
 	}
+
+	// Matrix Operators
+	matrix& operator+=(const matrix& rhs) {
+		for (size_t i = 0; i < (N * M); i++) {
+			m_data[i] += rhs.m_data[i];
+		}
+		return *this;
+	}
+	matrix operator+(const matrix& rhs) { return matrix(*this).operator+=(rhs); }
+
+	matrix& operator-=(const matrix& rhs) {
+		for (size_t i = 0; i < (N * M); i++) {
+			m_data[i] += rhs.m_data[i];
+		}
+		return *this;
+	}
+	matrix operator-(const matrix& rhs) { return matrix(*this).operator-=(rhs); }
+
+	// Scalar Operators
+	matrix& operator+=(TValue val) {
+		for (size_t i = 0; i < (N * M); i++) {
+			m_data[i] += val;
+		}
+		return *this;
+	}
+	matrix operator+(TValue val) { return matrix(*this).operator+=(val); }
+
+	matrix& operator-=(TValue val) {
+		for (size_t i = 0; i < (N * M); i++) {
+			m_data[i] -= val;
+		}
+		return *this;
+	}
+	matrix operator-(TValue val) { return matrix(*this).operator-=(val); }
+
+	matrix& operator*=(TValue val) {
+		for (size_t i = 0; i < (N * M); i++) {
+			m_data[i] *= val;
+		}
+		return *this;
+	}
+	matrix operator*(TValue val) { return matrix(*this).operator*=(val); }
+
+	matrix& operator/=(TValue val) {
+		for (size_t i = 0; i < (N * M); i++) {
+			m_data[i] /= val;
+		}
+		return *this;
+	}
+	matrix operator/(TValue val) { return matrix(*this).operator/=(val); }
+
+	matrix& operator%=(TValue val) {
+		for (size_t i = 0; i < (N * M); i++) {
+			m_data[i] %= val;
+		}
+		return *this;
+	}
+	matrix operator%(TValue val) { return matrix(*this).operator%=(val); }
 };
 
 #endif // ! MATRIX_H_

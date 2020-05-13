@@ -19,7 +19,7 @@ class rotation :
 {
 public:
 	rotation() {
-		this->identity(1.0f);
+		this->SetIdentity(1.0f);
 	}
 
 	rotation(math::axis axis, TValue theta) {
@@ -64,7 +64,7 @@ public:
 
 	~rotation() = default;
 
-	virtual GetType() { return transform::type::ROTATION; }
+	virtual transform::type GetType() { return transform::type::ROTATION; }
 };
 
 

@@ -18,7 +18,7 @@ class translation :
 {
 public:
 	translation() {
-		this->identity(1.0f);
+		this->SetIdentity(1.0f);
 	}
 
 	translation(TValue xTranslate, TValue yTranslate, TValue zTranslate) {
@@ -43,7 +43,7 @@ public:
 
 	~translation() = default;
 
-	virtual GetType() { return transform::type::TRANSLATION; }
+	virtual transform::type GetType() { return transform::type::TRANSLATION; }
 };
 
 

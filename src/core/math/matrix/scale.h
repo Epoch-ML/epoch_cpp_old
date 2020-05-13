@@ -18,7 +18,7 @@ class scale :
 {
 public:
 	scale() {
-		this->identity(1.0f);
+		this->SetIdentity(1.0f);
 	}
 
 	scale(TValue scaleValue) {
@@ -47,9 +47,9 @@ public:
 		this->element(3, 3) = 1.0f;
 	}
 
-	~translation() = default;
+	~scale() = default;
 
-	virtual GetType() { return transform::type::SCALE; }
+	virtual transform::type GetType() { return transform::type::SCALE; }
 };
 
 

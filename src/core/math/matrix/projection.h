@@ -22,7 +22,7 @@ public:
 
 public:
 	projection() {
-		clear(1.0f);
+		this->SetIdentity(1.0f);
 	}
 
 	projection(projection::type projectionType, 
@@ -30,7 +30,7 @@ public:
 		TValue nearPlane, TValue farPlane,
 		TValue angleFOV) 
 	{
-		clear(1.0f);
+		clear();
 
 		switch (projectionType) {
 			case type::PERSPECTIVE:  SetPerspective(width, height, nearPlane, farPlane, angleFOV); break;
@@ -40,7 +40,7 @@ public:
 
 	~projection() = default;
 
-	virtual GetType() { return transform::type::PROJECTION; }
+	virtual transform::type GetType() { return transform::type::PROJECTION; }
 
 	// https://solarianprogrammer.com/2013/05/22/opengl-101-matrices-projection-view-model/
 	// https://unspecified.wordpress.com/2012/06/21/calculating-the-gluperspective-matrix-and-other-opengl-matrix-maths/

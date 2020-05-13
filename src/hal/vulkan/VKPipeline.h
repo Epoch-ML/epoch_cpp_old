@@ -29,10 +29,11 @@ private:
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
-	virtual RESULT Update(uint32_t index) override;
 
 public:
 	virtual ~VKPipeline() override;
+
+	virtual RESULT Update(uint32_t index) override;
 
 	static EPRef<VKPipeline> InternalMake(VkPhysicalDevice, VkDevice, const EPRef<VKSwapchain>&);
 

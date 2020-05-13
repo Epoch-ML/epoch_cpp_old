@@ -27,6 +27,26 @@ public:
 		}
 	}
 
+	vector(const matrix<TValue, N, 1>& rhs) {
+		memcpy(this->data, rhs.data, sizeof(data));
+	}
+	
+	vector& operator=(const matrix<TValue, N, 1>& rhs) {
+		memcpy(this->data, rhs.data, sizeof(data));
+		return *this;
+	}
+
+	vector(matrix<TValue, N, 1>&& rhs) {
+		memcpy(this->data, rhs.data, sizeof(data));
+		rhs.clear();
+	}
+
+	vector& operator=(matrix<TValue, N, 1>&& rhs) {
+		memcpy(this->data, rhs.data, sizeof(data));
+		rhs.clear();
+		return *this;
+	}
+
 	// Cross product constructor
 	vector(const vector& lhs, const vector& rhs) {
 		this->clear();
@@ -67,6 +87,20 @@ public:
 		}
 
 		return dotProd;
+	}
+	
+	TValue dot(const vector& rhs) {
+		TValue dotProd = 0.0f;
+
+		for (uint8_t i = 0; i < 4; i++) {
+			dotProd += this->data[i] * rhs.data[i];
+		}
+
+		return dotProd;
+	}
+
+	vector cross(const vector& rhs) {
+		return vector(*this, rhs);
 	}
 
 	inline TValue& x() { return this->data[0]; }
