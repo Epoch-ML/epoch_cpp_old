@@ -8,6 +8,8 @@
 
 // Projection matrix
 
+#include "core/math/math.h"
+
 #include "core/math/matrix/transform.h"
 
 template <typename TValue = float>

@@ -16,7 +16,7 @@ public:
 	vector() = default;
 	~vector() = default;
 
-	vector(TValue x, TValue y, TValue z) { x(x); y(y); z(z); w(0.0f); }
+	vector(TValue x, TValue y, TValue z) { this->x(x); this->y(y); this->z(z); this->w(0.0f); }
 
 	vector(std::initializer_list<TValue> values) {
 		//memcpy(data, &values, sizeof(data));

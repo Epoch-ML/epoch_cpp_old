@@ -59,6 +59,8 @@ public:
 		this->element(2, 0) = sinTheta;
 		this->element(2, 1) = -sinPhi * cosTheta;
 		this->element(2, 2) = cosPhi * cosTheta;
+
+		return R::OK;
 	}
 	
 

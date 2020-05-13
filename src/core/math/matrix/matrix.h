@@ -136,7 +136,14 @@ public:
 #ifdef RANGE_CHECK
 		rangeCheck(i);
 #endif
-		return m_data[i];
+		return data[i];
+	}
+
+	const TValue& operator()(unsigned i) const {
+#ifdef RANGE_CHECK
+		rangeCheck(i);
+#endif
+		return data[i];
 	}
 
 	TValue& operator()(unsigned i, unsigned j) {
@@ -178,7 +185,7 @@ public:
 
 	inline RESULT set(TValue val) {
 		for (int i = 0; i < (N * M); i++) {
-			m_data[i] = val;
+			data[i] = val;
 		}
 
 		return R::OK;
@@ -205,7 +212,7 @@ public:
 
 		for (int i = 0; i < (N * M); i++) {
 			float randval = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-			m_data[i] = maxval * randval;
+			data[i] = maxval * randval;
 		}
 
 		return R::OK;
@@ -215,10 +222,10 @@ public:
 		TValue sumVal = 0.0f;
 
 		for (size_t i = 0; i < (N * M); i++) {
-			sumVal += m_data[i];
+			sumVal += data[i];
 		}
 
-		return sumVal
+		return sumVal;
 	}
 
 	RESULT normalize() {
@@ -260,7 +267,7 @@ public:
 	// Matrix Operators
 	matrix& operator+=(const matrix& rhs) {
 		for (size_t i = 0; i < (N * M); i++) {
-			m_data[i] += rhs.m_data[i];
+			data[i] += rhs.data[i];
 		}
 		return *this;
 	}
@@ -268,7 +275,7 @@ public:
 
 	matrix& operator-=(const matrix& rhs) {
 		for (size_t i = 0; i < (N * M); i++) {
-			m_data[i] += rhs.m_data[i];
+			data[i] += rhs.data[i];
 		}
 		return *this;
 	}
@@ -277,7 +284,7 @@ public:
 	// Scalar Operators
 	matrix& operator+=(TValue val) {
 		for (size_t i = 0; i < (N * M); i++) {
-			m_data[i] += val;
+			data[i] += val;
 		}
 		return *this;
 	}
@@ -285,7 +292,7 @@ public:
 
 	matrix& operator-=(TValue val) {
 		for (size_t i = 0; i < (N * M); i++) {
-			m_data[i] -= val;
+			data[i] -= val;
 		}
 		return *this;
 	}
@@ -293,7 +300,7 @@ public:
 
 	matrix& operator*=(TValue val) {
 		for (size_t i = 0; i < (N * M); i++) {
-			m_data[i] *= val;
+			data[i] *= val;
 		}
 		return *this;
 	}
@@ -301,7 +308,7 @@ public:
 
 	matrix& operator/=(TValue val) {
 		for (size_t i = 0; i < (N * M); i++) {
-			m_data[i] /= val;
+			data[i] /= val;
 		}
 		return *this;
 	}
@@ -309,7 +316,7 @@ public:
 
 	matrix& operator%=(TValue val) {
 		for (size_t i = 0; i < (N * M); i++) {
-			m_data[i] %= val;
+			data[i] %= val;
 		}
 		return *this;
 	}
