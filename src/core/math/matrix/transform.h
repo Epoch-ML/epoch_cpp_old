@@ -31,6 +31,14 @@ public:
 		this->SetIdentity(1.0f);
 	}
 
+	transform(const matrix<TValue, 4, 4>&rhs) : 
+		matrix<TValue, 4, 4>(rhs) 
+	{}
+	
+	transform(matrix<TValue, 4, 4>&& rhs) : 
+		matrix<TValue, 4, 4>(static_cast<matrix<TValue, 4, 4>&&>(rhs)) 
+	{}
+
 	~transform() = default;
 };
 

@@ -50,11 +50,12 @@ Error:
 RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	RESULT r = R::OK;
 
-	point<> ptEye = point<>(2.0f, 2.0f, 2.0f);
+	point<> ptEye = point<>(0.0f, 0.0f, 3.0f);
 	point<> ptOrigin = point<>();
 
 	// TODO: get rid of this from here (for testing)
 	static auto startTime = std::chrono::high_resolution_clock::now();
+	static float theta = 0.0f;
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
@@ -63,9 +64,11 @@ RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	m_uniformBufferObject.m_mat4View.SetIdentity(1.0f);
 	m_uniformBufferObject.m_mat4Projection.SetIdentity(1.0f);
 
-	m_uniformBufferObject.m_mat4Model = rotation(math::axis::Y, time);
+	m_uniformBufferObject.m_mat4Model = rotation(math::axis::X, theta) * rotation(math::axis::Z, theta);
 
 	m_uniformBufferObject.m_mat4View = view<>::MakeLookAtViewMatrix(ptEye, ptOrigin, vector<>::j());
+
+	theta += 0.025f;
 
 	///*
 	m_uniformBufferObject.m_mat4Projection = projection<float>(

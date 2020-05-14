@@ -14,7 +14,7 @@
 // Column Major
 #define MATRIX_COLUMN_MAJOR
 
-// TODO: SIMD this stuffff
+// TODO: SIMD this stuff
 
 class matrix_base {
 public:
@@ -49,6 +49,14 @@ public:
 
 public:
 	matrix() = default;
+
+	matrix(TValue initVal) {
+		if (initVal != 0)
+			set(initVal);
+		else
+			clear();
+	}
+
 	~matrix() = default;
 
 	matrix(std::initializer_list<TValue> values) {
@@ -267,6 +275,14 @@ public:
 	}
 
 	// Matrix Operators
+	//matrix& operator*=(const matrix& rhs) {
+	//	for (int i = 0; i < (N * M); i++)
+	//		data[i] *= a;
+	//
+	//	return *this;
+	//}
+	//matrix operator*(const matrix& rhs) { return matrix(*this).operator*=(rhs); }
+
 	matrix& operator+=(const matrix& rhs) {
 		for (size_t i = 0; i < (N * M); i++) {
 			data[i] += rhs.data[i];
@@ -327,5 +343,59 @@ public:
 	matrix operator%(TValue val) { return matrix(*this).operator%=(val); }
 
 };
+
+// TODO: SIMD this baby
+// TODO: Move into above?
+// Matrix multiply 
+
+// square matrix multiplication
+template <typename TValue, int N>
+matrix<TValue, N, N> operator*(
+	const matrix<TValue, N, N>& lhs, 
+	const matrix<TValue, N, N>& rhs) 
+{
+	matrix<TValue, N, N> matResult(0);
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			for (int k = 0; k < N; k++) {
+				matResult.element(i, j) += lhs.element(i, k) * rhs.element(k, j);
+			}
+		}
+	}
+
+	return matResult;
+}
+
+// N x M multiplied by a M x 1
+template <typename TValue, int N, int M>
+matrix<TValue, N, 1> operator*(
+	const matrix<TValue, N, M>& lhs, 
+	const matrix<TValue, M, 1>& rhs) 
+{
+	matrix<TValue, N, 1> vResult(0);
+
+	for (int i = 0; i < N; i++)
+		for (int k = 0; k < M; k++)
+			vResult.element(i, 0) += lhs.element(i, k) * rhs.element(k, 0);
+
+	return vResult;
+}
+
+// N x M multiplied by M x W, should work for all N, M, W
+template <typename TValue, int N, int M, int W>
+matrix<TValue, N, W> operator*(
+	const matrix<TValue, N, M>& lhs, 
+	const matrix<TValue, M, W>& rhs) 
+{
+	matrix<TValue, N, W> matResult(0);
+
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < W; j++)
+			for (int k = 0; k < M; k++)
+				matResult.element(i, j) += lhs.element(i, k) * rhs.element(k, j);
+
+	return matResult;
+}
 
 #endif // ! MATRIX_H_

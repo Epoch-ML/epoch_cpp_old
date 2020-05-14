@@ -21,6 +21,10 @@
 
 class VKDescriptorPool;
 
+// TODO: 
+// - layout(set = 0, binding = 0) uniform UniformBufferObject { ... }
+// bind multiple descriptor sets at the same time
+
 class VKDescriptorSet :
 	public EPObj,
 	public EPFactoryMethod<VKDescriptorSet,
