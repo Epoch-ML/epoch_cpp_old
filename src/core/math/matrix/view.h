@@ -32,14 +32,11 @@ public:
 		
 		view<TValue> matView;
 
-		vector<TValue> vView = (ptEye - ptLookAt);// .normal();
-		vView.normalize();
+		vector<TValue> vView = (ptEye - ptLookAt).normal();
 
 		vector<TValue> vLeft = vView.cross(vUp);
-		vLeft.normalize();
 
 		vector<TValue> vUpDirection = vLeft.cross(vView);
-		vUpDirection.normalize();
 
 		//vView.invert();
 

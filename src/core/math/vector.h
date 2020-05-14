@@ -103,10 +103,47 @@ public:
 		return vector(*this, rhs);
 	}
 
+	inline RESULT normalize() {
+		TValue s = sqrt(x2() + y2() + z2());
+
+		if (s != 0.0f) {
+			TValue mVal = (1.0f / s);
+
+			x() *= mVal;
+			y() *= mVal;
+			z() *= mVal;
+		}
+
+		return R::OK;
+	}
+
+	inline vector normal() {
+		vector vReturn = vector(*this);
+		vReturn.normalize();
+		return vReturn;
+	}
+
 	inline TValue& x() { return this->data[0]; }
 	inline TValue& y() { return this->data[1]; }
 	inline TValue& z() { return this->data[2]; }
 	inline TValue& w() { return this->data[3]; }
+
+	TValue x2() { 
+		auto val = this->data[0]; 
+		return (val * val); 
+	}
+	TValue y2() { 
+		auto val = this->data[1]; 
+		return (val * val);
+	}
+	TValue z2() {
+		auto val = this->data[2];
+		return (val * val);
+	}
+	TValue w2() {
+		auto val = this->data[3];
+		return (val * val);
+	}
 
 	inline TValue& x(const TValue &val) { return this->data[0] = val; }
 	inline TValue& y(const TValue &val) { return this->data[1] = val; }

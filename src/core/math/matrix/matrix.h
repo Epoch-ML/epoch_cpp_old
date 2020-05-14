@@ -238,11 +238,13 @@ public:
 		return sumVal;
 	}
 
+	/*
+	// TODO: determinant 
 	RESULT normalize() {
 		TValue s = sum();
 		
 		if(s != 0.0f)
-			operator*=(1.0f/sum());
+			operator*=(1.0f/s);
 		
 		return R::OK;
 	}
@@ -251,10 +253,11 @@ public:
 		TValue s = sum();
 
 		if (s != 0.0f)
-			return matrix(*this).operator*=(1.0f / sum());
+			return matrix(*this).operator*=(1.0f / s);
 		else
 			return matrix();
 	}
+	*/
 
 	static matrix<TValue, N, M> identity(TValue val = 1.0f) {
 		matrix<TValue, N, M> retMatrix;

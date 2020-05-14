@@ -50,7 +50,7 @@ Error:
 RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	RESULT r = R::OK;
 
-	point<> ptEye = point<>(0.0f, 0.0f, 3.0f);
+	point<> ptEye = point<>(3.0f, 3.0f, 3.0f);
 	point<> ptOrigin = point<>();
 
 	// TODO: get rid of this from here (for testing)
@@ -64,9 +64,12 @@ RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	m_uniformBufferObject.m_mat4View.SetIdentity(1.0f);
 	m_uniformBufferObject.m_mat4Projection.SetIdentity(1.0f);
 
-	m_uniformBufferObject.m_mat4Model = rotation(math::axis::X, theta) * rotation(math::axis::Z, theta);
+	//m_uniformBufferObject.m_mat4Model = rotation(math::axis::X, theta) * rotation(math::axis::Z, theta);
 
-	m_uniformBufferObject.m_mat4View = view<>::MakeLookAtViewMatrix(ptEye, ptOrigin, vector<>::j());
+	m_uniformBufferObject.m_mat4View = view<>::MakeLookAtViewMatrix(
+		rotation(math::axis::Z, theta * 0.5f) * rotation(math::axis::Y, theta * 1.5f) * rotation(math::axis::X, theta * 1.0f) * ptEye,
+		ptOrigin, vector<>::j()
+	);
 
 	theta += 0.025f;
 
