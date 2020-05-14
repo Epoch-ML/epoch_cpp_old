@@ -77,8 +77,8 @@ RESULT VKPipeline::Initialize() {
 	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
 
 	// Set up the vertex input description (TODO: generalize this)
-	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 2>::GetVKVertexBindingDescription();
-	vkVertexAttributeDescriptions = VKVertex<float, 2>::GetVKVertexAttributeDescriptions();
+	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 4>::GetVKVertexBindingDescription();
+	vkVertexAttributeDescriptions = VKVertex<float, 4>::GetVKVertexAttributeDescriptions();
 
 	// Vertex Input Stage
 	m_vkPipelineVertexInputStateCreateInfo .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -120,8 +120,9 @@ RESULT VKPipeline::Initialize() {
 	m_vkPipelineRasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
 	m_vkPipelineRasterizationStateCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	m_vkPipelineRasterizationStateCreateInfo.lineWidth = 1.0f;
-	m_vkPipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-	m_vkPipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	m_vkPipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_NONE;
+	//m_vkPipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+	//m_vkPipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	//m_vkPipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	m_vkPipelineRasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
 	m_vkPipelineRasterizationStateCreateInfo.depthBiasConstantFactor = 0.0f; // Optional

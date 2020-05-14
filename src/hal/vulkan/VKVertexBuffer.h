@@ -54,9 +54,9 @@ public:
 		// Set up the command buffer data
 		// TODO: This is temporary just for testing
 		m_vertices = {
-			VKVertex<float, 2>({0.0f, -0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}),
-			VKVertex<float, 2>({0.5f, 0.5f}, {0.0f, 0.0f, 0.0f, 1.0f}),
-			VKVertex<float, 2>({-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f, 1.0f})
+			VKVertex<float, 4>({ 0.0f, 0.0f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}),
+			VKVertex<float, 4>({-0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f})
 		};
 
 		m_indices = { 0, 1, 2 };
@@ -71,15 +71,48 @@ public:
 		// Set up the command buffer data
 		// TODO: This is temporary just for testing
 		m_vertices = {
-			VKVertex<float, 2>({-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}),
-			VKVertex<float, 2>({ 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}),
-			VKVertex<float, 2>({ 0.5f,  0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}),
-			VKVertex<float, 2>({-0.5f,  0.5f}, {1.0f, 0.0f, 0.0f, 1.0f})
+			VKVertex<float, 4>({-0.5f, 0.0f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.0f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}),
+			VKVertex<float, 4>({-0.5f, 0.0f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f})
 		};
 
 		m_indices = {
 			0, 1, 2,
 			2, 3, 0
+		};
+
+	Error:
+		return r;
+	}
+
+	RESULT InitializeAsCube() {
+		RESULT r = R::OK;
+
+		// Set up the command buffer data
+		// TODO: This is temporary just for testing
+		m_vertices = {
+			// Top
+			VKVertex<float, 4>({-0.5f, 0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),	// 0 top left back
+			VKVertex<float, 4>({ 0.5f, 0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}),	// 1 top right back
+			VKVertex<float, 4>({ 0.5f, 0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}),	// 2	 top right front
+			VKVertex<float, 4>({-0.5f, 0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),	// 3 top left front
+
+			VKVertex<float, 4>({-0.5f, -0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),	// 4 bottom left back
+			VKVertex<float, 4>({ 0.5f, -0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}),	// 5 bottom right back
+			VKVertex<float, 4>({ 0.5f, -0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}),	// 6 bottom right front
+			VKVertex<float, 4>({-0.5f, -0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f})	// 7 bottom left front
+		};
+
+		m_indices = {
+			// top
+			//0, 1, 2,
+			//2, 3, 0,
+
+			// front
+			3, 2, 7,
+			7, 6, 2
+
 		};
 
 	Error:
@@ -96,7 +129,7 @@ private:
 	VkQueue m_vkQueue = nullptr;
 
 	// TODO: need a better way in the future
-	EPVector<VKVertex<float, 2>> m_vertices;
+	EPVector<VKVertex<float, 4>> m_vertices;
 	EPVector<uint16_t> m_indices;
 
 // Staging Buffer

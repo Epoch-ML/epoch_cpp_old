@@ -22,23 +22,19 @@ public:
 	}
 
 	translation(TValue xTranslate, TValue yTranslate, TValue zTranslate) {
-		this->clear();
+		this->SetIdentity(1.0f);
 
 		this->element(0, 3) = xTranslate;
 		this->element(1, 3) = yTranslate;
 		this->element(2, 3) = zTranslate;
-
-		this->element(3, 3) = 1.0f;
 	}
 
-	translation(vector<TValue, 4> vVector) {
-		this->clear();
+	translation(matrix<TValue, 4, 1> vVector) {
+		this->SetIdentity(1.0f);
 
-		this->element(0, 3) = vVector.x();
-		this->element(1, 3) = vVector.y();
-		this->element(2, 3) = vVector.z();
-
-		this->element(3, 3) = 1.0f;
+		this->element(0, 3) = vVector(0);
+		this->element(1, 3) = vVector(1);
+		this->element(2, 3) = vVector(2);
 	}
 
 	~translation() = default;

@@ -9,10 +9,10 @@
 // Row Major
 // N - rows
 // M - columns
-#define MATRIX_ROW_MAJOR
+//#define MATRIX_ROW_MAJOR
 
 // Column Major
-//#define MATRIX_ROW_MAJOR
+#define MATRIX_COLUMN_MAJOR
 
 // TODO: SIMD this stuffff
 
@@ -120,10 +120,12 @@ public:
 	};
 
 	// TODO: Check bounds
-	proxy& operator[](const int index) {
+	proxy operator[](const int index) {
 		int lookUpValue = (index * N);
-		matrix::proxy retProxy(&(data[lookUpValue]));
-		return retProxy;
+		
+		//matrix::proxy retProxy(&(data[lookUpValue]));
+
+		return matrix::proxy(&(data[lookUpValue]));
 	}
 
 #if defined(MATRIX_ROW_MAJOR)
@@ -275,7 +277,7 @@ public:
 
 	matrix& operator-=(const matrix& rhs) {
 		for (size_t i = 0; i < (N * M); i++) {
-			data[i] += rhs.data[i];
+			data[i] -= rhs.data[i];
 		}
 		return *this;
 	}
@@ -297,6 +299,7 @@ public:
 		return *this;
 	}
 	matrix operator-(TValue val) { return matrix(*this).operator-=(val); }
+	matrix operator-() { return matrix(*this).operator*=(-1.0f); }
 
 	matrix& operator*=(TValue val) {
 		for (size_t i = 0; i < (N * M); i++) {
@@ -305,6 +308,7 @@ public:
 		return *this;
 	}
 	matrix operator*(TValue val) { return matrix(*this).operator*=(val); }
+	friend matrix operator*(TValue val, const matrix& rhs) { return matrix(rhs).operator*=(val); }
 
 	matrix& operator/=(TValue val) {
 		for (size_t i = 0; i < (N * M); i++) {
@@ -321,6 +325,7 @@ public:
 		return *this;
 	}
 	matrix operator%(TValue val) { return matrix(*this).operator%=(val); }
+
 };
 
 #endif // ! MATRIX_H_

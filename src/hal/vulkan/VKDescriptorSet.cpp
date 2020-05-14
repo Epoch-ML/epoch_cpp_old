@@ -34,7 +34,6 @@ RESULT VKDescriptorSet::Initialize() {
 		vkWriteDescriptorSet.dstArrayElement = 0;
 		vkWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		vkWriteDescriptorSet.descriptorCount = 1;
-
 		vkWriteDescriptorSet.pBufferInfo = &vkDescriptionBufferInfo;
 		vkWriteDescriptorSet.pImageInfo = nullptr; // Optional
 		vkWriteDescriptorSet.pTexelBufferView = nullptr; // Optional

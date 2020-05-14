@@ -32,9 +32,9 @@ public:
 #pragma pack(push)  /* push current alignment to stack */
 #pragma pack(1)     /* set alignment to 1 byte boundary */
 	struct UniformBufferObject {
-		transform<> m_mat4Model;
-		transform<> m_mat4View;
-		transform<> m_mat4Projection;
+		alignas(16) transform<> m_mat4Model;
+		alignas(16) transform<> m_mat4View;
+		alignas(16) transform<> m_mat4Projection;
 	} m_uniformBufferObject;
 #pragma pack(pop)
 

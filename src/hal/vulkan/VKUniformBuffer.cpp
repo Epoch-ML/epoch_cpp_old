@@ -11,6 +11,7 @@
 #include "core/math/math.h"
 #include "core/math/matrix/rotation.h"
 #include "core/math/matrix/projection.h"
+#include "core/math/matrix/translation.h"
 #include "core/math/matrix/view.h"
 
 #include "core/math/vector.h"
@@ -58,22 +59,24 @@ RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+	m_uniformBufferObject.m_mat4Model.SetIdentity(1.0f);
+	m_uniformBufferObject.m_mat4View.SetIdentity(1.0f);
+	m_uniformBufferObject.m_mat4Projection.SetIdentity(1.0f);
+
 	m_uniformBufferObject.m_mat4Model = rotation(math::axis::Y, time);
 
 	m_uniformBufferObject.m_mat4View = view<>::MakeLookAtViewMatrix(ptEye, ptOrigin, vector<>::j());
 
-	/*
+	///*
 	m_uniformBufferObject.m_mat4Projection = projection<float>(
 		projection<float>::type::PERSPECTIVE,
 		(float)m_pVKSwapchain->GetExtentsWidth(), (float)m_pVKSwapchain->GetExtentsHeight(),
-		0.1f, 10.0f, 45.0f);
-
+		0.01f, 1000.0f, 70.0f);
+	m_uniformBufferObject.m_mat4Projection[1][1] *= -1.0f;
 	
 	//	*/
 
-	//m_uniformBufferObject.m_mat4Model.SetIdentity(1.0f);
-	//m_uniformBufferObject.m_mat4View.SetIdentity(1.0f);
-	m_uniformBufferObject.m_mat4Projection.SetIdentity(1.0f);
+	
 
 	// Copy the data of uniform buffer object to the device memory
 	CVKRM(VKBuffer::CopyDataToBuffer(

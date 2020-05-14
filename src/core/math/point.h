@@ -13,10 +13,14 @@ class point :
 	public matrix<TValue, N, 1>
 {
 public:
-	point() = default;
+	point() {
+		this->clear();
+		this->w(1);
+	}
+
 	~point() = default;
 
-	point(TValue x, TValue y, TValue z) { this->x(x); this->y(y); this->z(z); this->w(1.0f); }
+	point(TValue x, TValue y, TValue z) { this->x(x); this->y(y); this->z(z); this->w(1); }
 
 	point(std::initializer_list<TValue> values) {
 		// TODO: this should work / be faster

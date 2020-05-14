@@ -54,7 +54,14 @@ public:
 
 		vkVertexInputAttributeDescriptions[0].binding = 0;
 		vkVertexInputAttributeDescriptions[0].location = 0;
-		vkVertexInputAttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+
+		switch (dimension) {
+			case 1: vkVertexInputAttributeDescriptions[0].format = VK_FORMAT_R32_SFLOAT; break;
+			case 2: vkVertexInputAttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT; break;
+			case 3: vkVertexInputAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT; break;
+			case 4: vkVertexInputAttributeDescriptions[0].format = VK_FORMAT_R32G32B32A32_SFLOAT; break;
+		}
+		
 		vkVertexInputAttributeDescriptions[0].offset = offsetof(VKVertex, m_ptPosition);
 
 		vkVertexInputAttributeDescriptions[1].binding = 0;

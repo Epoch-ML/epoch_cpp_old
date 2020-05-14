@@ -185,7 +185,8 @@ EPRef<VKVertexBuffer> VKVertexBuffer::InternalMake(
 	CNM(pVKVertexBuffer, "Failed to allocate vk vertex buffer");
 
 	//pVKVertexBuffer->InitializeAsTriangle();
-	pVKVertexBuffer->InitializeAsQuad();
+	//pVKVertexBuffer->InitializeAsQuad();
+	pVKVertexBuffer->InitializeAsCube();
 
 	CRM(pVKVertexBuffer->Initialize(), "Failed to initialize VK vertex buffer");
 
