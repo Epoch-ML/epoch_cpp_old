@@ -6,21 +6,74 @@
 // epoch point
 // epoch/src/core/math/point.h
 
-#include "matrix.h"
+#include "core/math/matrix/matrix.h"
 
-template <typename TValue, int N>
+#include "vector.h"
+
+template <typename TValue = float, int N = 4>
 class point :
 	public matrix<TValue, N, 1>
 {
 public:
-	point() = default;
-	virtual ~point() override = default;
+	point() {
+		this->clear();
+		this->w(1);
+	}
+
+	~point() = default;
+
+	point(TValue x, TValue y, TValue z) { this->x(x); this->y(y); this->z(z); this->w(1); }
 
 	point(std::initializer_list<TValue> values) {
+		// TODO: this should work / be faster
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;			
+		for (auto val : values) {
+			data[index++] = val;
+		}
+	}
+
+	point(const matrix<TValue, N, 1>& rhs) {
+		memcpy(this->data, rhs.data, sizeof(data));
+	}
+
+	point& operator=(const matrix<TValue, N, 1>& rhs) {
+		memcpy(this->data, rhs.data, sizeof(data));
+		return *this;
+	}
+
+	point(matrix<TValue, N, 1>&& rhs) {
+		memcpy(this->data, rhs.data, sizeof(data));
+		rhs.clear();
+	}
+
+	point& operator=(matrix<TValue, N, 1>&& rhs) {
+		memcpy(this->data, rhs.data, sizeof(data));
+		rhs.clear();
+		return *this;
+	}
+
+	point& operator=(std::initializer_list<TValue> values) {
+		//memcpy(data, &values, sizeof(data));
+
 		int index = 0;
 		for (auto val : values) {
 			data[index++] = val;
 		}
+
+		return *this;
+	}
+
+	RESULT set(std::initializer_list<TValue> values) {
+		//memcpy(data, &values, sizeof(data));
+
+		int index = 0;
+		for (auto val : values) {
+			data[index++] = val;
+		}
+
+		return R::OK;
 	}
 
 	inline TValue& x() { return this->data[0]; }
@@ -32,6 +85,10 @@ public:
 	inline TValue& y(const TValue &val) { return this->data[1] = val; }
 	inline TValue& z(const TValue &val) { return this->data[2] = val; }
 	inline TValue& w(const TValue &val) { return this->data[3] = val; }
+
+	friend vector<TValue, N> operator-(const point& lhs, const point& rhs) {
+		return vector<TValue, N>(static_cast<matrix<TValue, N, 1>>(lhs) - static_cast<matrix<TValue, N, 1>>(rhs));
+	}
 
 };
 

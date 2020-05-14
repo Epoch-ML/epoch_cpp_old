@@ -38,7 +38,7 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 	// Set up the HAL 
 	pVulkanHAL = HALFactory::make(halType, EPRef<SandboxWindowProcess>(pSBProcess));
 	CNM(pVulkanHAL, "Failed to create VulkanHAL");
-
+	
 	CRM(dynamic_cast<SandboxWindowProcess*>(pSBProcess.get())->RegisterObserver(pVulkanHAL), "Failed to Register Observer");
 
 	///*
@@ -49,7 +49,6 @@ RESULT HALTestSuite::TestVulkanHAL(EPTestBase* pEPTestBase) {
 	//*/
 
 	CRM(pVulkanHAL->WaitForIdle(), "Failed to wait for idle");
-
 
 	CRM(pVulkanHAL->Kill(), "Failed to kill VulkanHAL");
 
