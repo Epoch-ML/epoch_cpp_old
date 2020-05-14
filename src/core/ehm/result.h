@@ -42,6 +42,7 @@ typedef enum class RESULT : uint32_t {
 	NOT_IMPLEMENTED,
 	NO_RESULT,
 	SKIPPED,
+	RETURN_VOID,
 
 	// Fail codes
 	FAIL = 0x80000000,
@@ -50,6 +51,8 @@ typedef enum class RESULT : uint32_t {
 	MATRIX_COL_OUT_OF_RANGE,
 
 	MEMORY_ALLOCATION_FAILED,
+
+	NOT_UNIQUE,
 
 	PLATFORM_NOT_SUPPORTED
 } R ;

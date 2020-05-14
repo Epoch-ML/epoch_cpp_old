@@ -96,14 +96,15 @@ Error:
 	return vkPhysicalDeviceQueueFamilies;
 }
 
-EPVector<uint32_t> FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface) {
+VKQueueFamilies FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface) {
 	RESULT r = RESULT::OK;
+
+	VKQueueFamilies vkQueueFamilies;
 
 	EPVector<VkQueueFamilyProperties> vkQueueFamilyProperties;
 
 	uint32_t familyQueueIndex = 0;
-	int32_t graphicsFamilyQueueIndex = -1;
-	int32_t presentFamilyQueueIndex = -1;
+
 	bool fFoundQueueFamily = false;
 	EPVector<uint32_t> familyQueueIndexes;
 
@@ -114,35 +115,47 @@ EPVector<uint32_t> FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice, VkSurfac
 	CBM(vkQueueFamilyProperties.size() != 0, "Failed to enumerate physical device queue families");
 
 	for (auto& family : vkQueueFamilyProperties) {
+		bool fGraphicsOrCompute = false;
+
+		// Graphics Queue
 		if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			if (graphicsFamilyQueueIndex == -1)
-				graphicsFamilyQueueIndex = familyQueueIndex;
+			fGraphicsOrCompute = true;
+			if (vkQueueFamilies.HasGraphicsQueue() == false) {
+				vkQueueFamilies.SetGraphicsQueueIndex(familyQueueIndex);
+			}
+		}
+		
+		// Compute Queue
+		if (family.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+			fGraphicsOrCompute = true;
+			if (vkQueueFamilies.HasComputeQueue() == false) {
+				vkQueueFamilies.SetComputeQueueIndex(familyQueueIndex);
+			}
 		}
 
-		VkBool32 fPresentationSupport = false;
-		CVKRM(vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, graphicsFamilyQueueIndex, vkSurface, &fPresentationSupport),
-			"Failed to get PhysicalDeviceSurfaceSupport");
+		// Transfer Queue
+		if (fGraphicsOrCompute == false && family.queueFlags & VK_QUEUE_TRANSFER_BIT) {
+			if (vkQueueFamilies.HasTransferQueue() == false) {
+				vkQueueFamilies.SetTransferQueueIndex(familyQueueIndex);
+			}
+		}
 
-		if (fPresentationSupport == (VkBool32)(true)) {
-			if (presentFamilyQueueIndex == -1)
-				presentFamilyQueueIndex = familyQueueIndex;
+		// Presentation Queue
+		if (vkQueueFamilies.HasGraphicsQueue()) {
+			VkBool32 fPresentationSupport = false;
+			CVKRM(vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, vkQueueFamilies.GetGraphicsQueueIndex(), vkSurface, &fPresentationSupport),
+				"Failed to get PhysicalDeviceSurfaceSupport");
+
+			if (fPresentationSupport == (VkBool32)(true)) {
+				if (vkQueueFamilies.HasPresentationQueue() == false) {
+					vkQueueFamilies.SetPresentationQueueIndex(familyQueueIndex);
+				}
+			}
 		}
 
 		familyQueueIndex++;
 	}
 
-	CBM(graphicsFamilyQueueIndex >= 0, "Failed to find graphics queue");
-	CBM(presentFamilyQueueIndex >= 0, "Failed to find surface presentation queue");
-
-	// TODO: this should be more dynamic (above in particular)
-	familyQueueIndexes.PushBack((uint32_t)graphicsFamilyQueueIndex);
-
-	if (graphicsFamilyQueueIndex != presentFamilyQueueIndex)
-		familyQueueIndexes.PushBack((uint32_t)presentFamilyQueueIndex);
-
-Success:
-	return familyQueueIndexes;
-
 Error:
-	return {};
+	return vkQueueFamilies;
 }

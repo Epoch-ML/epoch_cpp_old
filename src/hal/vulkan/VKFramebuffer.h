@@ -15,8 +15,8 @@
 #include "core/types/EPFactoryMethod.h"
 #include "core/types/EPString.h"
 
-#include "VKSwapchain.h"
-#include "VKPipeline.h"
+class VKSwapchain;
+class VKPipeline;
 
 class VKFramebuffer :
 	public framebuffer,
@@ -24,26 +24,17 @@ class VKFramebuffer :
 {
 private:
 	VKFramebuffer(
-		VkDevice vkLogicalDevice, 
-		const EPRef<VKPipeline>& pVKPipeline, 
+		VkDevice vkLogicalDevice,
+		const EPRef<VKPipeline>& pVKPipeline,
 		const EPRef<VKSwapchain>& pVKSwapchain,
 		uint32_t frameBufferIndex
-	) :
-		m_vkLogicalDevice(vkLogicalDevice),
-		m_pVKPipeline(pVKPipeline),
-		m_pVKSwapchain(pVKSwapchain),
-		m_frameBufferIndex(frameBufferIndex)
-	{
-		//
-	}
+	);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
 public:
-	virtual ~VKFramebuffer() override {
-		Kill();
-	}
+	virtual ~VKFramebuffer() override;
 
 	static EPRef<VKFramebuffer> InternalMake(VkDevice, const EPRef<VKPipeline>&, const EPRef<VKSwapchain>&, uint32_t);
 	const VkFramebuffer GetVKFrameBufferHandle() const { return m_vkFramebuffer; }

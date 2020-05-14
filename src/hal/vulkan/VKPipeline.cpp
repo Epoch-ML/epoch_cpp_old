@@ -2,10 +2,27 @@
 
 #include "VulkanUtilities.h"
 
+#include "VKShader.h"
+#include "VKSwapchain.h"
+#include "VKVertex.h"
+#include "VKBuffer.h"
+#include "VKUniformBuffer.h"
+#include "VKDescriptorPool.h"
+#include "VKDescriptorSet.h"
+
+#include "core/math/matrix/matrix.h"
+
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
+	EPArray<VkVertexInputAttributeDescription, 2> vkVertexAttributeDescriptions = {};
 
+	// Uniform Descriptor Set Layout
+	VkDescriptorSetLayoutBinding vkDescriptorLayoutBindingUniformBufferObject = {};
+	VkDescriptorSetLayoutCreateInfo vkDescriptorSetLayoutCreateInfoUniformBufferObject = {};
+
+	CNM(m_vkPhysicalDevice, "Cannot create pipeline without a valid physical device");
 	CNM(m_vkLogicalDevice, "Cannot create pipeline without a valid logical device");
+	CNM(m_pVKSwapchain, "Cannot create pipeline without a valid swapchain");
 
 	m_pVertexShader = VKShader::make(m_vkLogicalDevice, "vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
 	CNM(m_pVertexShader, "Failed to create vertex shader");
@@ -13,15 +30,65 @@ RESULT VKPipeline::Initialize() {
 	m_pFragmentShader = VKShader::make(m_vkLogicalDevice, "frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
 	CNM(m_pFragmentShader, "Failed to create fragment shader");
 
-	// Fixed stages
-	// TODO: This should all be moved into objects
+	// Uniform Buffer Object
+
+	//struct UniformBufferObject {
+	//	matrix<float, 4, 4> m_mat4Model;
+	//	matrix<float, 4, 4> m_mat4View;
+	//	matrix<float, 4, 4> m_mat4Projection;
+	//} uboTransforms;
+
 	
+
+	// Create descriptor set layout (for vertex shader)
+	// TODO: Move this into the shaders bruv / object or something
+	// Layout binding
+	vkDescriptorLayoutBindingUniformBufferObject.binding = 0;
+	vkDescriptorLayoutBindingUniformBufferObject.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	vkDescriptorLayoutBindingUniformBufferObject.descriptorCount = 1;
+	vkDescriptorLayoutBindingUniformBufferObject.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	vkDescriptorLayoutBindingUniformBufferObject.pImmutableSamplers = nullptr; // optional
+
+	// create info
+	// Uniform 
+
+	// Create the actual object
+	m_pVKUniformBuffer = VKUniformBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	CNM(m_pVKUniformBuffer, "Failed to create valid uniform buffer");
+
+	vkDescriptorSetLayoutCreateInfoUniformBufferObject.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	vkDescriptorSetLayoutCreateInfoUniformBufferObject.bindingCount = 1;
+	vkDescriptorSetLayoutCreateInfoUniformBufferObject.pBindings = &vkDescriptorLayoutBindingUniformBufferObject;
+
+	// Descriptor Pool for the uniform buffer
+	m_pVKDescriptorPool = VKDescriptorPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	CNM(m_pVKDescriptorPool, "Failed to create valid descriptor pool");
+
+	// create the descriptor layout set
+	CVKRM(vkCreateDescriptorSetLayout(
+		m_vkLogicalDevice, 
+		&vkDescriptorSetLayoutCreateInfoUniformBufferObject, 
+		nullptr, 
+		&m_vkDescriptorSetLayoutUniformBufferObject),
+		"Failed to create descriptor set layout");
+
+	// Descriptor Set
+	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(m_vkDescriptorSetLayoutUniformBufferObject, m_pVKUniformBuffer);
+	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
+
+	// Set up the vertex input description (TODO: generalize this)
+	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 4>::GetVKVertexBindingDescription();
+	vkVertexAttributeDescriptions = VKVertex<float, 4>::GetVKVertexAttributeDescriptions();
+
 	// Vertex Input Stage
 	m_vkPipelineVertexInputStateCreateInfo .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 0;
-	m_vkPipelineVertexInputStateCreateInfo .pVertexBindingDescriptions = nullptr; // Optional
-	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = 0;
-	m_vkPipelineVertexInputStateCreateInfo .pVertexAttributeDescriptions = nullptr; // Optional
+	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 1;
+	m_vkPipelineVertexInputStateCreateInfo .pVertexBindingDescriptions = &vkVertexBindingDescription; 
+	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = (uint32_t)vkVertexAttributeDescriptions.size();
+	m_vkPipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions = vkVertexAttributeDescriptions.data; // Optional
+
+	// Fixed stages
+	// TODO: This should all be moved into objects
 
 	// Input assembly
 	m_vkPipelineInputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -53,8 +120,10 @@ RESULT VKPipeline::Initialize() {
 	m_vkPipelineRasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
 	m_vkPipelineRasterizationStateCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	m_vkPipelineRasterizationStateCreateInfo.lineWidth = 1.0f;
-	m_vkPipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-	m_vkPipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	m_vkPipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_NONE;
+	//m_vkPipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+	//m_vkPipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	//m_vkPipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	m_vkPipelineRasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
 	m_vkPipelineRasterizationStateCreateInfo.depthBiasConstantFactor = 0.0f; // Optional
 	m_vkPipelineRasterizationStateCreateInfo.depthBiasClamp = 0.0f; // Optional
@@ -116,8 +185,12 @@ RESULT VKPipeline::Initialize() {
 
 	// Create the pipeline layout
 	m_vkPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	m_vkPipelineLayoutCreateInfo.setLayoutCount = 0; // Optional
-	m_vkPipelineLayoutCreateInfo.pSetLayouts = nullptr; // Optional
+	
+	// TODO: automate
+	m_vkPipelineLayoutCreateInfo.setLayoutCount = 1; 
+	m_vkPipelineLayoutCreateInfo.pSetLayouts = &m_vkDescriptorSetLayoutUniformBufferObject; 
+
+	// TODO: automate and use
 	m_vkPipelineLayoutCreateInfo.pushConstantRangeCount = 0; // Optional
 	m_vkPipelineLayoutCreateInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -165,8 +238,8 @@ RESULT VKPipeline::Initialize() {
 		"Failed to create render pass");
 	CNM(m_vkRenderPass, "Failed to create render pass");
 
-	// Create the pipeline 
-	
+	// Create the graphics pipeline 
+
 	VkPipelineShaderStageCreateInfo vkPipelineShaderStages[] = {
 		m_pVertexShader->GetShaderStageCreateInfo(), 
 		m_pFragmentShader->GetShaderStageCreateInfo()
@@ -198,11 +271,25 @@ Error:
 	return r;
 }
 
+RESULT VKPipeline::Update(uint32_t index) {
+	RESULT r = R::OK;
+
+	// TODO: This needs to be more general
+	CRM(m_pVKUniformBuffer->Update(index), "Failed to update uniform buffer");
+
+Error:
+	return r;
+}
+
 RESULT VKPipeline::Kill() {
 	RESULT r = R::OK;
 
 	m_pVertexShader = nullptr;
 	m_pFragmentShader = nullptr;
+
+	m_pVKDescriptorSet = nullptr;
+	m_pVKDescriptorPool = nullptr;
+	m_pVKUniformBuffer = nullptr;
 
 	CN(m_vkLogicalDevice);
 	CN(m_vkGraphicsPipeline);
@@ -217,15 +304,19 @@ RESULT VKPipeline::Kill() {
 
 	vkDestroyRenderPass(m_vkLogicalDevice, m_vkRenderPass, nullptr);
 
+	CN(m_vkDescriptorSetLayoutUniformBufferObject)
+
+	vkDestroyDescriptorSetLayout(m_vkLogicalDevice, m_vkDescriptorSetLayoutUniformBufferObject, nullptr);
+
 Error:
 	return r;
 }
 
-EPRef<VKPipeline> VKPipeline::InternalMake(VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain) {
+EPRef<VKPipeline> VKPipeline::InternalMake(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain) {
 	RESULT r = R::OK;
 	EPRef<VKPipeline> pVKPipeline = nullptr;
 
-	pVKPipeline = new VKPipeline(vkLogicalDevice, pVKSwapchain);
+	pVKPipeline = new VKPipeline(vkPhysicalDevice, vkLogicalDevice, pVKSwapchain);
 	CNM(pVKPipeline, "Failed to allocate pipeline");
 
 	CRM(pVKPipeline->Initialize(), "Failed to initialize VK pipeline");
@@ -236,4 +327,16 @@ Success:
 Error:
 	pVKPipeline = nullptr;
 	return nullptr;
+}
+
+VKPipeline::VKPipeline(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain) :
+	m_vkPhysicalDevice(vkPhysicalDevice),
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_pVKSwapchain(pVKSwapchain)
+{
+	//
+}
+
+VKPipeline::~VKPipeline() {
+	Kill();
 }

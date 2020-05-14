@@ -20,21 +20,13 @@ class VKShader :
 	public EPFactoryMethod<VKShader, VkDevice, const EPString<char>&, VkShaderStageFlagBits>
 {
 private:
-	VKShader(const EPString<char> &strFilename, VkDevice vkLogicalDevice, VkShaderStageFlagBits vkShaderStageFlagBits) :
-		m_strFilename(strFilename),
-		m_vkLogicalDevice(vkLogicalDevice),
-		m_vkShaderStageFlagBits(vkShaderStageFlagBits)
-	{
-		//
-	}
+	VKShader(const EPString<char>& strFilename, VkDevice vkLogicalDevice, VkShaderStageFlagBits vkShaderStageFlagBits);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
 public:
-	virtual ~VKShader() override {
-		Kill();
-	}
+	virtual ~VKShader() override;
 
 	const VkPipelineShaderStageCreateInfo &GetShaderStageCreateInfo() {
 		return m_vkPipelineShaderStateCreateInfo;

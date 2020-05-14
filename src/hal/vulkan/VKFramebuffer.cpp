@@ -2,6 +2,11 @@
 
 #include "VulkanUtilities.h"
 
+#include "VKSwapchain.h"
+#include "VKPipeline.h"
+
+#include "VKDescriptorSet.h"
+
 RESULT VKFramebuffer::Initialize() {
 	RESULT r = R::OK;
 	
@@ -57,4 +62,23 @@ Success:
 Error:
 	pVKFramebuffer = nullptr;
 	return nullptr;
+}
+
+VKFramebuffer::VKFramebuffer(
+	VkDevice vkLogicalDevice,
+	const EPRef<VKPipeline>& pVKPipeline,
+	const EPRef<VKSwapchain>& pVKSwapchain,
+	uint32_t frameBufferIndex
+) :
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_pVKPipeline(pVKPipeline),
+	m_pVKSwapchain(pVKSwapchain),
+	m_frameBufferIndex(frameBufferIndex)
+{
+	//
+}
+
+
+VKFramebuffer::~VKFramebuffer() {
+	Kill();
 }

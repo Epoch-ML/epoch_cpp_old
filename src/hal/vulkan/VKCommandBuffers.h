@@ -16,13 +16,20 @@
 #include "core/types/EPString.h"
 
 class VKCommandPool;
+class VKBuffer;
+class VKVertexBuffer;
+class VKDescriptorSet;
 
 class VKCommandBuffers :
 	public command_buffer,
-	public EPFactoryMethod<VKCommandBuffers, const EPRef<VKCommandPool>&>
+	public EPFactoryMethod<VKCommandBuffers, 
+		const EPRef<VKCommandPool>&,
+		const EPRef<VKVertexBuffer>&,
+		const EPRef<VKDescriptorSet>&
+	>
 {
 private:
-	VKCommandBuffers(const EPRef<VKCommandPool>& pVKCommandPool);
+	VKCommandBuffers(const EPRef<VKCommandPool>&, const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
@@ -30,7 +37,7 @@ private:
 public:
 	virtual ~VKCommandBuffers() override;
 
-	static EPRef<VKCommandBuffers> InternalMake(const EPRef<VKCommandPool>& pVKCommandPool);
+	static EPRef<VKCommandBuffers> InternalMake(const EPRef<VKCommandPool>&, const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
 
 	RESULT RecordCommandBuffers();
 	const VkCommandBuffer* GetCommandBufferHandle(uint32_t index) const {
@@ -43,6 +50,10 @@ private:
 	VkCommandBufferAllocateInfo m_vkCommandBufferAllocateInfo = {};
 	
 	EPVector<VkCommandBuffer> m_vkCommandBuffers;
+
+	// TODO: temp
+	EPRef<VKDescriptorSet> m_pVKDescriptorSet = nullptr;
+	EPRef<VKVertexBuffer> m_pVKVertexBuffer = nullptr;
 };
 
 #endif // ! VULKAN_COMMAND_BUFFER_H_

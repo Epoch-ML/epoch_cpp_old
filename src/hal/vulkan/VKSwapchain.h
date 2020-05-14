@@ -24,7 +24,6 @@ private:
 
 	virtual RESULT Initialize() override;
 
-
 	RESULT SelectSurfaceFormat(VkFormat, VkColorSpaceKHR);
 	RESULT SelectPresentationMode(VkPresentModeKHR);
 	RESULT SelectSwapchainExtent(VkExtent2D vkExtent2D);
@@ -43,7 +42,7 @@ public:
 	virtual uint32_t GetExtentsHeight() override { return m_vkSelectedExtent2D.height; }
 
 	VkFormat GetVKSwapchainImageFormat() { return m_vkSwapchainImageFormat; }
-	uint32_t GetSwapchainImageCount() { return (uint32_t)m_swapchainImages.size(); }
+	uint32_t GetSwapchainImageCount() const { return (uint32_t)m_swapchainImages.size(); }
 	
 	const VkImageView* GetSwapchainImageViews() { 
 		return m_swapchainImageViews.data(); 

@@ -8,6 +8,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "core/types/EPTuple.h"
 #include "core/types/EPVector.h"
 
 // Extend the EHM for VK a bit
@@ -30,7 +31,65 @@ RESULT DestroyDebugUtilsMessengerEXT(
 	const VkAllocationCallbacks* pVkAllocationCallbacks);
 
 EPVector<VkQueueFamilyProperties> EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
-EPVector<uint32_t> FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface);
+
+class VKQueueFamilies {
+public:
+	VKQueueFamilies() = default;
+
+	bool HasGraphicsQueue() { return fGraphicsQueue; }
+	bool HasComputeQueue() { return fComputeQueue; }
+	bool HasPresentationQueue() { return fPresentationQueue; }
+	bool HasTransferQueue() { return fTransferQueue; }
+
+	uint32_t GetGraphicsQueueIndex() { return graphicsQueueIndex; }
+	uint32_t GetComputeQueueIndex() { return computeQueueIndex; }
+	uint32_t GetPresentationQueueIndex() { return presentationQueueIndex; }
+	uint32_t GetTransferQueueIndex() { return transferQueueIndex; }
+
+	void SetGraphicsQueueIndex(uint32_t index) { 
+		fGraphicsQueue = true;
+		graphicsQueueIndex = index; 
+	}
+	void SetComputeQueueIndex(uint32_t index) {
+		fComputeQueue = true;
+		computeQueueIndex = index;
+	}
+	void SetPresentationQueueIndex(uint32_t index) {
+		fPresentationQueue = true;
+		presentationQueueIndex = index;
+	}
+	void SetTransferQueueIndex(uint32_t index) {
+		fTransferQueue = true;
+		transferQueueIndex = index;
+	}
+
+	EPVector<uint32_t> GetUniqueIndexes() {
+		EPVector<uint32_t> retVector;
+		
+		retVector.PushBackUnique(GetGraphicsQueueIndex());
+		retVector.PushBackUnique(GetComputeQueueIndex());
+		retVector.PushBackUnique(GetPresentationQueueIndex());
+		retVector.PushBackUnique(GetTransferQueueIndex());
+
+		return retVector;
+	}
+
+private:
+	// TODO: replace with tuple once fixed
+	bool fGraphicsQueue = false;
+	uint32_t graphicsQueueIndex = 0;
+
+	bool fComputeQueue = false;
+	uint32_t computeQueueIndex = 0;
+
+	bool fPresentationQueue = false;
+	uint32_t presentationQueueIndex = 0;
+
+	bool fTransferQueue = false;
+	uint32_t transferQueueIndex = 0;
+};
+
+VKQueueFamilies FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface);
 
 
 #endif // !VULKAN_UTILITIES_H_

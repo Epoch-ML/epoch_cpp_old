@@ -119,6 +119,17 @@ public:
 			m_pBuffer[m_pBuffer_c++] = val;
 	}
 
+	EPVector& operator=(std::initializer_list<TStorage> list) {
+		m_pBuffer_n = list.size();
+		m_pBuffer_c = 0;
+		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
+
+		for (auto& val : list)
+			m_pBuffer[m_pBuffer_c++] = val;
+
+		return *this;
+	}
+
 	EPVector(const TStorage staticValueArray[], size_t staticValueArray_n) {
 		m_pBuffer_n = staticValueArray_n;
 		m_pBuffer = (TStorage*)malloc(m_pBuffer_n * sizeof(TStorage));
@@ -223,6 +234,13 @@ public:
 		return r;
 	}
 
+	RESULT PushBackUnique(const TStorage &value) noexcept {
+		if (exists(value))
+			return R::NOT_UNIQUE;
+
+		return PushBack(value);
+	}
+
 	inline RESULT PushFront(const TStorage& value) noexcept {
 		if (m_pBuffer == nullptr) {
 			if (this->Allocate(1) != R::OK)
@@ -273,6 +291,10 @@ public:
 
 	const size_t size() const { 
 		return m_pBuffer_c;
+	}
+
+	const size_t byte_size() const {
+		return (m_pBuffer_c * sizeof(TStorage));
 	}
 
 	bool exists(const TStorage &obj) {
