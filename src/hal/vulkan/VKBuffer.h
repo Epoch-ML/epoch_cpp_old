@@ -20,6 +20,8 @@
 
 #include "VulkanUtilities.h"
 
+class image;
+
 class VKBuffer :
 	public buffer,
 	public EPFactoryMethod<VKBuffer, VkPhysicalDevice, VkDevice, size_t, VkBufferUsageFlags, VkMemoryPropertyFlags>
@@ -79,6 +81,12 @@ public:
 			(void*)(buffer.data()), 
 			buffer.byte_size());
 	}
+
+	static RESULT CopyDataToBuffer(
+		VkPhysicalDevice vkPhysicalDevice,
+		VkDevice vkLogicalDevice,
+		VkDeviceMemory& r_vkDeviceMemory,
+		const EPRef<image>& pImage);
 
 	static RESULT CopyBuffer(
 		VkDevice vkLogicalDevice,
