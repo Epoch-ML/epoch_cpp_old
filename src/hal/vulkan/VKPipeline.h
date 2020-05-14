@@ -14,44 +14,35 @@
 #include "core/types/EPRef.h"
 #include "core/types/EPFactoryMethod.h"
 
-class VKShader;
-class VKSwapchain;
-template<typename TValue, int dimension> class VKVertex;
-class VKBuffer;
-class VKUniformBuffer;
-class VKDescriptorPool;
-class VKDescriptorSet;
+#include "VKShader.h"
+#include "VKSwapchain.h"
 
 class VKPipeline :
 	public pipeline,
-	public EPFactoryMethod<VKPipeline, VkPhysicalDevice, VkDevice, const EPRef<VKSwapchain>&>
+	public EPFactoryMethod<VKPipeline, VkDevice, const EPRef<VKSwapchain>&>
 {
 private:
-	VKPipeline(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain);
+	VKPipeline(VkDevice vkLogicalDevice, const EPRef<VKSwapchain>& pVKSwapchain)  :
+		m_vkLogicalDevice(vkLogicalDevice),
+		m_pVKSwapchain(pVKSwapchain)
+	{
+		//
+	}
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
 public:
-	virtual ~VKPipeline() override;
+	virtual ~VKPipeline() override {
+		Kill();
+	}
 
-	virtual RESULT Update(uint32_t index) override;
-
-	static EPRef<VKPipeline> InternalMake(VkPhysicalDevice, VkDevice, const EPRef<VKSwapchain>&);
+	static EPRef<VKPipeline> InternalMake(VkDevice, const EPRef<VKSwapchain>&);
 
 	const VkRenderPass GetVKRenderPassHandle() const { return m_vkRenderPass; }
 	const VkPipeline GetVKPipelineHandle() const { return m_vkGraphicsPipeline; }
 
-	EPRef<VKDescriptorSet> GetVKDescriptorSet() {
-		return m_pVKDescriptorSet;
-	}
-
-	const VkPipelineLayout GetVKPipelineLayout() const {
-		return m_vkPipelineLayout;
-	}
-
 private:
-	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 
@@ -82,12 +73,6 @@ private:
 
 	VkPipelineLayoutCreateInfo m_vkPipelineLayoutCreateInfo = {};
 	VkPipelineLayout m_vkPipelineLayout = nullptr;
-	
-	// Uniforms
-	VkDescriptorSetLayout m_vkDescriptorSetLayoutUniformBufferObject = nullptr;
-	EPRef<VKUniformBuffer> m_pVKUniformBuffer = nullptr;
-	EPRef<VKDescriptorPool> m_pVKDescriptorPool = nullptr;
-	EPRef<VKDescriptorSet> m_pVKDescriptorSet = nullptr;
 
 	// TODO: Render pass is here, move into an object
 	VkAttachmentDescription m_vkAttachmentDescription = {};

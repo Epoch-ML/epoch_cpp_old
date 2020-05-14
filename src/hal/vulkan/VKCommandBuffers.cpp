@@ -4,19 +4,8 @@
 
 #include "VKCommandPool.h"
 
-#include "VKVertex.h"
-#include "VKBuffer.h"
-#include "VKVertexBuffer.h"
-#include "VKDescriptorSet.h"
-
-VKCommandBuffers::VKCommandBuffers(
-	const EPRef<VKCommandPool>& pVKCommandPool, 
-	const EPRef<VKVertexBuffer>& pVKVertexBuffer, 
-	const EPRef<VKDescriptorSet>& pVKDescriptorSet
-) :
-	m_pVKCommandPool(pVKCommandPool),
-	m_pVKVertexBuffer(pVKVertexBuffer),
-	m_pVKDescriptorSet(pVKDescriptorSet)
+VKCommandBuffers::VKCommandBuffers(const EPRef<VKCommandPool>& pVKCommandPool) :
+	m_pVKCommandPool(pVKCommandPool)
 {
 	//
 }
@@ -51,25 +40,17 @@ RESULT VKCommandBuffers::Kill() {
 
 	CN(m_pVKCommandPool);
 
-	m_pVKVertexBuffer = nullptr;
-
-	m_pVKDescriptorSet = nullptr;
-
-	m_pVKCommandPool = nullptr;
-
 Error:
 	return r;
 }
 
 EPRef<VKCommandBuffers> VKCommandBuffers::InternalMake(
-	const EPRef<VKCommandPool>& pVKCommandPool,
-	const EPRef<VKVertexBuffer>& pVKVertexBuffer,
-	const EPRef<VKDescriptorSet>& pVKDescriptorSet
+	const EPRef<VKCommandPool>& pVKCommandPool
 ) {
 	RESULT r = R::OK;
 	EPRef<VKCommandBuffers> pVKCommandBuffer = nullptr;
 
-	pVKCommandBuffer = new VKCommandBuffers(pVKCommandPool, pVKVertexBuffer, pVKDescriptorSet);
+	pVKCommandBuffer = new VKCommandBuffers(pVKCommandPool);
 	CNM(pVKCommandBuffer, "Failed to allocate vk command buffer");
 
 	CRM(pVKCommandBuffer->Initialize(), "Failed to initialize VK command buffer");
@@ -85,17 +66,10 @@ Error:
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
 
-	VKQueueFamilies vkQueueFamilies;
-
-	CNM(m_pVKVertexBuffer, "Cannot record command buffers without a vertex buffer");
-	CNM(m_pVKDescriptorSet, "Cannot record command buffers without a descriptor set");
-
-	vkQueueFamilies = FindQueueFamilies(
-		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
+	uint32_t graphicsPipeline = FindQueueFamilies(
+		m_pVKCommandPool->GetVKPhyscialDeviceHandle(), 
 		m_pVKCommandPool->GetVKSurfaceHandle()
-	);
-
-	uint32_t graphicsPipeline = vkQueueFamilies.GetGraphicsQueueIndex();
+	)[0];
 
 	for (uint32_t i = 0; i < m_vkCommandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
@@ -127,12 +101,7 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 			m_pVKCommandPool->GetVKPipeline()->GetVKPipelineHandle()
 		);
 
-		//// TODO: wtf land - 
-		// a lot of arch needs to go into this
-		m_pVKVertexBuffer->Bind(m_vkCommandBuffers[i]);
-		m_pVKDescriptorSet->Bind(m_vkCommandBuffers[i], m_pVKCommandPool->GetVKPipeline()->GetVKPipelineLayout(), i);
-
-		m_pVKVertexBuffer->DrawIndexed(m_vkCommandBuffers[i]);
+		vkCmdDraw(m_vkCommandBuffers[i], 3, 1, 0, 0);
 
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
 

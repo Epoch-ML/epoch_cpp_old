@@ -6,52 +6,21 @@
 // epoch point
 // epoch/src/core/math/point.h
 
-#include "core/math/matrix/matrix.h"
+#include "matrix.h"
 
-template <typename TValue = float, int N = 4>
+template <typename TValue, int N>
 class point :
 	public matrix<TValue, N, 1>
 {
 public:
-	point() {
-		this->clear();
-		this->w(1);
-	}
-
-	~point() = default;
-
-	point(TValue x, TValue y, TValue z) { this->x(x); this->y(y); this->z(z); this->w(1); }
+	point() = default;
+	virtual ~point() override = default;
 
 	point(std::initializer_list<TValue> values) {
-		// TODO: this should work / be faster
-		//memcpy(data, &values, sizeof(data));
-
-		int index = 0;			
-		for (auto val : values) {
-			data[index++] = val;
-		}
-	}
-
-	point& operator=(std::initializer_list<TValue> values) {
-		//memcpy(data, &values, sizeof(data));
-
 		int index = 0;
 		for (auto val : values) {
 			data[index++] = val;
 		}
-
-		return *this;
-	}
-
-	RESULT set(std::initializer_list<TValue> values) {
-		//memcpy(data, &values, sizeof(data));
-
-		int index = 0;
-		for (auto val : values) {
-			data[index++] = val;
-		}
-
-		return R::OK;
 	}
 
 	inline TValue& x() { return this->data[0]; }

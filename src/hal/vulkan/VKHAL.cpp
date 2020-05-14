@@ -8,18 +8,6 @@
 
 #include "VulkanUtilities.h"
 
-#include "VKBuffer.h"
-#include "VKVertex.h"
-
-#include "VKSwapchain.h"
-#include "VKPipeline.h"
-
-#include "VKCommandPool.h"
-#include "VKCommandBuffers.h"
-#include "VKVertexBuffer.h"
-
-#include "VKDescriptorSet.h"
-
 RESULT VKHAL::EnumerateInstanceExtensions() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
@@ -209,16 +197,12 @@ RESULT VKHAL::Render(void) {
 	}
 	m_currentlyUsedFrameFences[imageIndex] = m_concurrentFrameFences[m_currentFrame];
 
-	// Update uniform buffers 
-	m_pVKPipeline->Update(imageIndex);
-
-	// This submits the command buffer itself
 	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	vkSubmitInfo.waitSemaphoreCount = 1;
 	vkSubmitInfo.pWaitSemaphores = vkWaitSemaphores;
 	vkSubmitInfo.pWaitDstStageMask = vkPipelineStageFlags;
 	vkSubmitInfo.commandBufferCount = 1;
-	vkSubmitInfo.pCommandBuffers = m_pVKCommandBuffers->GetCommandBufferHandle(imageIndex);		
+	vkSubmitInfo.pCommandBuffers = m_pVKCommandPool->GetCommandBufferHandle(imageIndex);  //&commandBuffers[imageIndex];
 	vkSubmitInfo.signalSemaphoreCount = 1;
 	vkSubmitInfo.pSignalSemaphores = vkSignalSemaphores;
 
@@ -496,14 +480,16 @@ RESULT VKHAL::InitializeLogicalDevice() {
 	RESULT r = R::OK;
 	VkResult vkr = VK_SUCCESS;
 	
-	VKQueueFamilies vkQueueFamilies;
+	EPVector<uint32_t> familyQueueIndexes;
+	uint32_t graphicsFamilyQueueIndex;
+	uint32_t presentFamilyQueueIndex;
 
 	CNM(m_vkPhysicalDevice, "Cannot initialize logical device without a valid physical device");
 	CNM(m_vkSurface, "Cannot initialize logical device without a valid surface");
 
-	vkQueueFamilies = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
+	familyQueueIndexes = FindQueueFamilies(m_vkPhysicalDevice, m_vkSurface);
 	 
-	for (auto& queueFamilyIndex : vkQueueFamilies.GetUniqueIndexes()) {
+	for (auto& queueFamilyIndex : familyQueueIndexes) {
 
 		VkDeviceQueueCreateInfo vkDeviceQueueCreateInfo = {};
 
@@ -541,25 +527,14 @@ RESULT VKHAL::InitializeLogicalDevice() {
 		"Failed to create logitcal device");
 	CNM(m_vkLogicalDevice, "Failed to create logical vulkan device");
 
-	if (vkQueueFamilies.HasGraphicsQueue()) {
-		vkGetDeviceQueue(m_vkLogicalDevice, vkQueueFamilies.GetGraphicsQueueIndex(), 0, &m_vkGraphicsQueueHandle);
-		CNM(m_vkGraphicsQueueHandle, "Failed to retrieve graphics queue handle");
-	}
+	// TODO: If the family queue index is the same the handle is equivalent
+	graphicsFamilyQueueIndex = familyQueueIndexes[0];
+	vkGetDeviceQueue(m_vkLogicalDevice, graphicsFamilyQueueIndex, 0, &m_vkGraphicsQueueHandle);
+	CNM(m_vkGraphicsQueueHandle, "Failed to retrieve graphics queue handle");
 
-	if (vkQueueFamilies.HasPresentationQueue()) {
-		vkGetDeviceQueue(m_vkLogicalDevice, vkQueueFamilies.GetPresentationQueueIndex(), 0, &m_vkPresentationQueueHandle);
-		CNM(m_vkPresentationQueueHandle, "Failed to retrieve presentation queue handle");
-	}
-
-	if (vkQueueFamilies.HasComputeQueue()) {
-		vkGetDeviceQueue(m_vkLogicalDevice, vkQueueFamilies.GetComputeQueueIndex(), 0, &m_vkComputeQueueHandle);
-		CNM(m_vkComputeQueueHandle, "Failed to retrieve compute queue handle");
-	}
-
-	if (vkQueueFamilies.HasTransferQueue()) {
-		vkGetDeviceQueue(m_vkLogicalDevice, vkQueueFamilies.GetTransferQueueIndex(), 0, &m_vkTransferQueueHandle);
-		CNM(m_vkTransferQueueHandle, "Failed to retrieve transfer queue handle");
-	}
+	presentFamilyQueueIndex = (familyQueueIndexes.size() > 1) ? familyQueueIndexes[1] : familyQueueIndexes[0];
+	vkGetDeviceQueue(m_vkLogicalDevice, presentFamilyQueueIndex, 0, &m_vkPresentationQueueHandle);
+	CNM(m_vkPresentationQueueHandle, "Failed to retrieve presentation queue handle");
 
 Error:
 	return r;
@@ -610,10 +585,6 @@ RESULT VKHAL::InitializeSwapchain() {
 
 	CRM(InitializeCommandPool(), "Failed to initialize command pool");
 
-	CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
-
-	CRM(InitializeCommandBuffers(), "Failed to initialize command buffers");
-
 Error:
 	return r;
 }
@@ -623,8 +594,6 @@ RESULT VKHAL::CleanupSwapchain() {
 
 	// TODO: only destroy command buffers, not pool
 	// This is an optimization and will get ironed out with better arch
-	m_pVKCommandBuffers = nullptr;
-
 	m_pVKCommandPool = nullptr;
 
 	if (m_pVKSwapchain != nullptr) {
@@ -647,43 +616,8 @@ RESULT VKHAL::InitializePipeline() {
 	CNM(m_vkLogicalDevice, "Pipeline needs valid logical device");
 	CNM(m_pVKSwapchain, "Pipeline needs valid swapchain");
 
-	m_pVKPipeline = VKPipeline::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	m_pVKPipeline = VKPipeline::make(m_vkLogicalDevice, m_pVKSwapchain);
 	CNM(m_pVKPipeline, "Failed to make vk pipeline");
-
-Error:
-	return r;
-}
-
-RESULT VKHAL::InitializeVertexBuffer() {
-	RESULT r = R::OK;
-
-	CNM(m_pVKCommandPool, "Vertex buffer needs valid command pool");
-
-	// TODO: not hard coded vertex count
-	m_pVKVertexBuffer = VKVertexBuffer::make(
-		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
-		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
-		m_pVKCommandPool,
-		m_pVKCommandPool->GetVKQueueHandle());
-	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
-
-Error:
-	return r;
-}
-
-RESULT VKHAL::InitializeCommandBuffers() {
-	RESULT r = R::OK;
-
-	// TODO: this is probably not true in a more general pipeline 
-	CNM(m_pVKCommandPool, "Command buffers need valid comman pool");
-	CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
-
-	m_pVKCommandBuffers = m_pVKCommandPool->MakeCommandBuffers(
-		m_pVKVertexBuffer, 
-		m_pVKPipeline->GetVKDescriptorSet()
-	);
-
-	CNM(m_pVKCommandBuffers, "Failed to create command buffers");
 
 Error:
 	return r;
@@ -696,17 +630,8 @@ RESULT VKHAL::InitializeCommandPool() {
 	CNM(m_vkSurface, "Command pool needs valid surface");
 	CNM(m_vkLogicalDevice, "Command pool needs valid logical device");
 	CNM(m_pVKSwapchain, "Command pool needs valid swapchain");
-	CNM(m_vkGraphicsQueueHandle, "Need valid graphics queue handle");
 
-	m_pVKCommandPool = VKCommandPool::make(
-		m_vkPhysicalDevice, 
-		m_vkLogicalDevice, 
-		m_vkSurface, 
-		m_vkGraphicsQueueHandle,
-		m_pVKPipeline, 
-		m_pVKSwapchain
-	);
-
+	m_pVKCommandPool = VKCommandPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_vkSurface, m_pVKPipeline, m_pVKSwapchain);
 	CNM(m_pVKCommandPool, "Failed to make vk command pool");
 
 Error:

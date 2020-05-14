@@ -2,15 +2,6 @@
 
 #include "hal/vulkan/VKHAL.h"
 
-// TODO: This shouldn't be needed here
-// These are objects referenced in VKHAL
-#include "hal/vulkan/VKPipeline.h"
-#include "hal/vulkan/VKSwapchain.h"
-#include "hal/vulkan/VKCommandPool.h"
-#include "hal/vulkan/VKCommandBuffers.h"
-#include "hal/vulkan/VKVertexBuffer.h"
-#include "hal/vulkan/VKDescriptorSet.h"
-
 EPRef<HAL> HALFactory::InternalMakeVulkan(EPRef<SandboxWindowProcess> pSBWindowProcess) {
 	RESULT r = R::OK;
 
