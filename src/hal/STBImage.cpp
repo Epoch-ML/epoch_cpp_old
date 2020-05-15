@@ -1,6 +1,6 @@
-#include "image.h"
+#include "STBImage.h"
 
-RESULT image::Initialize() {
+RESULT STBImage::Initialize() {
 	RESULT r = R::OK;
 
 	EPString<char> strFilePath = EPString<char>(EPOCH_TEXTURES_DIR) + "/" + m_strImageFilename;
@@ -21,26 +21,26 @@ Error:
 	return r;
 }
 
-EPRef<image> image::InternalMake(
+EPRef<STBImage> STBImage::InternalMake(
 	const EPString<char>& strImageFilename
 ) {
 	RESULT r = R::OK;
-	EPRef<image> pImage = nullptr;
+	EPRef<STBImage> pSTBImage = nullptr;
 
-	pImage = new image(strImageFilename);
-	CNM(pImage, "Failed to allocate image");
+	pSTBImage = new STBImage(strImageFilename);
+	CNM(pSTBImage, "Failed to allocate image");
 
-	CRM(pImage->Initialize(), "Failed to initialize image");
+	CRM(pSTBImage->Initialize(), "Failed to initialize image");
 
 Success:
-	return pImage;
+	return pSTBImage;
 
 Error:
-	pImage = nullptr;
+	pSTBImage = nullptr;
 	return nullptr;
 }
 
-image::~image() {
+STBImage::~STBImage() {
 
 	if (m_pPixelData != nullptr) {
 		stbi_image_free(m_pPixelData);

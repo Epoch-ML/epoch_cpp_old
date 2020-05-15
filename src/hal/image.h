@@ -8,30 +8,33 @@
 
 #include "core/types/EPObj.h"
 
-#include "core/types/EPFactoryMethod.h"
 #include "core/types/EPString.h"
 
-// TODO: Currently hard coded to STB
-// but should also support FreeImage in the future
-
-#include "stb_image.h"
-
-class image : 
-	public EPObj,
-	public EPFactoryMethod<image,
-		const EPString<char>&
-	>
+class image :
+	public EPObj
 {
 public:
-	image(const EPString<char>& strImageFilename) :
-		m_strImageFilename(strImageFilename)
+	
+	// TODO: Is this the best way
+	image() = default;
+
+	image(uint32_t width, uint32_t height, uint32_t channels = 4, uint32_t bytedepth = 1) :
+		m_width(width),
+		m_height(height),
+		m_channels(channels),
+		m_bytedepth(bytedepth)
 	{
-		//
+		// 
 	}
 
-	~image();
+	image(const EPString<char>& strImageFilename) :
+		m_strImageFilename(strImageFilename)
+	{}
 
-	RESULT Initialize();
+	~image() = default;
+
+	virtual RESULT Initialize() = 0;
+	virtual RESULT Kill() { return R::NOT_IMPLEMENTED; }
 
 	static EPRef<image> InternalMake(const EPString<char>& strImageFilename);
 
@@ -39,22 +42,20 @@ public:
 		return m_width * m_height * m_channels * m_bytedepth;
 	}
 
-	void* data() const {
-		return static_cast<void*>(m_pPixelData);
+	virtual void* data() const {
+		return nullptr;
 	}
 
 	int GetWidth() { return m_width; }
 	int GetHeight() { return m_height; }
 
-private:
+protected:
 	EPString<char> m_strImageFilename;
 
 	int m_width = 0;
 	int m_height = 0;
 	int m_channels = 0;
 	int m_bytedepth = 0;
-
-	stbi_uc* m_pPixelData = nullptr;
 };
 
 

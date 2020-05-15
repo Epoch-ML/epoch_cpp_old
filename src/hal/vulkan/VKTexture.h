@@ -15,6 +15,8 @@
 #include "core/types/EPFactoryMethod.h"
 #include "core/types/EPString.h"
 
+class VKImage;
+
 class VKTexture :
 	public texture,
 	public EPFactoryMethod<VKTexture, VkPhysicalDevice, VkDevice, const EPString<char>&>
@@ -36,9 +38,7 @@ private:
 	VkBuffer m_vkStagingBuffer = nullptr;
 	VkDeviceMemory m_vkStagingBufferDeviceMemory = nullptr;
 
-	// TODO: VKImage?
-	VkImage m_vkTextureImage = nullptr;
-	VkDeviceMemory m_vkTextureDeviceMemory = nullptr;
+	EPRef<VKImage> m_pVKImage = nullptr;
 };
 
 #endif // ! VULKAN_COMMAND_POOL_H_
