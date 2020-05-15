@@ -36,6 +36,7 @@ private:
 	VkBuffer m_vkStagingBuffer = nullptr;
 	VkDeviceMemory m_vkStagingBufferDeviceMemory = nullptr;
 
+	// TODO: VKImage?
 	VkImage m_vkTextureImage = nullptr;
 	VkDeviceMemory m_vkTextureDeviceMemory = nullptr;
 };

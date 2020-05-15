@@ -43,6 +43,9 @@ public:
 		return static_cast<void*>(m_pPixelData);
 	}
 
+	int GetWidth() { return m_width; }
+	int GetHeight() { return m_height; }
+
 private:
 	EPString<char> m_strImageFilename;
 

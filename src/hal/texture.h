@@ -30,6 +30,9 @@ protected:
 protected:
 	EPString<char> m_strFilename;
 	EPRef<image> m_pImage = nullptr;
+
+	uint32_t m_width = 0;
+	uint32_t m_height = 0;
 };
 
 
