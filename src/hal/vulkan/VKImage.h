@@ -19,21 +19,52 @@
 
 class VKImage :
 	public image,
-	public EPFactoryMethod<VKImage, VkPhysicalDevice, VkDevice, uint32_t, uint32_t>
+	public EPFactoryMethod<VKImage, 
+		VkPhysicalDevice, 
+		VkDevice, 
+		uint32_t, 
+		uint32_t, 
+		VkFormat, 
+		VkImageTiling, 
+		VkImageUsageFlags, 
+		VkMemoryPropertyFlags
+	>
 {
 private:
-	VKImage(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, uint32_t width, uint32_t height);
+	VKImage(
+		VkPhysicalDevice vkPhysicalDevice, 
+		VkDevice vkLogicalDevice, 
+		uint32_t width, uint32_t height,
+		VkFormat format, 
+		VkImageTiling tiling, 
+		VkImageUsageFlags usage, 
+		VkMemoryPropertyFlags properties
+	);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
 public:
 	virtual ~VKImage() override;
-	static EPRef<VKImage> InternalMake(VkPhysicalDevice, VkDevice, uint32_t, uint32_t);
+	static EPRef<VKImage> InternalMake(
+		VkPhysicalDevice,
+		VkDevice,
+		uint32_t,
+		uint32_t,
+		VkFormat,
+		VkImageTiling,
+		VkImageUsageFlags,
+		VkMemoryPropertyFlags
+	);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
+
+	VkFormat m_vkFormat;
+	VkImageTiling m_vkImageTiling;
+	VkImageUsageFlags m_vkImageUsageFlags;
+	VkMemoryPropertyFlags m_vkMemoryPropertyFlags;
 
 	VkImage m_vkTextureImage = nullptr;
 	VkDeviceMemory m_vkTextureDeviceMemory = nullptr;

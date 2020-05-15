@@ -12,10 +12,10 @@ RESULT VKImage::Initialize() {
 	vkImageCreateInfo.extent.depth = 1;
 	vkImageCreateInfo.mipLevels = 1;
 	vkImageCreateInfo.arrayLayers = 1;
-	vkImageCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-	vkImageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+	vkImageCreateInfo.format = m_vkFormat;
+	vkImageCreateInfo.tiling = m_vkImageTiling;
 	vkImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	vkImageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+	vkImageCreateInfo.usage = m_vkImageUsageFlags;
 	vkImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	vkImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	vkImageCreateInfo.flags = 0;	// optional
@@ -31,11 +31,10 @@ RESULT VKImage::Initialize() {
 	// Find suitable memory type
 	uint32_t memoryTypeIndex;
 	bool fFoundSuitableMemoryType = false;
-	VkMemoryPropertyFlagBits vkMemoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
 	for (memoryTypeIndex = 0; memoryTypeIndex < vkPhysicalDeviceMemoryProperties.memoryTypeCount; memoryTypeIndex++) {
 		if ((vkMemoryRequirements.memoryTypeBits & (1 << memoryTypeIndex)) &&
-			(vkPhysicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags & vkMemoryPropertyFlags) == vkMemoryPropertyFlags)
+			(vkPhysicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags & m_vkMemoryPropertyFlags) == m_vkMemoryPropertyFlags)
 		{
 			fFoundSuitableMemoryType = true;
 			break;
@@ -74,12 +73,24 @@ Error:
 EPRef<VKImage> VKImage::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
-	uint32_t width, uint32_t height
+	uint32_t width, uint32_t height,
+	VkFormat vkFormat,
+	VkImageTiling vkImageTiling,
+	VkImageUsageFlags vkImageUsageFlags,
+	VkMemoryPropertyFlags vkMemoryPropertyFlags
 ) {
 	RESULT r = R::OK;
 	EPRef<VKImage> pVKImage = nullptr;
 
-	pVKImage = new VKImage(vkPhysicalDevice, vkLogicalDevice, width, height);
+	pVKImage = new VKImage(
+		vkPhysicalDevice, 
+		vkLogicalDevice, 
+		width, height, 
+		vkFormat, 
+		vkImageTiling, 
+		vkImageUsageFlags, 
+		vkMemoryPropertyFlags
+	);
 	CNM(pVKImage, "Failed to allocate vk image");
 
 	CRM(pVKImage->Initialize(), "Failed to initialize VK image");
@@ -96,11 +107,19 @@ VKImage::VKImage(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
 	uint32_t width, 
-	uint32_t height
+	uint32_t height,
+	VkFormat vkFormat,
+	VkImageTiling vkImageTiling,
+	VkImageUsageFlags vkImageUsageFlags,
+	VkMemoryPropertyFlags vkMemoryPropertyFlags
 ) :
 	image(width, height),
 	m_vkPhysicalDevice(vkPhysicalDevice),
-	m_vkLogicalDevice(vkLogicalDevice)
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_vkFormat(vkFormat),
+	m_vkImageTiling(vkImageTiling),
+	m_vkImageUsageFlags(vkImageUsageFlags),
+	m_vkMemoryPropertyFlags(vkMemoryPropertyFlags)
 {
 	//
 }

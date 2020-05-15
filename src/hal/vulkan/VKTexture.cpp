@@ -29,15 +29,23 @@ RESULT VKTexture::Initialize() {
 	// This is optional here, but we can delete the image from mem now
 	m_pImage = nullptr;
 
-	m_pVKImage = VKImage::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_width, m_height);
+	m_pVKImage = VKImage::make(
+		m_vkPhysicalDevice, 
+		m_vkLogicalDevice, 
+		m_width, m_height, 
+		VK_FORMAT_R8G8B8A8_SRGB, 
+		VK_IMAGE_TILING_OPTIMAL, 
+		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+	);
 	CNM(m_pVKImage, "Failed to create VKImage");
 
 	
 
 	// what now
 
-	vkDestroyBuffer(m_vkLogicalDevice, m_vkStagingBuffer, nullptr);
-	vkFreeMemory(m_vkLogicalDevice, m_vkStagingBufferDeviceMemory, nullptr);
+	//vkDestroyBuffer(m_vkLogicalDevice, m_vkStagingBuffer, nullptr);
+	//vkFreeMemory(m_vkLogicalDevice, m_vkStagingBufferDeviceMemory, nullptr);
 
 Error:
 	return r;
@@ -47,6 +55,8 @@ RESULT VKTexture::Kill() {
 	RESULT r = R::OK;
 
 	CN(m_vkLogicalDevice);
+
+	m_pVKImage = nullptr;
 
 Error:
 	return r;
