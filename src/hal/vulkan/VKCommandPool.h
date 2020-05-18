@@ -64,7 +64,7 @@ public:
 		const EPRef<VKPipeline>&, 
 		const EPRef<VKSwapchain>&);
 
-	EPRef<VKCommandBuffers> MakeCommandBuffers(const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
+	EPRef<VKCommandBuffers> MakeVertexDescriptorCommandBuffers(const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;

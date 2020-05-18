@@ -21,8 +21,44 @@ VKCommandBuffers::VKCommandBuffers(
 	//
 }
 
+VKCommandBuffers::VKCommandBuffers(
+	const EPRef<VKCommandPool>& pVKCommandPool
+) :
+	m_pVKCommandPool(pVKCommandPool)
+{
+	//
+}
+
 VKCommandBuffers::~VKCommandBuffers() {
 	Kill();
+}
+
+// TODO: This should be the way we do stuff in the future
+RESULT VKCommandBuffers::ProtoInitialize(uint32_t numBuffers = 1) {
+	RESULT r = R::OK;
+
+	CN(m_pVKCommandPool);
+
+	m_vkCommandBuffers = EPVector<VkCommandBuffer>(numBuffers, true);
+
+	// Set up queue families
+	m_vkQueueFamilies = FindQueueFamilies(
+		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
+		m_pVKCommandPool->GetVKSurfaceHandle()
+	);
+
+	uint32_t graphicsPipeline = m_vkQueueFamilies.GetGraphicsQueueIndex();
+
+	m_vkCommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	m_vkCommandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	m_vkCommandBufferAllocateInfo.commandPool = m_pVKCommandPool->GetVKCommandPoolHandle();
+	m_vkCommandBufferAllocateInfo.commandBufferCount = (uint32_t)m_vkCommandBuffers.size();
+
+	CVKRM(vkAllocateCommandBuffers(m_pVKCommandPool->GetVKLogicalDeviceHandle(), &m_vkCommandBufferAllocateInfo, m_vkCommandBuffers.data()),
+		"Failed to allocate command buffers");
+
+Error:
+	return r;
 }
 
 RESULT VKCommandBuffers::Initialize() {
@@ -31,6 +67,14 @@ RESULT VKCommandBuffers::Initialize() {
 	CN(m_pVKCommandPool);
 	
 	m_vkCommandBuffers = EPVector<VkCommandBuffer>(m_pVKCommandPool->GetVKSwapchain()->GetFramebufferCount(), true);
+
+	// Set up queue families
+	m_vkQueueFamilies = FindQueueFamilies(
+		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
+		m_pVKCommandPool->GetVKSurfaceHandle()
+	);
+
+	uint32_t graphicsPipeline = m_vkQueueFamilies.GetGraphicsQueueIndex();
 
 	m_vkCommandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	m_vkCommandBufferAllocateInfo.commandPool = m_pVKCommandPool->GetVKCommandPoolHandle();
@@ -51,6 +95,12 @@ RESULT VKCommandBuffers::Kill() {
 
 	CN(m_pVKCommandPool);
 
+	vkFreeCommandBuffers(
+		m_pVKCommandPool->GetVKLogicalDeviceHandle(), 
+		m_pVKCommandPool->GetVKCommandPoolHandle(), 
+		m_vkCommandBuffers.size(), m_vkCommandBuffers.data());
+	m_vkCommandBuffers.clear();
+
 	m_pVKVertexBuffer = nullptr;
 
 	m_pVKDescriptorSet = nullptr;
@@ -60,6 +110,26 @@ RESULT VKCommandBuffers::Kill() {
 Error:
 	return r;
 }
+
+/*
+// TODO: The proto approach
+EPRef<VKCommandBuffers> VKCommandBuffers::InternalMake(const EPRef<VKCommandPool>& pVKCommandPool) {
+	RESULT r = R::OK;
+	EPRef<VKCommandBuffers> pVKCommandBuffer = nullptr;
+
+	pVKCommandBuffer = new VKCommandBuffers(pVKCommandPool);
+	CNM(pVKCommandBuffer, "Failed to allocate vk command buffer");
+
+	CRM(pVKCommandBuffer->ProtoInitialize(), "Failed to *proto* initialize VK command buffer");
+
+Success:
+	return pVKCommandBuffer;
+
+Error:
+	pVKCommandBuffer = nullptr;
+	return nullptr;
+}
+*/
 
 EPRef<VKCommandBuffers> VKCommandBuffers::InternalMake(
 	const EPRef<VKCommandPool>& pVKCommandPool,
@@ -85,17 +155,15 @@ Error:
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
 
-	VKQueueFamilies vkQueueFamilies;
-
 	CNM(m_pVKVertexBuffer, "Cannot record command buffers without a vertex buffer");
 	CNM(m_pVKDescriptorSet, "Cannot record command buffers without a descriptor set");
 
-	vkQueueFamilies = FindQueueFamilies(
-		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
-		m_pVKCommandPool->GetVKSurfaceHandle()
-	);
-
-	uint32_t graphicsPipeline = vkQueueFamilies.GetGraphicsQueueIndex();
+	//m_vkQueueFamilies = FindQueueFamilies(
+	//	m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
+	//	m_pVKCommandPool->GetVKSurfaceHandle()
+	//);
+	//
+	//uint32_t graphicsPipeline = m_vkQueueFamilies.GetGraphicsQueueIndex();
 
 	for (uint32_t i = 0; i < m_vkCommandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
@@ -139,6 +207,63 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		CVKRM(vkEndCommandBuffer(m_vkCommandBuffers[i]),
 			"Failed to end command buffer recording");
 	}
+
+Error:
+	return r;
+}
+
+RESULT VKCommandBuffers::Begin(uint32_t index = 0) {
+	RESULT r = R::OK;
+
+	VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
+
+	vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;	// TODO: prob not general
+
+	CVKRM(vkBeginCommandBuffer(m_vkCommandBuffers[index], &vkCommandBufferBeginInfo),
+		"Failed to begin command buffer %d", index);
+
+Error:
+	return r;
+}
+
+RESULT VKCommandBuffers::End(uint32_t index = 0) {
+	RESULT r = R::OK;
+
+	CVKRM(vkEndCommandBuffer(m_vkCommandBuffers[index]),
+		"Failed to end command buffer %d", index);
+
+Error:
+	return r;
+}
+
+RESULT VKCommandBuffers::Submit(VkQueue vkQueue) {
+	RESULT r = R::OK;
+
+	VkSubmitInfo vkSubmitInfo = {};
+
+	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	vkSubmitInfo.commandBufferCount = (uint32_t)m_vkCommandBuffers.size();
+	vkSubmitInfo.pCommandBuffers = m_vkCommandBuffers.data();
+
+	vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(vkQueue);
+
+Error:
+	return r;
+}
+
+RESULT VKCommandBuffers::Submit(VkQueue vkQueue, uint32_t index) {
+	RESULT r = R::OK;
+
+	VkSubmitInfo vkSubmitInfo = {};
+
+	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	vkSubmitInfo.commandBufferCount = 1;
+	vkSubmitInfo.pCommandBuffers = &m_vkCommandBuffers[index];
+
+	vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(vkQueue);
 
 Error:
 	return r;

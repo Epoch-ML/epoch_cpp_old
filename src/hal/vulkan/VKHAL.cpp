@@ -678,7 +678,7 @@ RESULT VKHAL::InitializeCommandBuffers() {
 	CNM(m_pVKCommandPool, "Command buffers need valid comman pool");
 	CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
 
-	m_pVKCommandBuffers = m_pVKCommandPool->MakeCommandBuffers(
+	m_pVKCommandBuffers = m_pVKCommandPool->MakeVertexDescriptorCommandBuffers(
 		m_pVKVertexBuffer, 
 		m_pVKPipeline->GetVKDescriptorSet()
 	);

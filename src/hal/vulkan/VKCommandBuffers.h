@@ -22,22 +22,43 @@ class VKDescriptorSet;
 
 class VKCommandBuffers :
 	public command_buffer,
+	//public EPFactoryMethod<VKCommandBuffers, const EPRef<VKCommandPool>&>,
 	public EPFactoryMethod<VKCommandBuffers, 
 		const EPRef<VKCommandPool>&,
 		const EPRef<VKVertexBuffer>&,
 		const EPRef<VKDescriptorSet>&
 	>
 {
+
+public:
+	VKCommandBuffers(const EPRef<VKCommandPool>&);
 private:
 	VKCommandBuffers(const EPRef<VKCommandPool>&, const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
+
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
 public:
+	// TODO: This allows an external object to do this
+	// might want to convert into the only way
+	RESULT ProtoInitialize(uint32_t numBuffers = 1);
+	RESULT Begin(uint32_t index = 0);
+	RESULT End(uint32_t index = 0);
+	
+	RESULT Submit(VkQueue vkQueue);
+	RESULT Submit(VkQueue vkQueue, uint32_t index);
+
+public:
 	virtual ~VKCommandBuffers() override;
 
-	static EPRef<VKCommandBuffers> InternalMake(const EPRef<VKCommandPool>&, const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
+	static EPRef<VKCommandBuffers> InternalMake(
+		const EPRef<VKCommandPool>&, 
+		const EPRef<VKVertexBuffer>&, 
+		const EPRef<VKDescriptorSet>&
+	);
+
+	//static EPRef<VKCommandBuffers> InternalMake(const EPRef<VKCommandPool>&);
 
 	RESULT RecordCommandBuffers();
 	const VkCommandBuffer* GetCommandBufferHandle(uint32_t index) const {
@@ -54,6 +75,8 @@ private:
 	// TODO: temp
 	EPRef<VKDescriptorSet> m_pVKDescriptorSet = nullptr;
 	EPRef<VKVertexBuffer> m_pVKVertexBuffer = nullptr;
+
+	VKQueueFamilies m_vkQueueFamilies = {};
 };
 
 #endif // ! VULKAN_COMMAND_BUFFER_H_

@@ -37,7 +37,8 @@ set(CMAKE_CXX_FLAGS_CORE "${CMAKE_CXX_FLAGS}")
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	message("epoch/src/cmakelists.txt msvc")
 	
-	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")      # C++ version
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")      # C++ version
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")      # C++ version
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOCONCEPTS")
 
 	# Compiler Flags Release

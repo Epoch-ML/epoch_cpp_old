@@ -68,7 +68,7 @@ Error:
 	return nullptr;
 }
 
-EPRef<VKCommandBuffers> VKCommandPool::MakeCommandBuffers(
+EPRef<VKCommandBuffers> VKCommandPool::MakeVertexDescriptorCommandBuffers(
 	const EPRef<VKVertexBuffer>& pVKVertextBuffer, 
 	const EPRef<VKDescriptorSet>& pVKDescriptorSet
 ) {

@@ -3,6 +3,8 @@
 #include "VKBuffer.h"
 #include "VKImage.h"
 
+#include "VKCommandBuffers.h"
+
 RESULT VKTexture::Initialize() {
 	RESULT r = R::OK;
 
@@ -40,7 +42,12 @@ RESULT VKTexture::Initialize() {
 	);
 	CNM(m_pVKImage, "Failed to create VKImage");
 
-	
+	// Create a one-time command buffer / run it
+	// TODO: Convert into a more general pattern
+	auto pVKCommandBuffers = new VKCommandBuffers(m_pVKCommandPool);
+	CNM(pVKCommandBuffers, "Failed to make a command buffer object");
+	CRM(pVKCommandBuffers->ProtoInitialize());
+
 
 	// what now
 
@@ -65,12 +72,13 @@ Error:
 EPRef<VKTexture> VKTexture::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
+	const EPRef<VKCommandPool>& pVKCommandPool,
 	const EPString<char>& strFilename
 ) {
 	RESULT r = R::OK;
 	EPRef<VKTexture> pVKTexture = nullptr;
 
-	pVKTexture = new VKTexture(vkPhysicalDevice, vkLogicalDevice, strFilename);
+	pVKTexture = new VKTexture(vkPhysicalDevice, vkLogicalDevice, pVKCommandPool, strFilename);
 	CNM(pVKTexture, "Failed to allocate vk texture");
 
 	CRM(pVKTexture->Initialize(), "Failed to initialize VK texture");
@@ -85,12 +93,14 @@ Error:
 
 VKTexture::VKTexture(
 	VkPhysicalDevice vkPhysicalDevice,
-	VkDevice vkLogicalDevice, 
+	VkDevice vkLogicalDevice,
+	const EPRef<VKCommandPool>& pVKCommandPool,
 	const EPString<char>& strFilename
 ) :
 	texture(strFilename),
 	m_vkPhysicalDevice(vkPhysicalDevice),
-	m_vkLogicalDevice(vkLogicalDevice)
+	m_vkLogicalDevice(vkLogicalDevice),
+	m_pVKCommandPool(pVKCommandPool)
 {
 	//
 }
