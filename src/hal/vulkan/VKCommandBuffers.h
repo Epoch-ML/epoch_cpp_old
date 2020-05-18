@@ -15,6 +15,8 @@
 #include "core/types/EPFactoryMethod.h"
 #include "core/types/EPString.h"
 
+#include "VulkanUtilities.h"
+
 class VKCommandPool;
 class VKBuffer;
 class VKVertexBuffer;
@@ -29,6 +31,14 @@ class VKCommandBuffers :
 		const EPRef<VKDescriptorSet>&
 	>
 {
+public:
+	enum CommandBufferState {
+		UNINITIALIZED,
+		INITIALIZED,
+		RECORDING,
+		READY,
+		SUBMITTED
+	};
 
 public:
 	VKCommandBuffers(const EPRef<VKCommandPool>&);
@@ -46,6 +56,11 @@ public:
 	RESULT Begin(uint32_t index = 0);
 	RESULT End(uint32_t index = 0);
 	
+	// Commands
+	RESULT CopyBuffer(uint32_t index, VkBuffer vkSrcBuffer, VkBuffer vkDstBuffer, VkDeviceSize vkSize);
+	RESULT PipelineBarrier(uint32_t index, const VkImageMemoryBarrier &vkImageMemoryBarrier);
+	RESULT CopyBufferToImage(uint32_t index, VkBuffer vkSrcBuffer, VkImage vkDstImage, const VkBufferImageCopy &vkBufferImageCopy);
+
 	RESULT Submit(VkQueue vkQueue);
 	RESULT Submit(VkQueue vkQueue, uint32_t index);
 
@@ -71,12 +86,14 @@ private:
 	VkCommandBufferAllocateInfo m_vkCommandBufferAllocateInfo = {};
 	
 	EPVector<VkCommandBuffer> m_vkCommandBuffers;
+	EPVector<CommandBufferState> m_vkCommandBufferStates;
 
 	// TODO: temp
 	EPRef<VKDescriptorSet> m_pVKDescriptorSet = nullptr;
 	EPRef<VKVertexBuffer> m_pVKVertexBuffer = nullptr;
 
 	VKQueueFamilies m_vkQueueFamilies = {};
+
 };
 
 #endif // ! VULKAN_COMMAND_BUFFER_H_

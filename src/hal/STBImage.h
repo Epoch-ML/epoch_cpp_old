@@ -14,9 +14,7 @@
 
 class STBImage : 
 	public image,
-	public EPFactoryMethod<STBImage,
-		const EPString<char>&
-	>
+	public EPFactoryMethod<STBImage, const EPString<char>&>
 {
 public:
 	STBImage(const EPString<char>& strImageFilename) :
@@ -39,13 +37,6 @@ public:
 	int GetHeight() { return m_height; }
 
 private:
-	EPString<char> m_strImageFilename;
-
-	int m_width = 0;
-	int m_height = 0;
-	int m_channels = 0;
-	int m_bytedepth = 0;
-
 	stbi_uc* m_pPixelData = nullptr;
 };
 

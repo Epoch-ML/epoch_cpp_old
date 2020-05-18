@@ -1,10 +1,17 @@
 #include "VKImage.h"
 
+#include "VKCommandPool.h"
+#include "VKCommandBuffers.h"
+
 RESULT VKImage::Initialize() {
 	RESULT r = R::OK;
 
-	// Create the VK image
 	VkImageCreateInfo vkImageCreateInfo = {};
+	VkMemoryRequirements vkMemoryRequirements = {};
+	VkPhysicalDeviceMemoryProperties vkPhysicalDeviceMemoryProperties = {};
+	VkMemoryAllocateInfo vkMemoryAllocateInfo = {};
+
+	// Create the VK image
 	vkImageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	vkImageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
 	vkImageCreateInfo.extent.width = m_width;
@@ -22,9 +29,7 @@ RESULT VKImage::Initialize() {
 
 	CVKRM(vkCreateImage(m_vkLogicalDevice, &vkImageCreateInfo, nullptr, &m_vkTextureImage),
 		"Failed to create image");
-
-	VkMemoryRequirements vkMemoryRequirements = {};
-	VkPhysicalDeviceMemoryProperties vkPhysicalDeviceMemoryProperties = {};
+	
 	vkGetImageMemoryRequirements(m_vkLogicalDevice, m_vkTextureImage, &vkMemoryRequirements);
 	vkGetPhysicalDeviceMemoryProperties(m_vkPhysicalDevice, &vkPhysicalDeviceMemoryProperties);
 
@@ -42,8 +47,7 @@ RESULT VKImage::Initialize() {
 	}
 
 	CBM(fFoundSuitableMemoryType, "Failed to find suitable memory type");
-
-	VkMemoryAllocateInfo vkMemoryAllocateInfo = {};
+	
 	vkMemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	vkMemoryAllocateInfo.allocationSize = vkMemoryRequirements.size;
 	vkMemoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
@@ -54,8 +58,6 @@ RESULT VKImage::Initialize() {
 	// TODO: Move into other call?
 	CVKRM(vkBindImageMemory(m_vkLogicalDevice, m_vkTextureImage, m_vkTextureDeviceMemory, 0),
 		"Failed to bind image memory");
-
-
 
 Error:
 	return r;
@@ -126,4 +128,46 @@ VKImage::VKImage(
 
 VKImage::~VKImage() {
 	Kill();
+}
+
+RESULT VKImage::TranisitionImageLayout(
+	const EPRef<VKCommandPool>& pVKCommandPool, 
+	VkImageLayout vkOldImageLayout, 
+	VkImageLayout vkNewImageLayout
+) {
+	RESULT r = R::OK;
+
+	VkImageMemoryBarrier vkImageMemoryBarrier = {};
+
+	// Create a one-time command buffer / run it
+	// TODO: Convert into a more general pattern
+	auto pVKCommandBuffers = new VKCommandBuffers(pVKCommandPool);
+	CNM(pVKCommandBuffers, "Failed to make a command buffer object");
+	CRM(pVKCommandBuffers->ProtoInitialize(1), "Failed to *proto* initialize command buffers");
+
+	CRM(pVKCommandBuffers->Begin(0), "Failed to start command buffer");
+	
+	vkImageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	vkImageMemoryBarrier.oldLayout = vkOldImageLayout;
+	vkImageMemoryBarrier.newLayout = vkNewImageLayout;
+	vkImageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	vkImageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	vkImageMemoryBarrier.image = m_vkTextureImage;
+	vkImageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	vkImageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+	vkImageMemoryBarrier.subresourceRange.levelCount = 1;
+	vkImageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+	vkImageMemoryBarrier.subresourceRange.layerCount = 1;
+
+	vkImageMemoryBarrier.srcAccessMask = 0; // TODO
+	vkImageMemoryBarrier.dstAccessMask = 0; // TODO
+
+	CRM(pVKCommandBuffers->PipelineBarrier(0, vkImageMemoryBarrier), 
+		"Failed to set image pipeline barrier for layout transition");
+
+	CRM(pVKCommandBuffers->End(0), "Failed to start command buffer");
+
+
+Error:
+	return r;
 }

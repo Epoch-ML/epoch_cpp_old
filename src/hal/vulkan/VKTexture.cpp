@@ -3,7 +3,50 @@
 #include "VKBuffer.h"
 #include "VKImage.h"
 
+#include "VKCommandPool.h"
 #include "VKCommandBuffers.h"
+
+#include "hal/STBImage.h"
+
+// TODO: wtf does this need to be everywhere?
+#include "VKDescriptorSet.h"
+
+RESULT VKTexture::CopyStagingBufferToImage() {
+	RESULT r = R::OK;
+
+	VkBufferImageCopy vkBufferImageCopy = {};
+
+	// Create a one-time command buffer / run it
+	// TODO: Convert into a more general pattern
+	auto pVKCommandBuffers = new VKCommandBuffers(m_pVKCommandPool);
+	CNM(pVKCommandBuffers, "Failed to make a command buffer object");
+	CRM(pVKCommandBuffers->ProtoInitialize(1), "Failed to *proto* initialize command buffers");
+
+	CRM(pVKCommandBuffers->Begin(0), "Failed to start command buffer");
+	
+	vkBufferImageCopy.bufferOffset = 0;
+	vkBufferImageCopy.bufferRowLength = 0;
+	vkBufferImageCopy.bufferImageHeight = 0;
+	vkBufferImageCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	vkBufferImageCopy.imageSubresource.mipLevel = 0;
+	vkBufferImageCopy.imageSubresource.baseArrayLayer = 0;
+	vkBufferImageCopy.imageSubresource.layerCount = 1;
+
+	vkBufferImageCopy.imageOffset = { 0, 0, 0 };
+	vkBufferImageCopy.imageExtent = {
+		m_width,
+		m_height,
+		1	// not 3D
+	};
+
+	CRM(pVKCommandBuffers->CopyBufferToImage(0, m_vkStagingBuffer, m_pVKImage->GetVKImageHandle(), vkBufferImageCopy),
+		"Failed to copy staging buffer to image");
+
+	CRM(pVKCommandBuffers->End(0), "Failed to start command buffer");
+
+Error:
+	return r;
+}
 
 RESULT VKTexture::Initialize() {
 	RESULT r = R::OK;
@@ -42,17 +85,17 @@ RESULT VKTexture::Initialize() {
 	);
 	CNM(m_pVKImage, "Failed to create VKImage");
 
-	// Create a one-time command buffer / run it
-	// TODO: Convert into a more general pattern
-	auto pVKCommandBuffers = new VKCommandBuffers(m_pVKCommandPool);
-	CNM(pVKCommandBuffers, "Failed to make a command buffer object");
-	CRM(pVKCommandBuffers->ProtoInitialize());
+	// Transition the image layout
+	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), "Failed to transition image layout");
+	
+	// Copy staging buffer to image
+	CRM(CopyStagingBufferToImage(), "Failed to copy staging buffer to image");
+	
 
-
-	// what now
-
-	//vkDestroyBuffer(m_vkLogicalDevice, m_vkStagingBuffer, nullptr);
-	//vkFreeMemory(m_vkLogicalDevice, m_vkStagingBufferDeviceMemory, nullptr);
+	vkDestroyBuffer(m_vkLogicalDevice, m_vkStagingBuffer, nullptr);
+	vkFreeMemory(m_vkLogicalDevice, m_vkStagingBufferDeviceMemory, nullptr);
 
 Error:
 	return r;

@@ -33,6 +33,8 @@ private:
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
+	RESULT CopyStagingBufferToImage();
+
 public:
 	virtual ~VKTexture() override;
 	static EPRef<VKTexture> InternalMake(VkPhysicalDevice, VkDevice, const EPRef<VKCommandPool>&, const EPString<char>&);

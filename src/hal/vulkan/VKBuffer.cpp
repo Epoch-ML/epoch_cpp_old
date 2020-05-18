@@ -3,6 +3,7 @@
 #include "VKDescriptorSet.h"
 
 #include "hal/image.h"
+#include "hal/STBImage.h"
 
 RESULT VKBuffer::CreateBuffer(
 	VkPhysicalDevice vkPhysicalDevice,
@@ -92,7 +93,7 @@ static RESULT CopyDataToBuffer(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
 	VkDeviceMemory& r_vkDeviceMemory,
-	const EPRef<image>& pImage)
+	const EPRef<STBImage>& pImage)	// TODO: 
 {
 	return VKBuffer::CopyDataToBuffer(
 		vkPhysicalDevice,

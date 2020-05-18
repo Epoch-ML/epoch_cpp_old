@@ -17,6 +17,8 @@
 #include "core/types/EPFactoryMethod.h"
 #include "core/types/EPString.h"
 
+class VKCommandPool;
+
 class VKImage :
 	public image,
 	public EPFactoryMethod<VKImage, 
@@ -56,6 +58,14 @@ public:
 		VkImageUsageFlags,
 		VkMemoryPropertyFlags
 	);
+
+	RESULT TranisitionImageLayout(
+		const EPRef<VKCommandPool>& pVKCommandPool, 
+		VkImageLayout vkOldImagelayout, 
+		VkImageLayout vkNewImageLayout
+	);
+
+	VkImage GetVKImageHandle() { return m_vkTextureImage; }
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;

@@ -21,6 +21,7 @@
 #include "VulkanUtilities.h"
 
 class image;
+class STBImage;	// TODO:
 
 class VKBuffer :
 	public buffer,
@@ -86,7 +87,7 @@ public:
 		VkPhysicalDevice vkPhysicalDevice,
 		VkDevice vkLogicalDevice,
 		VkDeviceMemory& r_vkDeviceMemory,
-		const EPRef<image>& pImage);
+		const EPRef<STBImage>& pImage);	// TODO: 
 
 	static RESULT CopyBuffer(
 		VkDevice vkLogicalDevice,

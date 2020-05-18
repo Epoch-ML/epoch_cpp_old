@@ -36,8 +36,6 @@ public:
 	virtual RESULT Initialize() = 0;
 	virtual RESULT Kill() { return R::NOT_IMPLEMENTED; }
 
-	static EPRef<image> InternalMake(const EPString<char>& strImageFilename);
-
 	size_t byte_size() const {
 		return m_width * m_height * m_channels * m_bytedepth;
 	}

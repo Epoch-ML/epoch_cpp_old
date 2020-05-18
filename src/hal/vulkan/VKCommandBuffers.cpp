@@ -1,7 +1,5 @@
 #include "VKCommandBuffers.h"
 
-#include "VulkanUtilities.h"
-
 #include "VKCommandPool.h"
 
 #include "VKVertex.h"
@@ -34,12 +32,13 @@ VKCommandBuffers::~VKCommandBuffers() {
 }
 
 // TODO: This should be the way we do stuff in the future
-RESULT VKCommandBuffers::ProtoInitialize(uint32_t numBuffers = 1) {
+RESULT VKCommandBuffers::ProtoInitialize(uint32_t numBuffers) {
 	RESULT r = R::OK;
 
 	CN(m_pVKCommandPool);
 
 	m_vkCommandBuffers = EPVector<VkCommandBuffer>(numBuffers, true);
+	m_vkCommandBufferStates = EPVector<CommandBufferState>(numBuffers, CommandBufferState::UNINITIALIZED);
 
 	// Set up queue families
 	m_vkQueueFamilies = FindQueueFamilies(
@@ -56,6 +55,8 @@ RESULT VKCommandBuffers::ProtoInitialize(uint32_t numBuffers = 1) {
 
 	CVKRM(vkAllocateCommandBuffers(m_pVKCommandPool->GetVKLogicalDeviceHandle(), &m_vkCommandBufferAllocateInfo, m_vkCommandBuffers.data()),
 		"Failed to allocate command buffers");
+
+	m_vkCommandBufferStates.SetAll(CommandBufferState::INITIALIZED);
 
 Error:
 	return r;
@@ -65,8 +66,11 @@ RESULT VKCommandBuffers::Initialize() {
 	RESULT r = R::OK;
 
 	CN(m_pVKCommandPool);
-	
-	m_vkCommandBuffers = EPVector<VkCommandBuffer>(m_pVKCommandPool->GetVKSwapchain()->GetFramebufferCount(), true);
+
+	size_t numBuffers = m_pVKCommandPool->GetVKSwapchain()->GetFramebufferCount();
+
+	m_vkCommandBuffers = EPVector<VkCommandBuffer>(numBuffers, true);
+	m_vkCommandBufferStates = EPVector<CommandBufferState>(numBuffers, CommandBufferState::UNINITIALIZED);
 
 	// Set up queue families
 	m_vkQueueFamilies = FindQueueFamilies(
@@ -83,6 +87,8 @@ RESULT VKCommandBuffers::Initialize() {
 
 	CVKRM(vkAllocateCommandBuffers(m_pVKCommandPool->GetVKLogicalDeviceHandle(), &m_vkCommandBufferAllocateInfo, m_vkCommandBuffers.data()),
 		"Failed to allocate command buffers");
+
+	m_vkCommandBufferStates.SetAll(CommandBufferState::INITIALIZED);
 
 	CRM(RecordCommandBuffers(), "Failed to record command buffers");
 
@@ -98,7 +104,8 @@ RESULT VKCommandBuffers::Kill() {
 	vkFreeCommandBuffers(
 		m_pVKCommandPool->GetVKLogicalDeviceHandle(), 
 		m_pVKCommandPool->GetVKCommandPoolHandle(), 
-		m_vkCommandBuffers.size(), m_vkCommandBuffers.data());
+		static_cast<uint32_t>(m_vkCommandBuffers.size()), 
+		m_vkCommandBuffers.data());
 	m_vkCommandBuffers.clear();
 
 	m_pVKVertexBuffer = nullptr;
@@ -175,6 +182,8 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		CVKRM(vkBeginCommandBuffer(m_vkCommandBuffers[i], &vkCommandBufferBeginInfo),
 			"Failed to begin command buffer recording");
 
+		m_vkCommandBufferStates[i] = RECORDING;
+
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = m_pVKCommandPool->GetVKPipeline()->GetVKRenderPassHandle();
@@ -206,16 +215,21 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 
 		CVKRM(vkEndCommandBuffer(m_vkCommandBuffers[i]),
 			"Failed to end command buffer recording");
+
+		m_vkCommandBufferStates[i] = READY;
 	}
 
 Error:
 	return r;
 }
 
-RESULT VKCommandBuffers::Begin(uint32_t index = 0) {
+RESULT VKCommandBuffers::Begin(uint32_t index) {
 	RESULT r = R::OK;
 
 	VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
+
+	CBM(m_vkCommandBufferStates[index] == CommandBufferState::INITIALIZED, 
+		"Can't start recording buffer that's already recording");
 
 	vkCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	vkCommandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;	// TODO: prob not general
@@ -223,15 +237,22 @@ RESULT VKCommandBuffers::Begin(uint32_t index = 0) {
 	CVKRM(vkBeginCommandBuffer(m_vkCommandBuffers[index], &vkCommandBufferBeginInfo),
 		"Failed to begin command buffer %d", index);
 
+	m_vkCommandBufferStates[index] = CommandBufferState::RECORDING;
+
 Error:
 	return r;
 }
 
-RESULT VKCommandBuffers::End(uint32_t index = 0) {
+RESULT VKCommandBuffers::End(uint32_t index) {
 	RESULT r = R::OK;
+
+	CBM(m_vkCommandBufferStates[index] == CommandBufferState::RECORDING,
+		"Can't end recording buffer that's not already recording");
 
 	CVKRM(vkEndCommandBuffer(m_vkCommandBuffers[index]),
 		"Failed to end command buffer %d", index);
+
+	m_vkCommandBufferStates[index] = CommandBufferState::READY;
 
 Error:
 	return r;
@@ -242,12 +263,17 @@ RESULT VKCommandBuffers::Submit(VkQueue vkQueue) {
 
 	VkSubmitInfo vkSubmitInfo = {};
 
+	CBM(m_vkCommandBufferStates.CompareAll(CommandBufferState::READY),
+		"Can't submit a buffer that's not ready");
+
 	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	vkSubmitInfo.commandBufferCount = (uint32_t)m_vkCommandBuffers.size();
 	vkSubmitInfo.pCommandBuffers = m_vkCommandBuffers.data();
 
 	vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(vkQueue);
+
+	m_vkCommandBufferStates.SetAll(CommandBufferState::SUBMITTED);
 
 Error:
 	return r;
@@ -258,12 +284,77 @@ RESULT VKCommandBuffers::Submit(VkQueue vkQueue, uint32_t index) {
 
 	VkSubmitInfo vkSubmitInfo = {};
 
+	CBM(m_vkCommandBufferStates[index] == CommandBufferState::READY,
+		"Can't submit a buffer that's not ready");
+
 	vkSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	vkSubmitInfo.commandBufferCount = 1;
 	vkSubmitInfo.pCommandBuffers = &m_vkCommandBuffers[index];
 
 	vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(vkQueue);
+
+	m_vkCommandBufferStates[index] = CommandBufferState::SUBMITTED;
+
+Error:
+	return r;
+}
+
+RESULT VKCommandBuffers::CopyBuffer(uint32_t index, VkBuffer vkSrcBuffer, VkBuffer vkDstBuffer, VkDeviceSize vkSize) {
+	RESULT r = R::OK;
+
+	VkBufferCopy vkBufferCopy = {};
+
+	// This requires a recording buffer broh
+	CBM(m_vkCommandBufferStates[index] == CommandBufferState::RECORDING,
+		"Command buffer %d not recording", index);
+
+	vkBufferCopy.size = vkSize;
+
+	vkCmdCopyBuffer(m_vkCommandBuffers[index], vkSrcBuffer, vkDstBuffer, 1, &vkBufferCopy);
+
+Error:
+	return r;
+}
+
+RESULT VKCommandBuffers::PipelineBarrier(uint32_t index, const VkImageMemoryBarrier &vkImageMemoryBarrier) {
+	RESULT r = R::OK;
+
+	CBM(m_vkCommandBufferStates[index] == CommandBufferState::RECORDING,
+		"Command buffer %d not recording", index);
+
+	vkCmdPipelineBarrier(
+		m_vkCommandBuffers[index],
+		0, // TODO 
+		0, // TODO 
+		0,
+		0, nullptr,
+		0, nullptr,
+		1, 
+		&vkImageMemoryBarrier
+	);
+
+Error:
+	return r;
+}
+
+RESULT VKCommandBuffers::CopyBufferToImage(
+	uint32_t index,
+	VkBuffer vkSrcBuffer, VkImage vkDstImage,
+	const VkBufferImageCopy &vkBufferImageCopy)
+{
+	RESULT r = R::OK;
+
+	CBM(m_vkCommandBufferStates[index] == CommandBufferState::RECORDING,
+		"Command buffer %d not recording", index);
+
+	vkCmdCopyBufferToImage(
+		m_vkCommandBuffers[index],
+		vkSrcBuffer,
+		vkDstImage,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,		// Expand function to automatically figure this out
+		1,
+		&vkBufferImageCopy);
 
 Error:
 	return r;
