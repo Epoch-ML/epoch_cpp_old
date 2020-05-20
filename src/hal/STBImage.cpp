@@ -16,6 +16,9 @@ RESULT STBImage::Initialize() {
 		STBI_rgb_alpha
 	);
 
+	// STBI_rgb_alpha creates an alpha channel for us automagically 
+	m_channels = 4;
+
 	CNM(m_pPixelData, "Failed to load %s", strFilePath.c_str());
 
 	m_bytedepth = 1;

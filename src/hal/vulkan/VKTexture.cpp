@@ -95,10 +95,6 @@ RESULT VKTexture::Initialize() {
 	
 	// Copy staging buffer to image
 	CRM(CopyStagingBufferToImage(), "Failed to copy staging buffer to image");
-	
-
-	vkDestroyBuffer(m_vkLogicalDevice, m_vkStagingBuffer, nullptr);
-	vkFreeMemory(m_vkLogicalDevice, m_vkStagingBufferDeviceMemory, nullptr);
 
 Error:
 	return r;
@@ -110,6 +106,9 @@ RESULT VKTexture::Kill() {
 	CN(m_vkLogicalDevice);
 
 	m_pVKImage = nullptr;
+
+	vkDestroyBuffer(m_vkLogicalDevice, m_vkStagingBuffer, nullptr);
+	vkFreeMemory(m_vkLogicalDevice, m_vkStagingBufferDeviceMemory, nullptr);
 
 Error:
 	return r;

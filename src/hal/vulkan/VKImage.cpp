@@ -68,6 +68,10 @@ RESULT VKImage::Kill() {
 
 	CN(m_vkLogicalDevice);
 
+	// Free memory
+	vkDestroyImage(m_vkLogicalDevice, m_vkTextureImage, nullptr);
+	vkFreeMemory(m_vkLogicalDevice, m_vkTextureDeviceMemory, nullptr);
+
 Error:
 	return r;
 }

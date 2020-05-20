@@ -317,16 +317,41 @@ Error:
 	return r;
 }
 
-RESULT VKCommandBuffers::PipelineBarrier(uint32_t index, const VkImageMemoryBarrier &vkImageMemoryBarrier) {
+RESULT VKCommandBuffers::PipelineBarrier(uint32_t index, VkImageMemoryBarrier &vkImageMemoryBarrier) {
 	RESULT r = R::OK;
+
+	VkPipelineStageFlags vkPipelineSourceStageFlags;
+	VkPipelineStageFlags vkPipelineDestinationStageFlags;
 
 	CBM(m_vkCommandBufferStates[index] == CommandBufferState::RECORDING,
 		"Command buffer %d not recording", index);
 
+	if (vkImageMemoryBarrier.oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && 
+		vkImageMemoryBarrier.newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
+	{
+		vkImageMemoryBarrier.srcAccessMask = 0;
+		vkImageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+		vkPipelineSourceStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		vkPipelineDestinationStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	}
+	else if (vkImageMemoryBarrier.oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && 
+			 vkImageMemoryBarrier.newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
+	{
+		vkImageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		vkImageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		vkPipelineSourceStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		vkPipelineDestinationStageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+	else {
+		CBM(false, "unsupported layout transition!");
+	}
+
 	vkCmdPipelineBarrier(
 		m_vkCommandBuffers[index],
-		0, // TODO 
-		0, // TODO 
+		vkPipelineSourceStageFlags, 
+		vkPipelineDestinationStageFlags, 
 		0,
 		0, nullptr,
 		0, nullptr,

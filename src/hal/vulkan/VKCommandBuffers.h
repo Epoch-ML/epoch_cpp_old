@@ -58,7 +58,7 @@ public:
 	
 	// Commands
 	RESULT CopyBuffer(uint32_t index, VkBuffer vkSrcBuffer, VkBuffer vkDstBuffer, VkDeviceSize vkSize);
-	RESULT PipelineBarrier(uint32_t index, const VkImageMemoryBarrier &vkImageMemoryBarrier);
+	RESULT PipelineBarrier(uint32_t index, VkImageMemoryBarrier &vkImageMemoryBarrier);
 	RESULT CopyBufferToImage(uint32_t index, VkBuffer vkSrcBuffer, VkImage vkDstImage, const VkBufferImageCopy &vkBufferImageCopy);
 
 	RESULT Submit(VkQueue vkQueue);
