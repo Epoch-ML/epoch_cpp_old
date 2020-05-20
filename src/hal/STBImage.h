@@ -10,7 +10,8 @@
 #include "core/types/EPString.h"
 
 #include "image.h"
-#include "stb_image.h"
+
+typedef unsigned char stbi_uc;
 
 class STBImage : 
 	public image,

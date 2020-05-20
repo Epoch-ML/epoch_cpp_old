@@ -23,6 +23,7 @@ class VKCommandPool;
 class VKCommandBuffers;
 
 class VKVertexBuffer;
+class VKTexture;
 
 template<typename TValue, int dimension> class VKVertex;
 class VKBuffer;
@@ -102,6 +103,9 @@ private:
 // Vertex Buffer
 	RESULT InitializeVertexBuffer();
 
+// Texture
+	RESULT InitializeTexture();
+
 // Command Buffers
 	RESULT InitializeCommandBuffers();
 
@@ -167,6 +171,9 @@ private:
 
 // Vertex Buffer
 	EPRef<VKVertexBuffer> m_pVKVertexBuffer = nullptr;
+
+// Texture
+	EPRef<VKTexture> m_pVKTexture = nullptr;
 
 // Command pool
 	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;

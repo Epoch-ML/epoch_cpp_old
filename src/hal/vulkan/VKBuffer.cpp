@@ -89,7 +89,7 @@ Error:
 	return r;
 }
 
-static RESULT CopyDataToBuffer(
+RESULT VKBuffer::CopyDataToBuffer(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
 	VkDeviceMemory& r_vkDeviceMemory,

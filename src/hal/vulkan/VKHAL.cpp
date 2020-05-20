@@ -17,6 +17,7 @@
 #include "VKCommandPool.h"
 #include "VKCommandBuffers.h"
 #include "VKVertexBuffer.h"
+#include "VKTexture.h"
 
 #include "VKDescriptorSet.h"
 
@@ -612,6 +613,8 @@ RESULT VKHAL::InitializeSwapchain() {
 
 	CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
 
+	CRM(InitializeTexture(), "Failed to initialize texture");	// TODO: yea this
+
 	CRM(InitializeCommandBuffers(), "Failed to initialize command buffers");
 
 Error:
@@ -649,6 +652,24 @@ RESULT VKHAL::InitializePipeline() {
 
 	m_pVKPipeline = VKPipeline::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
 	CNM(m_pVKPipeline, "Failed to make vk pipeline");
+
+Error:
+	return r;
+}
+
+RESULT VKHAL::InitializeTexture() {
+	RESULT r = R::OK;
+
+	CNM(m_pVKCommandPool, "Vertex buffer needs valid command pool");
+
+	m_pVKTexture = VKTexture::make(
+		m_vkPhysicalDevice, 
+		m_vkLogicalDevice,
+		m_pVKCommandPool,
+		"wooden_crate.jpg"
+	);
+
+	CNM(m_pVKTexture, "Failed to create texture");
 
 Error:
 	return r;

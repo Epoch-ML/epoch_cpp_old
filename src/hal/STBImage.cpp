@@ -1,5 +1,8 @@
 #include "STBImage.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 RESULT STBImage::Initialize() {
 	RESULT r = R::OK;
 

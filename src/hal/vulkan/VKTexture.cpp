@@ -51,6 +51,9 @@ Error:
 RESULT VKTexture::Initialize() {
 	RESULT r = R::OK;
 
+	CRM(LoadImage(), "Failed to load image");
+	CNM(m_pImage, "Image failed to load");
+
 	// Load image into staging Buffer
 	CVKRM(VKBuffer::CreateBuffer(
 		m_vkPhysicalDevice,
