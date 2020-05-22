@@ -395,16 +395,23 @@ Error:
 
 // TODO: We might want to keep this data 
 bool VKHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
+	
 	VkPhysicalDeviceProperties vkPhysicalDeviceProperties;
 	VkPhysicalDeviceFeatures vkPhysicalDeviceFeatures;
 
+	// Device Properties
 	vkGetPhysicalDeviceProperties(vkPhysicalDevice, &vkPhysicalDeviceProperties);
-	vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
 
 	if (vkPhysicalDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 		return false;
 
+	// FEatures
+	vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
+
 	if (vkPhysicalDeviceFeatures.geometryShader == false) 
+		return false;
+
+	if (vkPhysicalDeviceFeatures.samplerAnisotropy == false)
 		return false;
 
 	auto queueFamilies = EnumerateVKPhysicalDeviceQueueFamilies(vkPhysicalDevice);

@@ -3,6 +3,7 @@
 #include "VKBuffer.h"
 #include "VKImage.h"
 #include "VKImageView.h"
+#include "VKSampler.h"
 
 #include "VKCommandPool.h"
 #include "VKCommandBuffers.h"
@@ -104,6 +105,10 @@ RESULT VKTexture::Initialize() {
 		m_pVKImage);
 	CNM(m_pVKImageView, "Failed to create VKImageView");
 
+	// Set up sampler
+	m_pVKSampler = VKSampler::make(m_vkPhysicalDevice, m_vkLogicalDevice);
+	CNM(m_pVKSampler, "Failed to create VKSampler");
+
 Error:
 	return r;
 }
@@ -113,6 +118,8 @@ RESULT VKTexture::Kill() {
 
 	CN(m_vkLogicalDevice);
 
+	m_pVKSampler = nullptr;
+	m_pVKImageView = nullptr;
 	m_pVKImage = nullptr;
 
 	vkDestroyBuffer(m_vkLogicalDevice, m_vkStagingBuffer, nullptr);

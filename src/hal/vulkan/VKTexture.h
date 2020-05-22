@@ -17,6 +17,7 @@
 
 class VKImage;
 class VKImageView;
+class VKSampler;
 class VKCommandPool;
 
 class VKTexture :
@@ -50,6 +51,7 @@ private:
 
 	EPRef<VKImage> m_pVKImage = nullptr;
 	EPRef<VKImageView> m_pVKImageView = nullptr;
+	EPRef<VKSampler> m_pVKSampler = nullptr;
 };
 
 #endif // ! VULKAN_COMMAND_POOL_H_
