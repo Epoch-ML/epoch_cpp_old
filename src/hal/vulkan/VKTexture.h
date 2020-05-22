@@ -16,6 +16,7 @@
 #include "core/types/EPString.h"
 
 class VKImage;
+class VKImageView;
 class VKCommandPool;
 
 class VKTexture :
@@ -48,6 +49,7 @@ private:
 	VkDeviceMemory m_vkStagingBufferDeviceMemory = nullptr;
 
 	EPRef<VKImage> m_pVKImage = nullptr;
+	EPRef<VKImageView> m_pVKImageView = nullptr;
 };
 
 #endif // ! VULKAN_COMMAND_POOL_H_

@@ -15,6 +15,8 @@
 
 class VKPipeline;
 class VKFramebuffer;
+class VKImage;
+class VKImageView;
 
 class VKSwapchain :
 	public swapchain
@@ -44,13 +46,11 @@ public:
 	VkFormat GetVKSwapchainImageFormat() { return m_vkSwapchainImageFormat; }
 	uint32_t GetSwapchainImageCount() const { return (uint32_t)m_swapchainImages.size(); }
 	
-	const VkImageView* GetSwapchainImageViews() { 
-		return m_swapchainImageViews.data(); 
-	}
+	//const VkImageView* GetSwapchainImageViews() { 
+	//	return m_swapchainImageViews.data(); 
+	//}
 
-	const VkImageView* GetSwapchainImageView(uint32_t index) {
-		return &(m_swapchainImageViews[index]);
-	}
+	const VkImageView* GetSwapchainImageView(uint32_t index);
 
 	const VkFramebuffer GetSwapchainFramebuffers(uint32_t i) const;
 
@@ -104,8 +104,12 @@ private:
 
 	uint32_t m_swapchainImageCount = 0;
 	VkFormat m_vkSwapchainImageFormat;
+
+	// TODO: 
 	EPVector<VkImage> m_swapchainImages;
-	EPVector<VkImageView> m_swapchainImageViews;
+	//EPVector<VkImageView> m_swapchainImageViews;
+	//EPVector<EPRef<VKImage>> m_swapchainImages;
+	EPVector<EPRef<VKImageView>> m_swapchainImageViews;
 
 
 // Framebuffers

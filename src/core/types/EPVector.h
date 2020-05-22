@@ -337,6 +337,20 @@ public:
 		}
 	}
 
+	inline void destroy(bool fDeallocate = true) {
+		for (size_t i = 0; i < m_pBuffer_c; i++) {
+			if (typeid(TStorage) == typeid(EPRef)) {
+				m_pBuffer[i] = nullptr;
+			}
+			else {
+				(m_pBuffer[i]).~TStorage();
+				m_pBuffer[i] = nullptr;
+			}
+		}
+
+		clear(fDeallocate);
+	}
+
 private:
 	inline RESULT ShiftRight() noexcept  {
 		if (m_pBuffer_c == m_pBuffer_n) {

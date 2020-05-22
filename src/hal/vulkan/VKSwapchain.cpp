@@ -9,6 +9,9 @@
 
 #include "VKDescriptorSet.h"
 
+#include "VKImage.h"
+#include "VKImageView.h"
+
 RESULT VKSwapchain::Initialize() {
 	RESULT r = R::OK;
 
@@ -256,30 +259,42 @@ RESULT VKSwapchain::CreateSwapchain() {
 	m_vkSwapchainImageFormat = m_vkSelectedSurfaceFormat.format;
 
 	// Set up the swapchain image views
-	m_swapchainImageViews = EPVector<VkImageView>(m_swapchainImageCount, true);
+	// m_swapchainImageViews = EPVector<VkImageView>(m_swapchainImageCount, true);
 	for (size_t i = 0; i < m_swapchainImages.size(); i++) {
-		VkImageViewCreateInfo vkImageViewCreateInfo{};
-		vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		vkImageViewCreateInfo.image = m_swapchainImages[i];
-		vkImageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		vkImageViewCreateInfo.format = m_vkSwapchainImageFormat;
-		vkImageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		vkImageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		vkImageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		vkImageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		vkImageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		vkImageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-		vkImageViewCreateInfo.subresourceRange.levelCount = 1;
-		vkImageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-		vkImageViewCreateInfo.subresourceRange.layerCount = 1;
-
-		CVKRM(vkCreateImageView(m_vkLogicalDevice, &vkImageViewCreateInfo, nullptr, &m_swapchainImageViews[i]),
-			"Failed to create swapchain image view %zu", i);
-		CNM(m_swapchainImageViews[i], "Failed to create image view %zu", i);
+		//VkImageViewCreateInfo vkImageViewCreateInfo = {};
+		//vkImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		//vkImageViewCreateInfo.image = m_swapchainImages[i];
+		//vkImageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		//vkImageViewCreateInfo.format = m_vkSwapchainImageFormat;
+		//vkImageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		//vkImageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		//vkImageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		//vkImageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		//vkImageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		//vkImageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+		//vkImageViewCreateInfo.subresourceRange.levelCount = 1;
+		//vkImageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+		//vkImageViewCreateInfo.subresourceRange.layerCount = 1;
+		//
+		//CVKRM(vkCreateImageView(m_vkLogicalDevice, &vkImageViewCreateInfo, nullptr, &m_swapchainImageViews[i]),
+		//	"Failed to create swapchain image view %zu", i);
+		//
+		//CNM(m_swapchainImageViews[i], "Failed to create image view %zu", i);
+		
+		EPRef<VKImageView> pVKImageView = new VKImageView(m_vkPhysicalDevice, m_vkLogicalDevice);
+		CNM(pVKImageView, "Failed to create swapchain image view %zu", i);
+		CRM(pVKImageView->Initialize(m_swapchainImages[i], m_vkSwapchainImageFormat), 
+			"Failed to initialize swapchain image view %zu", i);
+		
+		m_swapchainImageViews.PushBack(pVKImageView);
 	}
 
 Error:
 	return r;
+}
+
+const VkImageView* VKSwapchain::GetSwapchainImageView(uint32_t index) {
+	return m_swapchainImageViews[index]->GetVKImageViewHandle();
 }
 
 RESULT VKSwapchain::KillFramebuffers() {
@@ -307,10 +322,11 @@ RESULT VKSwapchain::Kill() {
 
 	// Framebuffers done elsewhere 
 
-	for (auto imageView : m_swapchainImageViews) {
-		vkDestroyImageView(m_vkLogicalDevice, imageView, nullptr);
-	}
-	
+	//for (auto imageView : m_swapchainImageViews) {
+	//	vkDestroyImageView(m_vkLogicalDevice, imageView, nullptr);
+	//}
+	m_swapchainImageViews.destroy(true);
+
 	vkDestroySwapchainKHR(m_vkLogicalDevice, m_vkSwapchain, nullptr);
 	m_vkSwapchain = nullptr;
 

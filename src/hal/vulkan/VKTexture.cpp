@@ -2,6 +2,7 @@
 
 #include "VKBuffer.h"
 #include "VKImage.h"
+#include "VKImageView.h"
 
 #include "VKCommandPool.h"
 #include "VKCommandBuffers.h"
@@ -95,6 +96,13 @@ RESULT VKTexture::Initialize() {
 	
 	// Copy staging buffer to image
 	CRM(CopyStagingBufferToImage(), "Failed to copy staging buffer to image");
+
+	// Set up the image view
+	m_pVKImageView = VKImageView::make(
+		m_vkPhysicalDevice, 
+		m_vkLogicalDevice, 
+		m_pVKImage);
+	CNM(m_pVKImageView, "Failed to create VKImageView");
 
 Error:
 	return r;

@@ -22,28 +22,44 @@ class VKCommandPool;
 
 class VKImageView :
 	public VKObj,
-	public EPFactoryMethod<VKImageView, VkPhysicalDevice, VkDevice>
+	public EPFactoryMethod<VKImageView, VkPhysicalDevice, VkDevice, const EPRef<VKImage>&>
 {
 private:
 	VKImageView(
 		VkPhysicalDevice vkPhysicalDevice,
-		VkDevice vkLogicalDevice
+		VkDevice vkLogicalDevice,
+		const EPRef<VKImage>& pVKImage
 	);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
 public:
+	VKImageView(
+		VkPhysicalDevice vkPhysicalDevice,
+		VkDevice vkLogicalDevice
+	);
+
+	RESULT Initialize(VkImage vkImage, VkFormat vkFormat);
+
+	const VkImageView *GetVKImageViewHandle() {
+		return &m_vkImageView;
+	}
+
+public:
 	virtual ~VKImageView() override;
 
 	static EPRef<VKImageView> InternalMake(
 		VkPhysicalDevice,
-		VkDevice
+		VkDevice,
+		const EPRef<VKImage>&
 	);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
+
+	EPRef<VKImage> m_pVKImage = nullptr;
 
 	VkImageView m_vkImageView = nullptr;
 	
