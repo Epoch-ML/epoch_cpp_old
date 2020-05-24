@@ -18,6 +18,7 @@ class VKShader;
 class VKSwapchain;
 template<typename TValue, int dimension> class VKVertex;
 class VKBuffer;
+class VKTexture;
 class VKUniformBuffer;
 class VKDescriptorPool;
 class VKDescriptorSet;
@@ -50,7 +51,7 @@ public:
 		return m_vkPipelineLayout;
 	}
 
-	RESULT InitializeDescriptors();
+	RESULT InitializeDescriptors(const EPRef<VKTexture>& pVKTexture);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
@@ -86,7 +87,8 @@ private:
 	VkPipelineLayout m_vkPipelineLayout = nullptr;
 	
 	// Uniforms
-	VkDescriptorSetLayout m_vkDescriptorSetLayoutUniformBufferObject = nullptr;
+	VkDescriptorSetLayout m_vkDescriptorSetLayout = nullptr;
+
 	EPRef<VKUniformBuffer> m_pVKUniformBuffer = nullptr;
 	EPRef<VKDescriptorPool> m_pVKDescriptorPool = nullptr;
 	EPRef<VKDescriptorSet> m_pVKDescriptorSet = nullptr;

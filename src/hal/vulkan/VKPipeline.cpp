@@ -5,6 +5,7 @@
 #include "VKShader.h"
 #include "VKSwapchain.h"
 #include "VKVertex.h"
+#include "VKTexture.h"
 #include "VKBuffer.h"
 #include "VKUniformBuffer.h"
 #include "VKDescriptorPool.h"
@@ -14,10 +15,15 @@
 
 #include "core/types/EPArray.h"
 
-RESULT VKPipeline::InitializeDescriptors() {
+RESULT VKPipeline::InitializeDescriptors(const EPRef<VKTexture>& pVKTexture) {
 	RESULT r = R::OK;;
 
-	// TODO: 
+	// Descriptor Set
+	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(
+		m_vkDescriptorSetLayout,
+		m_pVKUniformBuffer
+	);
+	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
 
 Error:
 	return r;
@@ -75,7 +81,7 @@ RESULT VKPipeline::Initialize() {
 	// create info
 	// Uniform 
 	
-	vkDescriptorSetLayoutBindings= EPArray<VkDescriptorSetLayoutBinding, 2>({
+	vkDescriptorSetLayoutBindings = EPArray<VkDescriptorSetLayoutBinding, 2>({
 		vkDescriptorLayoutBindingUniformBufferObject, 
 		vkDescriptorLayoutBindingSampler 
 	});
@@ -101,15 +107,8 @@ RESULT VKPipeline::Initialize() {
 		m_vkLogicalDevice, 
 		&vkDescriptorSetLayoutCreateInfo, 
 		nullptr, 
-		&m_vkDescriptorSetLayoutUniformBufferObject),
+		&m_vkDescriptorSetLayout),
 		"Failed to create descriptor set layout");
-
-	// Descriptor Set
-	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(
-		m_vkDescriptorSetLayoutUniformBufferObject, 
-		m_pVKUniformBuffer
-	);
-	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
 
 	// Set up the vertex input description (TODO: generalize this)
 	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 4>::GetVKVertexBindingDescription();
@@ -223,7 +222,7 @@ RESULT VKPipeline::Initialize() {
 	
 	// TODO: automate
 	m_vkPipelineLayoutCreateInfo.setLayoutCount = 1; 
-	m_vkPipelineLayoutCreateInfo.pSetLayouts = &m_vkDescriptorSetLayoutUniformBufferObject; 
+	m_vkPipelineLayoutCreateInfo.pSetLayouts = &m_vkDescriptorSetLayout; 
 
 	// TODO: automate and use
 	m_vkPipelineLayoutCreateInfo.pushConstantRangeCount = 0; // Optional
@@ -339,9 +338,9 @@ RESULT VKPipeline::Kill() {
 
 	vkDestroyRenderPass(m_vkLogicalDevice, m_vkRenderPass, nullptr);
 
-	CN(m_vkDescriptorSetLayoutUniformBufferObject)
+	CN(m_vkDescriptorSetLayout)
 
-	vkDestroyDescriptorSetLayout(m_vkLogicalDevice, m_vkDescriptorSetLayoutUniformBufferObject, nullptr);
+	vkDestroyDescriptorSetLayout(m_vkLogicalDevice, m_vkDescriptorSetLayout, nullptr);
 
 Error:
 	return r;

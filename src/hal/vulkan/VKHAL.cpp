@@ -624,10 +624,11 @@ RESULT VKHAL::InitializeSwapchain() {
 
 	CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
 
-	CRM(InitializeCommandBuffers(), "Failed to initialize command buffers");
-
-	CRM(m_pVKPipeline->InitializeDescriptors(), 
+	CRM(m_pVKPipeline->InitializeDescriptors(m_pVKTexture), 
 		"Failed to initialize / update descriptors");
+
+	// Command buffers AFTER descriptors (makes sense)
+	CRM(InitializeCommandBuffers(), "Failed to initialize command buffers");
 
 Error:
 	return r;
