@@ -614,14 +614,15 @@ RESULT VKHAL::InitializeSwapchain() {
 	// Initialize Command Pool first
 	CRM(InitializeCommandPool(), "Failed to initialize command pool");
 
+	// Texture before pipeline?
+	CRM(InitializeTexture(), "Failed to initialize texture");	// TODO: yea this
+	
 	CRM(InitializePipeline(), "Failed to initialize pipeline");
 
 	// TODO: One of these things is not like the others
 	CRM(m_pVKSwapchain->InitializeFramebuffers(m_pVKPipeline), "Failed to initialize framebuffers");
 
 	CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
-
-	CRM(InitializeTexture(), "Failed to initialize texture");	// TODO: yea this
 
 	CRM(InitializeCommandBuffers(), "Failed to initialize command buffers");
 
