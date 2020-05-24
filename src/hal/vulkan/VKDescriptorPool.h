@@ -14,6 +14,7 @@
 #include "core/types/EPRef.h"
 #include "core/types/EPFactoryMethod.h"
 #include "core/types/EPString.h"
+#include "core/types/EPArray.h"
 
 #include "VKSwapchain.h"
 #include "VKPipeline.h"
@@ -59,7 +60,8 @@ private:
 	
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 
-	VkDescriptorPoolSize m_vkDescriptorPoolSize = {};
+	//VkDescriptorPoolSize m_vkDescriptorPoolSize = {};
+	EPArray<VkDescriptorPoolSize, 2> m_vkDescriptorPoolSizes;
 	VkDescriptorPoolCreateInfo m_vkDescriptorPoolCreateInfo = {};
 
 	VkDescriptorPool m_vkDescriptorPool = nullptr;

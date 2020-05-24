@@ -68,12 +68,14 @@ RESULT VKPipeline::Initialize() {
 	
 	vkDescriptorSetLayoutBindings= EPArray<VkDescriptorSetLayoutBinding, 2>({
 		vkDescriptorLayoutBindingUniformBufferObject, 
-		vkDescriptorLayoutBindingSampler }
-	);
+		vkDescriptorLayoutBindingSampler 
+	});
 
 	vkDescriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	vkDescriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(vkDescriptorSetLayoutBindings.size());
-	vkDescriptorSetLayoutCreateInfo.pBindings = vkDescriptorSetLayoutBindings.data;
+	//vkDescriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(vkDescriptorSetLayoutBindings.size());
+	//vkDescriptorSetLayoutCreateInfo.pBindings = vkDescriptorSetLayoutBindings.data;
+	vkDescriptorSetLayoutCreateInfo.bindingCount = 1;
+	vkDescriptorSetLayoutCreateInfo.pBindings = &vkDescriptorLayoutBindingUniformBufferObject;
 
 	// Uniform Buffer
 
@@ -94,10 +96,11 @@ RESULT VKPipeline::Initialize() {
 		"Failed to create descriptor set layout");
 
 	// Descriptor Set
-	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(m_vkDescriptorSetLayoutUniformBufferObject, m_pVKUniformBuffer);
+	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(
+		m_vkDescriptorSetLayoutUniformBufferObject, 
+		m_pVKUniformBuffer
+	);
 	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
-
-	
 
 	// Set up the vertex input description (TODO: generalize this)
 	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 4>::GetVKVertexBindingDescription();

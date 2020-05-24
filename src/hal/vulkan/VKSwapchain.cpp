@@ -274,7 +274,7 @@ Error:
 	return r;
 }
 
-const VkImageView* VKSwapchain::GetSwapchainImageView(uint32_t index) {
+const VkImageView& VKSwapchain::GetSwapchainImageView(uint32_t index) { 
 	return m_swapchainImageViews[index]->GetVKImageViewHandle();
 }
 

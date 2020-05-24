@@ -50,7 +50,7 @@ public:
 	//	return m_swapchainImageViews.data(); 
 	//}
 
-	const VkImageView* GetSwapchainImageView(uint32_t index);
+	const VkImageView& GetSwapchainImageView(uint32_t index);
 
 	const VkFramebuffer GetSwapchainFramebuffers(uint32_t i) const;
 

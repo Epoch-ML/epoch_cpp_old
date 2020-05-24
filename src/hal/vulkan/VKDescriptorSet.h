@@ -17,9 +17,12 @@
 
 #include "VKSwapchain.h"
 #include "VKPipeline.h"
-#include "VKUniformBuffer.h"
 
 class VKDescriptorPool;
+
+class VKUniformBuffer;
+class VKImageView;
+class VKSampler;
 
 // TODO: 
 // - layout(set = 0, binding = 0) uniform UniformBufferObject { ... }
@@ -32,6 +35,8 @@ class VKDescriptorSet :
 	VkDevice,
 	const EPRef<VKDescriptorPool>&,
 	const EPRef<VKUniformBuffer>&,
+	//const EPRef<VKImageView>&,
+	//const EPRef<VKSampler>&,
 	VkDescriptorSetLayout>
 {
 private:
@@ -40,6 +45,8 @@ private:
 		VkDevice vkLogicalDevice,
 		const EPRef<VKDescriptorPool>& pVKDescriptorPool,
 		const EPRef<VKUniformBuffer>& pVKUniformBuffer,
+		//const EPRef<VKImageView>& pVKImageView,
+		//const EPRef<VKSampler>& pVKSampler,
 		VkDescriptorSetLayout vkDescriptorSetLayout
 	);
 
@@ -55,6 +62,8 @@ public:
 		VkDevice,
 		const EPRef<VKDescriptorPool>&,
 		const EPRef<VKUniformBuffer>&,
+		//const EPRef<VKImageView>&,
+		//const EPRef<VKSampler>&,
 		VkDescriptorSetLayout);
 
 	RESULT Bind(VkCommandBuffer vkCommandBuffer, VkPipelineLayout vkPipelineLayout, uint32_t index);
@@ -64,7 +73,11 @@ private:
 	VkDevice m_vkLogicalDevice = nullptr;
 
 	EPRef<VKDescriptorPool> m_pVKDescriptorPool = nullptr;
-	EPRef<VKUniformBuffer> m_pVKUniformBuffer = nullptr;	// TODO: this is not general
+
+	// TODO: this is not general
+	EPRef<VKUniformBuffer> m_pVKUniformBuffer = nullptr;	
+	//EPRef<VKImageView> m_pVKImageView = nullptr;
+	//EPRef<VKSampler> m_pVKSampler = nullptr;
 
 	VkDescriptorSetAllocateInfo m_vkDescriptorSetAllocateInfo = {};
 	EPVector<VkDescriptorSetLayout> m_vkDescriptorSetLayouts;

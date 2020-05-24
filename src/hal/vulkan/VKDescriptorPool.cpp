@@ -10,12 +10,20 @@ RESULT VKDescriptorPool::Initialize() {
 	CNM(m_vkLogicalDevice, "Cannot initialize command pool without valid logical device");
 	CNM(m_pVKSwapchain, "Cannot initialize command pool without valid swapchain");
 
-	m_vkDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	m_vkDescriptorPoolSize.descriptorCount = static_cast<uint32_t>(m_pVKSwapchain->GetSwapchainImageCount());
+	// TODO: generalize this... 
+	m_vkDescriptorPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	m_vkDescriptorPoolSizes[0].descriptorCount = static_cast<uint32_t>(m_pVKSwapchain->GetSwapchainImageCount());
+
+	//m_vkDescriptorPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	//m_vkDescriptorPoolSizes[1].descriptorCount = static_cast<uint32_t>(m_pVKSwapchain->GetSwapchainImageCount());
 
 	m_vkDescriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	//m_vkDescriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(m_vkDescriptorPoolSizes.size());
+	//m_vkDescriptorPoolCreateInfo.pPoolSizes = m_vkDescriptorPoolSizes.data;
+
 	m_vkDescriptorPoolCreateInfo.poolSizeCount = 1;
-	m_vkDescriptorPoolCreateInfo.pPoolSizes = &m_vkDescriptorPoolSize;
+	m_vkDescriptorPoolCreateInfo.pPoolSizes = &m_vkDescriptorPoolSizes.data[0];
+
 	m_vkDescriptorPoolCreateInfo.maxSets = static_cast<uint32_t>(m_pVKSwapchain->GetSwapchainImageCount());
 
 	CVKRM(vkCreateDescriptorPool(m_vkLogicalDevice, &m_vkDescriptorPoolCreateInfo, nullptr, &m_vkDescriptorPool),

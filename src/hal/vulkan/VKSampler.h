@@ -30,6 +30,8 @@ public:
 
 	static EPRef<VKSampler> InternalMake(VkPhysicalDevice, VkDevice);
 
+	const VkSampler GetVKSamplerHandle() { return m_vkSampler; }
+
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;

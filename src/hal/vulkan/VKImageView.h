@@ -42,9 +42,7 @@ public:
 
 	RESULT Initialize(VkImage vkImage, VkFormat vkFormat);
 
-	const VkImageView *GetVKImageViewHandle() {
-		return &m_vkImageView;
-	}
+	const VkImageView& GetVKImageViewHandle() { return m_vkImageView; }
 
 public:
 	virtual ~VKImageView() override;
