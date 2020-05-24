@@ -27,18 +27,14 @@ class VKCommandPool :
 		VkPhysicalDevice, 
 		VkDevice, 
 		VkSurfaceKHR, 
-		VkQueue,
-		const EPRef<VKPipeline>&, 
-		const EPRef<VKSwapchain>&>
+		VkQueue>
 {
 private:
 	VKCommandPool(
 		VkPhysicalDevice vkPhysicalDevice,
 		VkDevice vkLogicalDevice,
 		VkSurfaceKHR vkSurface,
-		VkQueue vkQueue,
-		const EPRef<VKPipeline>& pVKPipeline,
-		const EPRef<VKSwapchain>& pVKSwapchain
+		VkQueue vkQueue
 	);
 
 	virtual RESULT Initialize() override;
@@ -53,27 +49,23 @@ public:
 	VkSurfaceKHR GetVKSurfaceHandle() { return m_vkSurface; }
 	VkQueue GetVKQueueHandle() { return m_vkQueue; }
 
-	const EPRef<VKSwapchain>& GetVKSwapchain() const { return m_pVKSwapchain; }
-	const EPRef<VKPipeline>& GetVKPipeline() const { return m_pVKPipeline; }
-
 	static EPRef<VKCommandPool> InternalMake(
 		VkPhysicalDevice, 
 		VkDevice, 
 		VkSurfaceKHR, 
-		VkQueue,
-		const EPRef<VKPipeline>&, 
-		const EPRef<VKSwapchain>&);
+		VkQueue);
 
-	EPRef<VKCommandBuffers> MakeVertexDescriptorCommandBuffers(const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
+	EPRef<VKCommandBuffers> MakeVertexDescriptorCommandBuffers(
+		const EPRef<VKPipeline>&,
+		const EPRef<VKSwapchain>&,
+		const EPRef<VKVertexBuffer>&, 
+		const EPRef<VKDescriptorSet>&);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
 	VkSurfaceKHR m_vkSurface = nullptr;
 	VkQueue m_vkQueue = nullptr;
-
-	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
-	EPRef<VKPipeline> m_pVKPipeline = nullptr;
 
 	VkCommandPoolCreateInfo m_vkCommandPoolCreateInfo = {};
 	VkCommandPool m_vkCommandPool = nullptr;

@@ -17,6 +17,8 @@
 
 #include "VulkanUtilities.h"
 
+class VKPipeline;
+class VKSwapchain;
 class VKCommandPool;
 class VKBuffer;
 class VKVertexBuffer;
@@ -28,7 +30,9 @@ class VKCommandBuffers :
 	public EPFactoryMethod<VKCommandBuffers, 
 		const EPRef<VKCommandPool>&,
 		const EPRef<VKVertexBuffer>&,
-		const EPRef<VKDescriptorSet>&
+		const EPRef<VKDescriptorSet>&,
+		const EPRef<VKPipeline>&,
+		const EPRef<VKSwapchain>&
 	>
 {
 public:
@@ -42,8 +46,14 @@ public:
 
 public:
 	VKCommandBuffers(const EPRef<VKCommandPool>&);
+
 private:
-	VKCommandBuffers(const EPRef<VKCommandPool>&, const EPRef<VKVertexBuffer>&, const EPRef<VKDescriptorSet>&);
+	VKCommandBuffers(
+		const EPRef<VKCommandPool>&, 
+		const EPRef<VKVertexBuffer>&, 
+		const EPRef<VKDescriptorSet>&,
+		const EPRef<VKPipeline>&,
+		const EPRef<VKSwapchain>&);
 
 
 	virtual RESULT Initialize() override;
@@ -70,7 +80,9 @@ public:
 	static EPRef<VKCommandBuffers> InternalMake(
 		const EPRef<VKCommandPool>&, 
 		const EPRef<VKVertexBuffer>&, 
-		const EPRef<VKDescriptorSet>&
+		const EPRef<VKDescriptorSet>&,
+		const EPRef<VKPipeline>&,
+		const EPRef<VKSwapchain>&
 	);
 
 	//static EPRef<VKCommandBuffers> InternalMake(const EPRef<VKCommandPool>&);
@@ -82,6 +94,8 @@ public:
 
 private:
 	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
+	EPRef<VKPipeline> m_pVKPipeline = nullptr;
+	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 
 	VkCommandBufferAllocateInfo m_vkCommandBufferAllocateInfo = {};
 	

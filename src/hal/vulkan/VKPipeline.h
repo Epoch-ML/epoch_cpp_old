@@ -50,6 +50,8 @@ public:
 		return m_vkPipelineLayout;
 	}
 
+	RESULT InitializeDescriptors();
+
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;

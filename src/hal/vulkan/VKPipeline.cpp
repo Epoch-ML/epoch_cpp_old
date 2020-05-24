@@ -14,6 +14,15 @@
 
 #include "core/types/EPArray.h"
 
+RESULT VKPipeline::InitializeDescriptors() {
+	RESULT r = R::OK;;
+
+	// TODO: 
+
+Error:
+	return r;
+}
+
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
 	EPArray<VkVertexInputAttributeDescription, 2> vkVertexAttributeDescriptions = {};

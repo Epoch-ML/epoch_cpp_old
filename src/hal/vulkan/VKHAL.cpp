@@ -611,18 +611,22 @@ RESULT VKHAL::InitializeSwapchain() {
 
 	CNM(m_pVKSwapchain, "Failed to make vk swapchain");
 
+	// Initialize Command Pool first
+	CRM(InitializeCommandPool(), "Failed to initialize command pool");
+
 	CRM(InitializePipeline(), "Failed to initialize pipeline");
 
 	// TODO: One of these things is not like the others
 	CRM(m_pVKSwapchain->InitializeFramebuffers(m_pVKPipeline), "Failed to initialize framebuffers");
-
-	CRM(InitializeCommandPool(), "Failed to initialize command pool");
 
 	CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
 
 	CRM(InitializeTexture(), "Failed to initialize texture");	// TODO: yea this
 
 	CRM(InitializeCommandBuffers(), "Failed to initialize command buffers");
+
+	CRM(m_pVKPipeline->InitializeDescriptors(), 
+		"Failed to initialize / update descriptors");
 
 Error:
 	return r;
@@ -708,6 +712,8 @@ RESULT VKHAL::InitializeCommandBuffers() {
 	CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
 
 	m_pVKCommandBuffers = m_pVKCommandPool->MakeVertexDescriptorCommandBuffers(
+		m_pVKPipeline,
+		m_pVKSwapchain,
 		m_pVKVertexBuffer, 
 		m_pVKPipeline->GetVKDescriptorSet()
 	);
@@ -731,9 +737,7 @@ RESULT VKHAL::InitializeCommandPool() {
 		m_vkPhysicalDevice, 
 		m_vkLogicalDevice, 
 		m_vkSurface, 
-		m_vkGraphicsQueueHandle,
-		m_pVKPipeline, 
-		m_pVKSwapchain
+		m_vkGraphicsQueueHandle
 	);
 
 	CNM(m_pVKCommandPool, "Failed to make vk command pool");

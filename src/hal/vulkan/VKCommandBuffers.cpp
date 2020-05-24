@@ -3,6 +3,10 @@
 #include "VKCommandPool.h"
 
 #include "VKVertex.h"
+
+#include "VKPipeline.h"
+#include "VKSwapchain.h"
+
 #include "VKBuffer.h"
 #include "VKVertexBuffer.h"
 #include "VKDescriptorSet.h"
@@ -10,11 +14,15 @@
 VKCommandBuffers::VKCommandBuffers(
 	const EPRef<VKCommandPool>& pVKCommandPool, 
 	const EPRef<VKVertexBuffer>& pVKVertexBuffer, 
-	const EPRef<VKDescriptorSet>& pVKDescriptorSet
+	const EPRef<VKDescriptorSet>& pVKDescriptorSet,
+	const EPRef<VKPipeline>& pVKPipeline,
+	const EPRef<VKSwapchain>& pVKSwapchain
 ) :
 	m_pVKCommandPool(pVKCommandPool),
 	m_pVKVertexBuffer(pVKVertexBuffer),
-	m_pVKDescriptorSet(pVKDescriptorSet)
+	m_pVKDescriptorSet(pVKDescriptorSet),
+	m_pVKPipeline(pVKPipeline),
+	m_pVKSwapchain(pVKSwapchain)
 {
 	//
 }
@@ -65,9 +73,10 @@ Error:
 RESULT VKCommandBuffers::Initialize() {
 	RESULT r = R::OK;
 
-	CN(m_pVKCommandPool);
+	CN(m_pVKSwapchain);
+	CN(m_pVKPipeline)
 
-	size_t numBuffers = m_pVKCommandPool->GetVKSwapchain()->GetFramebufferCount();
+	size_t numBuffers = m_pVKSwapchain->GetFramebufferCount();
 
 	m_vkCommandBuffers = EPVector<VkCommandBuffer>(numBuffers, true);
 	m_vkCommandBufferStates = EPVector<CommandBufferState>(numBuffers, CommandBufferState::UNINITIALIZED);
@@ -141,12 +150,20 @@ Error:
 EPRef<VKCommandBuffers> VKCommandBuffers::InternalMake(
 	const EPRef<VKCommandPool>& pVKCommandPool,
 	const EPRef<VKVertexBuffer>& pVKVertexBuffer,
-	const EPRef<VKDescriptorSet>& pVKDescriptorSet
+	const EPRef<VKDescriptorSet>& pVKDescriptorSet,
+	const EPRef<VKPipeline>& pVKPipeline,
+	const EPRef<VKSwapchain>& pVKSwapchain
 ) {
 	RESULT r = R::OK;
 	EPRef<VKCommandBuffers> pVKCommandBuffer = nullptr;
 
-	pVKCommandBuffer = new VKCommandBuffers(pVKCommandPool, pVKVertexBuffer, pVKDescriptorSet);
+	pVKCommandBuffer = new VKCommandBuffers(
+		pVKCommandPool, 
+		pVKVertexBuffer, 
+		pVKDescriptorSet,
+		pVKPipeline,
+		pVKSwapchain);
+
 	CNM(pVKCommandBuffer, "Failed to allocate vk command buffer");
 
 	CRM(pVKCommandBuffer->Initialize(), "Failed to initialize VK command buffer");
@@ -186,10 +203,10 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = m_pVKCommandPool->GetVKPipeline()->GetVKRenderPassHandle();
-		renderPassInfo.framebuffer = m_pVKCommandPool->GetVKSwapchain()->GetSwapchainFramebuffers(i);
+		renderPassInfo.renderPass = m_pVKPipeline->GetVKRenderPassHandle();
+		renderPassInfo.framebuffer = m_pVKSwapchain->GetSwapchainFramebuffers(i);
 		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = m_pVKCommandPool->GetVKSwapchain()->GetSwapchainExtent();
+		renderPassInfo.renderArea.extent = m_pVKSwapchain->GetSwapchainExtent();
 
 		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		renderPassInfo.clearValueCount = 1;
@@ -201,13 +218,13 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		vkCmdBindPipeline(
 			m_vkCommandBuffers[i], 
 			VK_PIPELINE_BIND_POINT_GRAPHICS, 
-			m_pVKCommandPool->GetVKPipeline()->GetVKPipelineHandle()
+			m_pVKPipeline->GetVKPipelineHandle()
 		);
 
 		//// TODO: wtf land - 
 		// a lot of arch needs to go into this
 		m_pVKVertexBuffer->Bind(m_vkCommandBuffers[i]);
-		m_pVKDescriptorSet->Bind(m_vkCommandBuffers[i], m_pVKCommandPool->GetVKPipeline()->GetVKPipelineLayout(), i);
+		m_pVKDescriptorSet->Bind(m_vkCommandBuffers[i], m_pVKPipeline->GetVKPipelineLayout(), i);
 
 		m_pVKVertexBuffer->DrawIndexed(m_vkCommandBuffers[i]);
 
