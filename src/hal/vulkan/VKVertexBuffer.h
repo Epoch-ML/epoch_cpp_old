@@ -86,6 +86,35 @@ public:
 		return r;
 	}
 
+	RESULT InitializeAsQuads() {
+		RESULT r = R::OK;
+
+		// Set up the command buffer data
+		// TODO: This is temporary just for testing
+		m_vertices = {
+			VKVertex<float, 4>({-0.5f, 0.0f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.0f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),
+			VKVertex<float, 4>({-0.5f, 0.0f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),
+
+			VKVertex<float, 4>({-0.5f, 0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),
+			VKVertex<float, 4>({-0.5f, 0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f})
+		};
+
+		m_indices = {
+			6, 5, 4,
+			4, 7, 6,
+
+			2, 1, 0,
+			0, 3, 2
+		};
+
+	Error:
+		return r;
+	}
+
 	RESULT InitializeAsCube() {
 		RESULT r = R::OK;
 

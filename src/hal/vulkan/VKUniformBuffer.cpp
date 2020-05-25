@@ -64,10 +64,11 @@ RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	m_uniformBufferObject.m_mat4View.SetIdentity(1.0f);
 	m_uniformBufferObject.m_mat4Projection.SetIdentity(1.0f);
 
-	//m_uniformBufferObject.m_mat4Model = rotation(math::axis::X, theta) * rotation(math::axis::Z, theta);
+	m_uniformBufferObject.m_mat4Model = rotation(math::axis::Y, theta);// *rotation(math::axis::Z, theta);
 
 	m_uniformBufferObject.m_mat4View = view<>::MakeLookAtViewMatrix(
-		rotation(math::axis::Z, theta * 0.5f) * rotation(math::axis::Y, theta * 1.5f) * rotation(math::axis::X, theta * 1.0f) * ptEye,
+		//rotation(math::axis::Z, theta * 0.5f) * rotation(math::axis::Y, theta * 1.5f) * rotation(math::axis::X, theta * 1.0f) * ptEye,
+		ptEye,
 		ptOrigin, vector<>::j()
 	);
 
