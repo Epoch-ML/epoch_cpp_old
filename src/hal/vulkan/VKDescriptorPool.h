@@ -20,6 +20,8 @@
 #include "VKPipeline.h"
 
 class VKDescriptorSet;
+class VKTexture;
+class VKUniformBuffer;
 
 class VKDescriptorPool :
 	public pool,
@@ -52,7 +54,11 @@ public:
 
 	// Make a DescriptorSet
 	// TODO: make more general, for different things
-	EPRef<VKDescriptorSet> MakeDescriptorSet(VkDescriptorSetLayout, const EPRef<VKUniformBuffer>&);
+	EPRef<VKDescriptorSet> MakeDescriptorSet(
+		VkDescriptorSetLayout, 
+		const EPRef<VKUniformBuffer>&,
+		const EPRef<VKTexture>&
+	);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;

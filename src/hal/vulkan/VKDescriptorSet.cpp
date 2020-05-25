@@ -6,6 +6,7 @@
 #include "VKUniformBuffer.h"
 #include "VKImageView.h"
 #include "VKSampler.h"
+#include "VKTexture.h"
 
 RESULT VKDescriptorSet::Initialize() {
 	RESULT r = R::OK;
@@ -32,24 +33,41 @@ RESULT VKDescriptorSet::Initialize() {
 		vkDescriptionBufferInfo.offset = 0;
 		vkDescriptionBufferInfo.range = m_pVKUniformBuffer->GetUniforBufferObjectSize();
 
-		//VkDescriptorImageInfo vkDescriptormageInfo = {};
-		//vkDescriptormageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		//vkDescriptormageInfo.imageView = m_pVKImageView->GetVKImageViewHandle();
-		//vkDescriptormageInfo.sampler = m_pVKSampler->GetVKSamplerHandle();
+		VkDescriptorImageInfo vkDescriptorImageInfo = {};
+		vkDescriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		vkDescriptorImageInfo.imageView = m_pVKTexture->GetVKImageView()->GetVKImageViewHandle();
+		vkDescriptorImageInfo.sampler = m_pVKTexture->GetVKSampler()->GetVKSamplerHandle();
 
-		VkWriteDescriptorSet vkWriteDescriptorSet = {};
-		vkWriteDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		vkWriteDescriptorSet.dstSet = m_vkDescriptorSets[i];
-		vkWriteDescriptorSet.dstBinding = 0;		// binding
-		vkWriteDescriptorSet.dstArrayElement = 0;
-		vkWriteDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		vkWriteDescriptorSet.descriptorCount = 1;
-		vkWriteDescriptorSet.pBufferInfo = &vkDescriptionBufferInfo;
-		vkWriteDescriptorSet.pImageInfo = nullptr; // Optional
-		vkWriteDescriptorSet.pTexelBufferView = nullptr; // Optional
+		EPArray<VkWriteDescriptorSet, 2> vkWriteDescriptorSets;
+
+		vkWriteDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		vkWriteDescriptorSets[0].dstSet = m_vkDescriptorSets[i];
+		vkWriteDescriptorSets[0].dstBinding = 0;		// binding
+		vkWriteDescriptorSets[0].dstArrayElement = 0;
+		vkWriteDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		vkWriteDescriptorSets[0].descriptorCount = 1;
+		vkWriteDescriptorSets[0].pBufferInfo = &vkDescriptionBufferInfo;
+		vkWriteDescriptorSets[0].pImageInfo = nullptr; // Optional
+		vkWriteDescriptorSets[0].pTexelBufferView = nullptr; // Optional
+
+		vkWriteDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		vkWriteDescriptorSets[1].dstSet = m_vkDescriptorSets[i];
+		vkWriteDescriptorSets[1].dstBinding = 1;		// binding
+		vkWriteDescriptorSets[1].dstArrayElement = 0;
+		vkWriteDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		vkWriteDescriptorSets[1].descriptorCount = 1;
+		vkWriteDescriptorSets[1].pBufferInfo = nullptr;
+		vkWriteDescriptorSets[1].pImageInfo = &vkDescriptorImageInfo; // Optional
+		vkWriteDescriptorSets[1].pTexelBufferView = nullptr; // Optional
 
 		// Update the descriptor set
-		vkUpdateDescriptorSets(m_vkLogicalDevice, 1, &vkWriteDescriptorSet, 0, nullptr);
+		vkUpdateDescriptorSets(
+			m_vkLogicalDevice, 
+			static_cast<uint32_t>(vkWriteDescriptorSets.size()), 
+			vkWriteDescriptorSets.data, 
+			0, 
+			nullptr
+		);
 	}
 
 Error:
@@ -85,8 +103,7 @@ EPRef<VKDescriptorSet> VKDescriptorSet::InternalMake(
 	VkDevice vkLogicalDevice,
 	const EPRef<VKDescriptorPool>& pVKDescriptorPool,
 	const EPRef<VKUniformBuffer>& pVKUniformBuffer,
-	//const EPRef<VKImageView>& pVKImageView,
-	//const EPRef<VKSampler>& pVKSampler,
+	const EPRef<VKTexture>& pVKTexture,
 	VkDescriptorSetLayout vkDescriptorSetLayout
 ) {
 	RESULT r = R::OK;
@@ -97,8 +114,7 @@ EPRef<VKDescriptorSet> VKDescriptorSet::InternalMake(
 		vkLogicalDevice, 
 		pVKDescriptorPool,
 		pVKUniformBuffer,
-		//pVKImageView,
-		//pVKSampler,
+		pVKTexture,
 		vkDescriptorSetLayout
 	);
 	CNM(pVKDescriptorSet, "Failed to allocate vk descriptor set");
@@ -118,15 +134,13 @@ VKDescriptorSet::VKDescriptorSet(
 	VkDevice vkLogicalDevice,
 	const EPRef<VKDescriptorPool>& pVKDescriptorPool,
 	const EPRef<VKUniformBuffer>& pVKUniformBuffer,
-	//const EPRef<VKImageView>& pVKImageView,
-	//const EPRef<VKSampler>& pVKSampler,
+	const EPRef<VKTexture>& pVKTexture,
 	VkDescriptorSetLayout vkDescriptorSetLayout
 ) :
 	m_vkPhysicalDevice(vkPhysicalDevice),
 	m_vkLogicalDevice(vkLogicalDevice),
 	m_pVKUniformBuffer(pVKUniformBuffer),
-	//m_pVKImageView(pVKImageView),
-	//m_pVKSampler(pVKSampler),
+	m_pVKTexture(pVKTexture),
 	m_pVKDescriptorPool(pVKDescriptorPool)
 {
 	m_vkDescriptorSetLayouts = EPVector<VkDescriptorSetLayout>(

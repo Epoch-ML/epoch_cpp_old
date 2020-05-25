@@ -21,8 +21,7 @@
 class VKDescriptorPool;
 
 class VKUniformBuffer;
-class VKImageView;
-class VKSampler;
+class VKTexture;
 
 // TODO: 
 // - layout(set = 0, binding = 0) uniform UniformBufferObject { ... }
@@ -35,8 +34,7 @@ class VKDescriptorSet :
 	VkDevice,
 	const EPRef<VKDescriptorPool>&,
 	const EPRef<VKUniformBuffer>&,
-	//const EPRef<VKImageView>&,
-	//const EPRef<VKSampler>&,
+	const EPRef<VKTexture>&,
 	VkDescriptorSetLayout>
 {
 private:
@@ -45,8 +43,7 @@ private:
 		VkDevice vkLogicalDevice,
 		const EPRef<VKDescriptorPool>& pVKDescriptorPool,
 		const EPRef<VKUniformBuffer>& pVKUniformBuffer,
-		//const EPRef<VKImageView>& pVKImageView,
-		//const EPRef<VKSampler>& pVKSampler,
+		const EPRef<VKTexture>& pVKTexture,
 		VkDescriptorSetLayout vkDescriptorSetLayout
 	);
 
@@ -62,8 +59,7 @@ public:
 		VkDevice,
 		const EPRef<VKDescriptorPool>&,
 		const EPRef<VKUniformBuffer>&,
-		//const EPRef<VKImageView>&,
-		//const EPRef<VKSampler>&,
+		const EPRef<VKTexture>&,
 		VkDescriptorSetLayout);
 
 	RESULT Bind(VkCommandBuffer vkCommandBuffer, VkPipelineLayout vkPipelineLayout, uint32_t index);
@@ -76,8 +72,7 @@ private:
 
 	// TODO: this is not general
 	EPRef<VKUniformBuffer> m_pVKUniformBuffer = nullptr;	
-	//EPRef<VKImageView> m_pVKImageView = nullptr;
-	//EPRef<VKSampler> m_pVKSampler = nullptr;
+	EPRef<VKTexture> m_pVKTexture = nullptr;
 
 	VkDescriptorSetAllocateInfo m_vkDescriptorSetAllocateInfo = {};
 	EPVector<VkDescriptorSetLayout> m_vkDescriptorSetLayouts;

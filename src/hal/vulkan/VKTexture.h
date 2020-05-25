@@ -38,6 +38,10 @@ private:
 	RESULT CopyStagingBufferToImage();
 
 public:
+	const EPRef<VKImageView>& GetVKImageView() const { return m_pVKImageView; }
+	const EPRef<VKSampler>& GetVKSampler() const { return m_pVKSampler; }
+
+public:
 	virtual ~VKTexture() override;
 	static EPRef<VKTexture> InternalMake(VkPhysicalDevice, VkDevice, const EPRef<VKCommandPool>&, const EPString<char>&);
 

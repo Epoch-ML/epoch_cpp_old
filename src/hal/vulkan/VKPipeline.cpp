@@ -18,10 +18,20 @@
 RESULT VKPipeline::InitializeDescriptors(const EPRef<VKTexture>& pVKTexture) {
 	RESULT r = R::OK;;
 
+	// Create the uniform buffer
+	// TODO: Take out of the pipeline?
+	m_pVKUniformBuffer = VKUniformBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	CNM(m_pVKUniformBuffer, "Failed to create valid uniform buffer");
+
+	// Descriptor Pool for the uniform buffer
+	m_pVKDescriptorPool = VKDescriptorPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	CNM(m_pVKDescriptorPool, "Failed to create valid descriptor pool");
+
 	// Descriptor Set
 	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(
 		m_vkDescriptorSetLayout,
-		m_pVKUniformBuffer
+		m_pVKUniformBuffer,
+		pVKTexture
 	);
 	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
 
@@ -58,12 +68,11 @@ RESULT VKPipeline::Initialize() {
 	//	matrix<float, 4, 4> m_mat4Projection;
 	//} uboTransforms;
 
-	
-
 	// TODO: Generalize these descriptor sets 
 	// Create descriptor set layout (for vertex shader)
 	// TODO: Move this into the shaders bruv / object or something
-	// Layout binding
+	
+	// Descriptor Layout
 
 	vkDescriptorLayoutBindingUniformBufferObject.binding = 0;
 	vkDescriptorLayoutBindingUniformBufferObject.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -73,34 +82,17 @@ RESULT VKPipeline::Initialize() {
 
 	// Image Sampler
 	vkDescriptorLayoutBindingSampler.binding = 1;
-	vkDescriptorLayoutBindingSampler.descriptorCount = 1;
 	vkDescriptorLayoutBindingSampler.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	vkDescriptorLayoutBindingSampler.pImmutableSamplers = nullptr; // optional
+	vkDescriptorLayoutBindingSampler.descriptorCount = 1;
 	vkDescriptorLayoutBindingSampler.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	// create info
-	// Uniform 
+	vkDescriptorLayoutBindingSampler.pImmutableSamplers = nullptr; // optional
 	
-	vkDescriptorSetLayoutBindings = EPArray<VkDescriptorSetLayoutBinding, 2>({
-		vkDescriptorLayoutBindingUniformBufferObject, 
-		vkDescriptorLayoutBindingSampler 
-	});
+	vkDescriptorSetLayoutBindings[0] = vkDescriptorLayoutBindingUniformBufferObject;
+	vkDescriptorSetLayoutBindings[1] = vkDescriptorLayoutBindingSampler;
 
 	vkDescriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	//vkDescriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(vkDescriptorSetLayoutBindings.size());
-	//vkDescriptorSetLayoutCreateInfo.pBindings = vkDescriptorSetLayoutBindings.data;
-	vkDescriptorSetLayoutCreateInfo.bindingCount = 1;
-	vkDescriptorSetLayoutCreateInfo.pBindings = &vkDescriptorLayoutBindingUniformBufferObject;
-
-	// Uniform Buffer
-
-	// Create the uniform buffer
-	m_pVKUniformBuffer = VKUniformBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
-	CNM(m_pVKUniformBuffer, "Failed to create valid uniform buffer");
-
-	// Descriptor Pool for the uniform buffer
-	m_pVKDescriptorPool = VKDescriptorPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
-	CNM(m_pVKDescriptorPool, "Failed to create valid descriptor pool");
+	vkDescriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(vkDescriptorSetLayoutBindings.size());
+	vkDescriptorSetLayoutCreateInfo.pBindings = vkDescriptorSetLayoutBindings.data;
 
 	// create the descriptor layout set
 	CVKRM(vkCreateDescriptorSetLayout(
