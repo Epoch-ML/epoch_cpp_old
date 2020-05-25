@@ -287,7 +287,7 @@ RESULT VKCommandBuffers::Submit(VkQueue vkQueue) {
 	vkSubmitInfo.commandBufferCount = (uint32_t)m_vkCommandBuffers.size();
 	vkSubmitInfo.pCommandBuffers = m_vkCommandBuffers.data();
 
-	vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE);
+	vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, nullptr);
 	vkQueueWaitIdle(vkQueue);
 
 	m_vkCommandBufferStates.SetAll(CommandBufferState::SUBMITTED);
@@ -308,7 +308,7 @@ RESULT VKCommandBuffers::Submit(VkQueue vkQueue, uint32_t index) {
 	vkSubmitInfo.commandBufferCount = 1;
 	vkSubmitInfo.pCommandBuffers = &m_vkCommandBuffers[index];
 
-	vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, VK_NULL_HANDLE);
+	vkQueueSubmit(vkQueue, 1, &vkSubmitInfo, nullptr);
 	vkQueueWaitIdle(vkQueue);
 
 	m_vkCommandBufferStates[index] = CommandBufferState::SUBMITTED;

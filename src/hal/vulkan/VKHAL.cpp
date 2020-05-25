@@ -679,8 +679,9 @@ RESULT VKHAL::InitializeTexture() {
 		m_vkPhysicalDevice, 
 		m_vkLogicalDevice,
 		m_pVKCommandPool,
-		//"wooden_crate.jpg"
-		"statue.jpg"
+		"wooden_crate.jpg",
+		//"statue.jpg",
+		m_pVKCommandPool->GetVKQueueHandle()
 	);
 
 	CNM(m_pVKTexture, "Failed to create texture");

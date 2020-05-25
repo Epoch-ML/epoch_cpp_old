@@ -46,6 +46,8 @@ RESULT VKTexture::CopyStagingBufferToImage() {
 
 	CRM(pVKCommandBuffers->End(0), "Failed to start command buffer");
 
+	CRM(pVKCommandBuffers->Submit(m_vkQueue, 0), "Failed to submit one time command buffer");
+
 Error:
 	return r;
 }
@@ -77,7 +79,7 @@ RESULT VKTexture::Initialize() {
 		"Failed to copy vertex data");
 
 	// This is optional here, but we can delete the image from mem now
-	m_pImage = nullptr;
+	//m_pImage = nullptr;
 
 	m_pVKImage = VKImage::make(
 		m_vkPhysicalDevice, 
@@ -93,7 +95,9 @@ RESULT VKTexture::Initialize() {
 	// Transition the image layout
 	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
 		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL), "Failed to transition image layout");
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		m_vkQueue), 
+	"Failed to transition image layout");
 	
 	// Copy staging buffer to image
 	CRM(CopyStagingBufferToImage(), "Failed to copy staging buffer to image");
@@ -101,7 +105,9 @@ RESULT VKTexture::Initialize() {
 	// Second time transition
 	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), "Failed to transition image layout");
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		m_vkQueue), 
+	"Failed to transition image layout");
 
 	// Set up the image view
 	m_pVKImageView = VKImageView::make(
@@ -138,12 +144,13 @@ EPRef<VKTexture> VKTexture::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
 	const EPRef<VKCommandPool>& pVKCommandPool,
-	const EPString<char>& strFilename
+	const EPString<char>& strFilename,
+	VkQueue vkQueue
 ) {
 	RESULT r = R::OK;
 	EPRef<VKTexture> pVKTexture = nullptr;
 
-	pVKTexture = new VKTexture(vkPhysicalDevice, vkLogicalDevice, pVKCommandPool, strFilename);
+	pVKTexture = new VKTexture(vkPhysicalDevice, vkLogicalDevice, pVKCommandPool, strFilename, vkQueue);
 	CNM(pVKTexture, "Failed to allocate vk texture");
 
 	CRM(pVKTexture->Initialize(), "Failed to initialize VK texture");
@@ -160,12 +167,14 @@ VKTexture::VKTexture(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
 	const EPRef<VKCommandPool>& pVKCommandPool,
-	const EPString<char>& strFilename
+	const EPString<char>& strFilename,
+	VkQueue vkQueue
 ) :
 	texture(strFilename),
 	m_vkPhysicalDevice(vkPhysicalDevice),
 	m_vkLogicalDevice(vkLogicalDevice),
-	m_pVKCommandPool(pVKCommandPool)
+	m_pVKCommandPool(pVKCommandPool),
+	m_vkQueue(vkQueue)
 {
 	//
 }

@@ -11,5 +11,5 @@ layout(binding = 1) uniform sampler2D texSampler;
 void main() {
     //outColor = fragColor;
     //outColor = vec4(fragTexCoord, 0.0, 1.0);
-    outColor = texture(texSampler, fragTexCoord);
+    outColor = max(vec4(0.025f), texture(texSampler, fragTexCoord));
 }

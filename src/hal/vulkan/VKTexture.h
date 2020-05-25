@@ -22,14 +22,15 @@ class VKCommandPool;
 
 class VKTexture :
 	public texture,
-	public EPFactoryMethod<VKTexture, VkPhysicalDevice, VkDevice, const EPRef<VKCommandPool>&, const EPString<char>&>
+	public EPFactoryMethod<VKTexture, VkPhysicalDevice, VkDevice, const EPRef<VKCommandPool>&, const EPString<char>&, VkQueue>
 {
 private:
 	VKTexture(
 		VkPhysicalDevice vkPhysicalDevice, 
 		VkDevice vkLogicalDevice, 
 		const EPRef<VKCommandPool>& pVKCommandPool, 
-		const EPString<char>&
+		const EPString<char>& strFilename,
+		VkQueue vkQueue
 	);
 
 	virtual RESULT Initialize() override;
@@ -43,12 +44,13 @@ public:
 
 public:
 	virtual ~VKTexture() override;
-	static EPRef<VKTexture> InternalMake(VkPhysicalDevice, VkDevice, const EPRef<VKCommandPool>&, const EPString<char>&);
+	static EPRef<VKTexture> InternalMake(VkPhysicalDevice, VkDevice, const EPRef<VKCommandPool>&, const EPString<char>&, VkQueue);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
 	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
+	VkQueue m_vkQueue = nullptr;
 	
 	VkBuffer m_vkStagingBuffer = nullptr;
 	VkDeviceMemory m_vkStagingBufferDeviceMemory = nullptr;

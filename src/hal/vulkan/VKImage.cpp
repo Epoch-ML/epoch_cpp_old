@@ -137,7 +137,8 @@ VKImage::~VKImage() {
 RESULT VKImage::TranisitionImageLayout(
 	const EPRef<VKCommandPool>& pVKCommandPool, 
 	VkImageLayout vkOldImageLayout, 
-	VkImageLayout vkNewImageLayout
+	VkImageLayout vkNewImageLayout,
+	VkQueue vkQueue
 ) {
 	RESULT r = R::OK;
 
@@ -171,6 +172,7 @@ RESULT VKImage::TranisitionImageLayout(
 
 	CRM(pVKCommandBuffers->End(0), "Failed to start command buffer");
 
+	CRM(pVKCommandBuffers->Submit(vkQueue, 0), "Failed to submit one time command buffer");
 
 Error:
 	return r;

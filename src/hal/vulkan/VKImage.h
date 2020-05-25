@@ -62,7 +62,8 @@ public:
 	RESULT TranisitionImageLayout(
 		const EPRef<VKCommandPool>& pVKCommandPool, 
 		VkImageLayout vkOldImagelayout, 
-		VkImageLayout vkNewImageLayout
+		VkImageLayout vkNewImageLayout,
+		VkQueue vkQueue
 	);
 
 	VkImage GetVKImageHandle() { return m_vkTextureImage; }
