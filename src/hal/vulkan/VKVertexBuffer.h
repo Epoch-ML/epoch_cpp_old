@@ -89,19 +89,47 @@ public:
 	RESULT InitializeAsCube() {
 		RESULT r = R::OK;
 
+		const float cubeSide = 1.0f;
+		const float cubeHalfSide = cubeSide / 2.0f;
+
 		// Set up the command buffer data
 		// TODO: This is temporary just for testing
 		m_vertices = {
 			// Top
-			VKVertex<float, 4>({-0.5f, 0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 0 top left back
-			VKVertex<float, 4>({ 0.5f, 0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 1 top right back
-			VKVertex<float, 4>({ 0.5f, 0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 2	 top right front
-			VKVertex<float, 4>({-0.5f, 0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),	// 3 top left front
+			VKVertex<float, 4>({-cubeHalfSide, cubeHalfSide, -cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 0  top left back
+			VKVertex<float, 4>({ cubeHalfSide, cubeHalfSide, -cubeHalfSide, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 1  top right back
+			VKVertex<float, 4>({ cubeHalfSide, cubeHalfSide,  cubeHalfSide, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 2	  top right front
+			VKVertex<float, 4>({-cubeHalfSide, cubeHalfSide,  cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),	// 3  top left front
 
-			VKVertex<float, 4>({-0.5f, -0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 4 bottom left back
-			VKVertex<float, 4>({ 0.5f, -0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 5 bottom right back
-			VKVertex<float, 4>({ 0.5f, -0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 6 bottom right front
-			VKVertex<float, 4>({-0.5f, -0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f})	// 7 bottom left front
+			// Bottom
+			VKVertex<float, 4>({-cubeHalfSide, -cubeHalfSide, -cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 4  bottom left back
+			VKVertex<float, 4>({ cubeHalfSide, -cubeHalfSide, -cubeHalfSide, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 5  bottom right back
+			VKVertex<float, 4>({ cubeHalfSide, -cubeHalfSide,  cubeHalfSide, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 6  bottom right front
+			VKVertex<float, 4>({-cubeHalfSide, -cubeHalfSide,  cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),	// 7	  bottom left front
+
+			// Left
+			VKVertex<float, 4>({-cubeHalfSide,  cubeHalfSide, -cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 8	  top left back
+			VKVertex<float, 4>({-cubeHalfSide,  cubeHalfSide,  cubeHalfSide, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 9  top left front
+			VKVertex<float, 4>({-cubeHalfSide, -cubeHalfSide,  cubeHalfSide, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 10 bottom left front
+			VKVertex<float, 4>({-cubeHalfSide, -cubeHalfSide, -cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),	// 11 bottom left back
+
+			// Right
+			VKVertex<float, 4>({ cubeHalfSide,  cubeHalfSide,  cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 12 top right front
+			VKVertex<float, 4>({ cubeHalfSide,  cubeHalfSide, -cubeHalfSide, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 13 top right back
+			VKVertex<float, 4>({ cubeHalfSide, -cubeHalfSide, -cubeHalfSide, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 14 bottom right back
+			VKVertex<float, 4>({ cubeHalfSide, -cubeHalfSide,  cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),	// 15 bottom right front
+
+			// Front
+			VKVertex<float, 4>({-cubeHalfSide,  cubeHalfSide,  cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 16 top left front
+			VKVertex<float, 4>({ cubeHalfSide,  cubeHalfSide,  cubeHalfSide, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 17 top right front
+			VKVertex<float, 4>({ cubeHalfSide, -cubeHalfSide,  cubeHalfSide, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 18 bottom right front
+			VKVertex<float, 4>({-cubeHalfSide, -cubeHalfSide,  cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),	// 19 bottom left front
+
+			// Back
+			VKVertex<float, 4>({-cubeHalfSide,  cubeHalfSide, -cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 20 top left back
+			VKVertex<float, 4>({ cubeHalfSide,  cubeHalfSide, -cubeHalfSide, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 21 top right back
+			VKVertex<float, 4>({ cubeHalfSide, -cubeHalfSide, -cubeHalfSide, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 22 bottom right back
+			VKVertex<float, 4>({-cubeHalfSide, -cubeHalfSide, -cubeHalfSide, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),	// 23 bottom left back
 		};
 
 		m_indices = {
@@ -112,17 +140,17 @@ public:
 			5, 6, 7,
 			7, 4, 5,
 			// front
-			2, 3, 7,
-			7, 6, 2,
+			17, 16, 19,
+			19, 18, 17,
 			// back
-			0, 1, 5,
-			5, 4, 0,
+			20, 21, 22,
+			22, 23, 20,
 			// left
-			3, 0, 4,
-			4, 7, 3,
+			9, 8, 11,
+			11, 10, 9,
 			// right
-			1, 2, 6,
-			6, 5, 1
+			13, 12, 15,
+			15, 14, 13
 		};
 
 	Error:
