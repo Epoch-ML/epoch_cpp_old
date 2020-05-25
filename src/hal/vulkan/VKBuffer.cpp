@@ -2,6 +2,9 @@
 
 #include "VKDescriptorSet.h"
 
+#include "hal/image.h"
+#include "hal/STBImage.h"
+
 RESULT VKBuffer::CreateBuffer(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
@@ -84,6 +87,20 @@ RESULT VKBuffer::CopyDataToBuffer(
 
 Error:
 	return r;
+}
+
+RESULT VKBuffer::CopyDataToBuffer(
+	VkPhysicalDevice vkPhysicalDevice,
+	VkDevice vkLogicalDevice,
+	VkDeviceMemory& r_vkDeviceMemory,
+	const EPRef<STBImage>& pImage)	// TODO: 
+{
+	return VKBuffer::CopyDataToBuffer(
+		vkPhysicalDevice,
+		vkLogicalDevice,
+		r_vkDeviceMemory,
+		(void*)(pImage->data()),
+		pImage->byte_size());
 }
 
 RESULT VKBuffer::CopyBuffer(

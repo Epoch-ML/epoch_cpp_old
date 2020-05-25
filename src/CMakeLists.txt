@@ -6,6 +6,8 @@ add_definitions(-DEPOCH_ROOT_DIR="${EPOCH_DIR_VAL}")
 add_definitions(-DEPOCH_SRC_DIR="${EPOCH_DIR_VAL}/src")
 add_definitions(-DEPOCH_HAL_DIR="${EPOCH_DIR_VAL}/src/hal")
 add_definitions(-DEPOCH_SHADERS_DIR="${EPOCH_DIR_VAL}/src/hal/shaders")
+add_definitions(-DEPOCH_DATA_DIR="${EPOCH_DIR_VAL}/data")
+add_definitions(-DEPOCH_TEXTURES_DIR="${EPOCH_DIR_VAL}/data/textures")
 
 # Release Configuration
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
@@ -35,7 +37,8 @@ set(CMAKE_CXX_FLAGS_CORE "${CMAKE_CXX_FLAGS}")
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	message("epoch/src/cmakelists.txt msvc")
 	
-	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")      # C++ version
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")      # C++ version
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")      # C++ version
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOCONCEPTS")
 
 	# Compiler Flags Release

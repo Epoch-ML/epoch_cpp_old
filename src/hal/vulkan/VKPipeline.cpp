@@ -5,6 +5,7 @@
 #include "VKShader.h"
 #include "VKSwapchain.h"
 #include "VKVertex.h"
+#include "VKTexture.h"
 #include "VKBuffer.h"
 #include "VKUniformBuffer.h"
 #include "VKDescriptorPool.h"
@@ -12,13 +13,42 @@
 
 #include "core/math/matrix/matrix.h"
 
+#include "core/types/EPArray.h"
+
+RESULT VKPipeline::InitializeDescriptors(const EPRef<VKTexture>& pVKTexture) {
+	RESULT r = R::OK;;
+
+	// Create the uniform buffer
+	// TODO: Take out of the pipeline?
+	m_pVKUniformBuffer = VKUniformBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	CNM(m_pVKUniformBuffer, "Failed to create valid uniform buffer");
+
+	// Descriptor Pool for the uniform buffer
+	m_pVKDescriptorPool = VKDescriptorPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
+	CNM(m_pVKDescriptorPool, "Failed to create valid descriptor pool");
+
+	// Descriptor Set
+	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(
+		m_vkDescriptorSetLayout,
+		m_pVKUniformBuffer,
+		pVKTexture
+	);
+	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
+
+Error:
+	return r;
+}
+
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
-	EPArray<VkVertexInputAttributeDescription, 2> vkVertexAttributeDescriptions = {};
+	EPArray<VkVertexInputAttributeDescription, 3> vkVertexAttributeDescriptions = {};
 
 	// Uniform Descriptor Set Layout
 	VkDescriptorSetLayoutBinding vkDescriptorLayoutBindingUniformBufferObject = {};
-	VkDescriptorSetLayoutCreateInfo vkDescriptorSetLayoutCreateInfoUniformBufferObject = {};
+	VkDescriptorSetLayoutBinding vkDescriptorLayoutBindingSampler = {};
+	EPArray<VkDescriptorSetLayoutBinding, 2> vkDescriptorSetLayoutBindings;
+
+	VkDescriptorSetLayoutCreateInfo vkDescriptorSetLayoutCreateInfo = {};
 
 	CNM(m_vkPhysicalDevice, "Cannot create pipeline without a valid physical device");
 	CNM(m_vkLogicalDevice, "Cannot create pipeline without a valid logical device");
@@ -38,53 +68,49 @@ RESULT VKPipeline::Initialize() {
 	//	matrix<float, 4, 4> m_mat4Projection;
 	//} uboTransforms;
 
-	
-
+	// TODO: Generalize these descriptor sets 
 	// Create descriptor set layout (for vertex shader)
 	// TODO: Move this into the shaders bruv / object or something
-	// Layout binding
+	
+	// Descriptor Layout
+
 	vkDescriptorLayoutBindingUniformBufferObject.binding = 0;
 	vkDescriptorLayoutBindingUniformBufferObject.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	vkDescriptorLayoutBindingUniformBufferObject.descriptorCount = 1;
 	vkDescriptorLayoutBindingUniformBufferObject.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	vkDescriptorLayoutBindingUniformBufferObject.pImmutableSamplers = nullptr; // optional
 
-	// create info
-	// Uniform 
+	// Image Sampler
+	vkDescriptorLayoutBindingSampler.binding = 1;
+	vkDescriptorLayoutBindingSampler.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	vkDescriptorLayoutBindingSampler.descriptorCount = 1;
+	vkDescriptorLayoutBindingSampler.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	vkDescriptorLayoutBindingSampler.pImmutableSamplers = nullptr; // optional
+	
+	vkDescriptorSetLayoutBindings[0] = vkDescriptorLayoutBindingUniformBufferObject;
+	vkDescriptorSetLayoutBindings[1] = vkDescriptorLayoutBindingSampler;
 
-	// Create the actual object
-	m_pVKUniformBuffer = VKUniformBuffer::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
-	CNM(m_pVKUniformBuffer, "Failed to create valid uniform buffer");
-
-	vkDescriptorSetLayoutCreateInfoUniformBufferObject.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	vkDescriptorSetLayoutCreateInfoUniformBufferObject.bindingCount = 1;
-	vkDescriptorSetLayoutCreateInfoUniformBufferObject.pBindings = &vkDescriptorLayoutBindingUniformBufferObject;
-
-	// Descriptor Pool for the uniform buffer
-	m_pVKDescriptorPool = VKDescriptorPool::make(m_vkPhysicalDevice, m_vkLogicalDevice, m_pVKSwapchain);
-	CNM(m_pVKDescriptorPool, "Failed to create valid descriptor pool");
+	vkDescriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	vkDescriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(vkDescriptorSetLayoutBindings.size());
+	vkDescriptorSetLayoutCreateInfo.pBindings = vkDescriptorSetLayoutBindings.data;
 
 	// create the descriptor layout set
 	CVKRM(vkCreateDescriptorSetLayout(
 		m_vkLogicalDevice, 
-		&vkDescriptorSetLayoutCreateInfoUniformBufferObject, 
+		&vkDescriptorSetLayoutCreateInfo, 
 		nullptr, 
-		&m_vkDescriptorSetLayoutUniformBufferObject),
+		&m_vkDescriptorSetLayout),
 		"Failed to create descriptor set layout");
-
-	// Descriptor Set
-	m_pVKDescriptorSet = m_pVKDescriptorPool->MakeDescriptorSet(m_vkDescriptorSetLayoutUniformBufferObject, m_pVKUniformBuffer);
-	CNM(m_pVKDescriptorSet, "Failed to create descriptor set");
 
 	// Set up the vertex input description (TODO: generalize this)
 	VkVertexInputBindingDescription vkVertexBindingDescription = VKVertex<float, 4>::GetVKVertexBindingDescription();
 	vkVertexAttributeDescriptions = VKVertex<float, 4>::GetVKVertexAttributeDescriptions();
 
 	// Vertex Input Stage
-	m_vkPipelineVertexInputStateCreateInfo .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	m_vkPipelineVertexInputStateCreateInfo .vertexBindingDescriptionCount = 1;
-	m_vkPipelineVertexInputStateCreateInfo .pVertexBindingDescriptions = &vkVertexBindingDescription; 
-	m_vkPipelineVertexInputStateCreateInfo .vertexAttributeDescriptionCount = (uint32_t)vkVertexAttributeDescriptions.size();
+	m_vkPipelineVertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	m_vkPipelineVertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+	m_vkPipelineVertexInputStateCreateInfo.pVertexBindingDescriptions = &vkVertexBindingDescription;
+	m_vkPipelineVertexInputStateCreateInfo.vertexAttributeDescriptionCount = (uint32_t)vkVertexAttributeDescriptions.size();
 	m_vkPipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions = vkVertexAttributeDescriptions.data; // Optional
 
 	// Fixed stages
@@ -188,7 +214,7 @@ RESULT VKPipeline::Initialize() {
 	
 	// TODO: automate
 	m_vkPipelineLayoutCreateInfo.setLayoutCount = 1; 
-	m_vkPipelineLayoutCreateInfo.pSetLayouts = &m_vkDescriptorSetLayoutUniformBufferObject; 
+	m_vkPipelineLayoutCreateInfo.pSetLayouts = &m_vkDescriptorSetLayout; 
 
 	// TODO: automate and use
 	m_vkPipelineLayoutCreateInfo.pushConstantRangeCount = 0; // Optional
@@ -304,9 +330,9 @@ RESULT VKPipeline::Kill() {
 
 	vkDestroyRenderPass(m_vkLogicalDevice, m_vkRenderPass, nullptr);
 
-	CN(m_vkDescriptorSetLayoutUniformBufferObject)
+	CN(m_vkDescriptorSetLayout)
 
-	vkDestroyDescriptorSetLayout(m_vkLogicalDevice, m_vkDescriptorSetLayoutUniformBufferObject, nullptr);
+	vkDestroyDescriptorSetLayout(m_vkLogicalDevice, m_vkDescriptorSetLayout, nullptr);
 
 Error:
 	return r;

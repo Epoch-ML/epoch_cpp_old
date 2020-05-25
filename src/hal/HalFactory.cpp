@@ -10,6 +10,7 @@
 #include "hal/vulkan/VKCommandBuffers.h"
 #include "hal/vulkan/VKVertexBuffer.h"
 #include "hal/vulkan/VKDescriptorSet.h"
+#include "hal/vulkan/VKTexture.h"
 
 EPRef<HAL> HALFactory::InternalMakeVulkan(EPRef<SandboxWindowProcess> pSBWindowProcess) {
 	RESULT r = R::OK;

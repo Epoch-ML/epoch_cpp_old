@@ -14,11 +14,14 @@
 #include "core/types/EPRef.h"
 #include "core/types/EPFactoryMethod.h"
 #include "core/types/EPString.h"
+#include "core/types/EPArray.h"
 
 #include "VKSwapchain.h"
 #include "VKPipeline.h"
 
 class VKDescriptorSet;
+class VKTexture;
+class VKUniformBuffer;
 
 class VKDescriptorPool :
 	public pool,
@@ -51,7 +54,11 @@ public:
 
 	// Make a DescriptorSet
 	// TODO: make more general, for different things
-	EPRef<VKDescriptorSet> MakeDescriptorSet(VkDescriptorSetLayout, const EPRef<VKUniformBuffer>&);
+	EPRef<VKDescriptorSet> MakeDescriptorSet(
+		VkDescriptorSetLayout, 
+		const EPRef<VKUniformBuffer>&,
+		const EPRef<VKTexture>&
+	);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
@@ -59,7 +66,8 @@ private:
 	
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
 
-	VkDescriptorPoolSize m_vkDescriptorPoolSize = {};
+	//VkDescriptorPoolSize m_vkDescriptorPoolSize = {};
+	EPArray<VkDescriptorPoolSize, 2> m_vkDescriptorPoolSizes;
 	VkDescriptorPoolCreateInfo m_vkDescriptorPoolCreateInfo = {};
 
 	VkDescriptorPool m_vkDescriptorPool = nullptr;

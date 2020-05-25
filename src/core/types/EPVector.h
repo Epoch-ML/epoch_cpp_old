@@ -255,6 +255,23 @@ public:
 		return R::OK;
 	}
 
+	RESULT SetAll(const TStorage& value) noexcept {
+		for (size_t i = 0; i < m_pBuffer_c; i++) {
+			m_pBuffer[i] = value;
+		}
+
+		return R::OK;
+	}
+
+	bool CompareAll(const TStorage& value) noexcept {
+		for (size_t i = 0; i < m_pBuffer_c; i++) {
+			if (m_pBuffer[i] != value)
+				return false;
+		}
+
+		return true;
+	}
+
 	// This is just providing a pointer to the data
 	const TStorage* GetCBuffer() const {
 		const TStorage* pData = (const TStorage*)m_pBuffer;
@@ -318,6 +335,20 @@ public:
 		else {
 			memset(m_pBuffer, 0, sizeof(TStorage) * m_pBuffer_n);
 		}
+	}
+
+	inline void destroy(bool fDeallocate = true) {
+		for (size_t i = 0; i < m_pBuffer_c; i++) {
+			if (typeid(TStorage) == typeid(EPRef)) {
+				m_pBuffer[i] = nullptr;
+			}
+			else {
+				(m_pBuffer[i]).~TStorage();
+				m_pBuffer[i] = nullptr;
+			}
+		}
+
+		clear(fDeallocate);
 	}
 
 private:

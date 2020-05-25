@@ -24,7 +24,18 @@ else()
 endif()
 message(${SPD_INCLUDE_PATH}) 
 
+# STB
+option(DISABLE_STB "Disable STB")
+if (DISABLE_STB)
+	message(STATUS "STB is disabled")
+else()
+    message(STATUS "STB is enabled")
+	find_package(stb REQUIRED)
+endif()
+message(${STB_INCLUDE_PATH})
+
 include_directories(src)
+include_directories(${STB_INCLUDE_PATH})
 include_directories(${SPD_INCLUDE_PATH})
 
 add_subdirectory(src)

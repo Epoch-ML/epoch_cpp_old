@@ -13,8 +13,8 @@ RESULT VKCommandPool::Initialize() {
 	VKQueueFamilies vkQueueFamilies;
 
 	CNM(m_vkLogicalDevice, "Cannot initialize command pool without valid logical device");
-	CNM(m_pVKPipeline, "Cannot initialize command pool without valid pipeline");
-	CNM(m_pVKSwapchain, "Cannot initialize command pool without valid swapchain");
+	//CNM(m_pVKPipeline, "Cannot initialize command pool without valid pipeline");
+	//CNM(m_pVKSwapchain, "Cannot initialize command pool without valid swapchain");
 	CN(m_vkSurface);
 
 	// TODO: This is too loosey goosey 
@@ -48,14 +48,12 @@ EPRef<VKCommandPool> VKCommandPool::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice, 
 	VkSurfaceKHR vkSurface,
-	VkQueue vkQueue,
-	const EPRef<VKPipeline>& pVKPipeline, 
-	const EPRef<VKSwapchain>& pVKSwapchain
+	VkQueue vkQueue
 ) {
 	RESULT r = R::OK;
 	EPRef<VKCommandPool> pVKCommandPool = nullptr;
 
-	pVKCommandPool = new VKCommandPool(vkPhysicalDevice, vkLogicalDevice, vkSurface, vkQueue, pVKPipeline, pVKSwapchain);
+	pVKCommandPool = new VKCommandPool(vkPhysicalDevice, vkLogicalDevice, vkSurface, vkQueue);
 	CNM(pVKCommandPool, "Failed to allocate vk command pool");
 
 	CRM(pVKCommandPool->Initialize(), "Failed to initialize VK command pool");
@@ -68,7 +66,9 @@ Error:
 	return nullptr;
 }
 
-EPRef<VKCommandBuffers> VKCommandPool::MakeCommandBuffers(
+EPRef<VKCommandBuffers> VKCommandPool::MakeVertexDescriptorCommandBuffers(
+	const EPRef<VKPipeline>& pVKPipeline,
+	const EPRef<VKSwapchain>& pVKSwapchain,
 	const EPRef<VKVertexBuffer>& pVKVertextBuffer, 
 	const EPRef<VKDescriptorSet>& pVKDescriptorSet
 ) {
@@ -77,7 +77,9 @@ EPRef<VKCommandBuffers> VKCommandPool::MakeCommandBuffers(
 	EPRef<VKCommandBuffers> pVKCommandBuffers = VKCommandBuffers::make(
 		*(new EPRef<VKCommandPool>(this)), 
 		pVKVertextBuffer,
-		pVKDescriptorSet);
+		pVKDescriptorSet,
+		pVKPipeline,
+		pVKSwapchain);
 
 	CNM(pVKCommandBuffers, "Failed to make vk command buffers");
 
@@ -92,16 +94,12 @@ VKCommandPool::VKCommandPool(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
 	VkSurfaceKHR vkSurface,
-	VkQueue vkQueue,
-	const EPRef<VKPipeline>& pVKPipeline,
-	const EPRef<VKSwapchain>& pVKSwapchain
+	VkQueue vkQueue
 ) :
 	m_vkPhysicalDevice(vkPhysicalDevice),
 	m_vkLogicalDevice(vkLogicalDevice),
 	m_vkSurface(vkSurface),
-	m_vkQueue(vkQueue),
-	m_pVKPipeline(pVKPipeline),
-	m_pVKSwapchain(pVKSwapchain)
+	m_vkQueue(vkQueue)
 {
 	//
 }

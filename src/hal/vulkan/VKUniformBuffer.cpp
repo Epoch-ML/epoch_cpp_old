@@ -50,7 +50,7 @@ Error:
 RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	RESULT r = R::OK;
 
-	point<> ptEye = point<>(3.0f, 3.0f, 3.0f);
+	point<> ptEye = point<>(2.0f, 2.0f, 2.0f);
 	point<> ptOrigin = point<>();
 
 	// TODO: get rid of this from here (for testing)

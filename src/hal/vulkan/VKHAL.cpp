@@ -17,6 +17,7 @@
 #include "VKCommandPool.h"
 #include "VKCommandBuffers.h"
 #include "VKVertexBuffer.h"
+#include "VKTexture.h"
 
 #include "VKDescriptorSet.h"
 
@@ -394,16 +395,23 @@ Error:
 
 // TODO: We might want to keep this data 
 bool VKHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
+	
 	VkPhysicalDeviceProperties vkPhysicalDeviceProperties;
 	VkPhysicalDeviceFeatures vkPhysicalDeviceFeatures;
 
+	// Device Properties
 	vkGetPhysicalDeviceProperties(vkPhysicalDevice, &vkPhysicalDeviceProperties);
-	vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
 
 	if (vkPhysicalDeviceProperties.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 		return false;
 
+	// FEatures
+	vkGetPhysicalDeviceFeatures(vkPhysicalDevice, &vkPhysicalDeviceFeatures);
+
 	if (vkPhysicalDeviceFeatures.geometryShader == false) 
+		return false;
+
+	if (vkPhysicalDeviceFeatures.samplerAnisotropy == false)
 		return false;
 
 	auto queueFamilies = EnumerateVKPhysicalDeviceQueueFamilies(vkPhysicalDevice);
@@ -603,15 +611,23 @@ RESULT VKHAL::InitializeSwapchain() {
 
 	CNM(m_pVKSwapchain, "Failed to make vk swapchain");
 
+	// Initialize Command Pool first
+	CRM(InitializeCommandPool(), "Failed to initialize command pool");
+
+	// Texture before pipeline?
+	CRM(InitializeTexture(), "Failed to initialize texture");	// TODO: yea this
+	
 	CRM(InitializePipeline(), "Failed to initialize pipeline");
 
 	// TODO: One of these things is not like the others
 	CRM(m_pVKSwapchain->InitializeFramebuffers(m_pVKPipeline), "Failed to initialize framebuffers");
 
-	CRM(InitializeCommandPool(), "Failed to initialize command pool");
-
 	CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
 
+	CRM(m_pVKPipeline->InitializeDescriptors(m_pVKTexture), 
+		"Failed to initialize / update descriptors");
+
+	// Command buffers AFTER descriptors (makes sense)
 	CRM(InitializeCommandBuffers(), "Failed to initialize command buffers");
 
 Error:
@@ -654,6 +670,26 @@ Error:
 	return r;
 }
 
+RESULT VKHAL::InitializeTexture() {
+	RESULT r = R::OK;
+
+	CNM(m_pVKCommandPool, "Vertex buffer needs valid command pool");
+
+	m_pVKTexture = VKTexture::make(
+		m_vkPhysicalDevice, 
+		m_vkLogicalDevice,
+		m_pVKCommandPool,
+		"wooden_crate.jpg",
+		//"statue.jpg",
+		m_pVKCommandPool->GetVKQueueHandle()
+	);
+
+	CNM(m_pVKTexture, "Failed to create texture");
+
+Error:
+	return r;
+}
+
 RESULT VKHAL::InitializeVertexBuffer() {
 	RESULT r = R::OK;
 
@@ -678,7 +714,9 @@ RESULT VKHAL::InitializeCommandBuffers() {
 	CNM(m_pVKCommandPool, "Command buffers need valid comman pool");
 	CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
 
-	m_pVKCommandBuffers = m_pVKCommandPool->MakeCommandBuffers(
+	m_pVKCommandBuffers = m_pVKCommandPool->MakeVertexDescriptorCommandBuffers(
+		m_pVKPipeline,
+		m_pVKSwapchain,
 		m_pVKVertexBuffer, 
 		m_pVKPipeline->GetVKDescriptorSet()
 	);
@@ -702,9 +740,7 @@ RESULT VKHAL::InitializeCommandPool() {
 		m_vkPhysicalDevice, 
 		m_vkLogicalDevice, 
 		m_vkSurface, 
-		m_vkGraphicsQueueHandle,
-		m_pVKPipeline, 
-		m_pVKSwapchain
+		m_vkGraphicsQueueHandle
 	);
 
 	CNM(m_pVKCommandPool, "Failed to make vk command pool");
