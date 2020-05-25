@@ -17,15 +17,16 @@ class vertex {
 public:
 	point<TValue, dimension> m_ptPosition;
 	color m_cColor;
+	point<float, 2> m_uvcoord;
 	//vector<TValue, dimension> m_vNormal;
-	//point<float, 2> m_uvcoord;
 	//vector<TValue, dimension> m_vTangent;
 	//vector<TValue, dimension> m_vBitangent;
 
 public:
 	vertex() :
 		m_ptPosition(),
-		m_cColor(1.0f, 1.0f, 1.0f, 1.0f)
+		m_cColor(1.0f, 1.0f, 1.0f, 1.0f),
+		m_uvcoord(0.0f, 0.0f)
 	{
 		// 
 	}

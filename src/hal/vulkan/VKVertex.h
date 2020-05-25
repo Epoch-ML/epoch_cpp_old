@@ -19,21 +19,28 @@ class VKVertex
 public:
 	point<TValue, dimension> m_ptPosition;
 	color m_cColor;
+	point<float, 2> m_uvcoord;
 
 public:
 	VKVertex() = default;
 	~VKVertex() = default;
 
-	VKVertex(point<TValue, dimension> ptPosition, color cColor) :
+	VKVertex(point<TValue, dimension> ptPosition, color cColor, point<float, 2> uvcoord) :
 		m_ptPosition(ptPosition),
-		m_cColor(cColor)
+		m_cColor(cColor),
+		m_uvcoord(uvcoord)
 	{
 		//
 	}
 
-	VKVertex(std::initializer_list<TValue> ptValues, std::initializer_list<float> cValues) :
+	VKVertex(
+		std::initializer_list<TValue> ptValues, 
+		std::initializer_list<float> cValues,
+		std::initializer_list<float> uvValues
+	) :
 		m_ptPosition(ptValues),
-		m_cColor(cValues)
+		m_cColor(cValues),
+		m_uvcoord(uvValues)
 	{
 		//
 	}
@@ -48,9 +55,9 @@ public:
 		return vkVertexInputBindingDescription;
 	}
 
-	static EPArray<VkVertexInputAttributeDescription, 2> GetVKVertexAttributeDescriptions() {
+	static EPArray<VkVertexInputAttributeDescription, 3> GetVKVertexAttributeDescriptions() {
 
-		EPArray<VkVertexInputAttributeDescription, 2> vkVertexInputAttributeDescriptions = {};
+		EPArray<VkVertexInputAttributeDescription, 3> vkVertexInputAttributeDescriptions = {};
 
 		vkVertexInputAttributeDescriptions[0].binding = 0;
 		vkVertexInputAttributeDescriptions[0].location = 0;
@@ -68,6 +75,11 @@ public:
 		vkVertexInputAttributeDescriptions[1].location = 1;
 		vkVertexInputAttributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 		vkVertexInputAttributeDescriptions[1].offset = offsetof(VKVertex, m_cColor);
+
+		vkVertexInputAttributeDescriptions[2].binding = 0;
+		vkVertexInputAttributeDescriptions[2].location = 2;
+		vkVertexInputAttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+		vkVertexInputAttributeDescriptions[2].offset = offsetof(VKVertex, m_uvcoord);
 
 		return vkVertexInputAttributeDescriptions;
 	}

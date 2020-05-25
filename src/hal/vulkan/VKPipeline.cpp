@@ -41,7 +41,7 @@ Error:
 
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
-	EPArray<VkVertexInputAttributeDescription, 2> vkVertexAttributeDescriptions = {};
+	EPArray<VkVertexInputAttributeDescription, 3> vkVertexAttributeDescriptions = {};
 
 	// Uniform Descriptor Set Layout
 	VkDescriptorSetLayoutBinding vkDescriptorLayoutBindingUniformBufferObject = {};

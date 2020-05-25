@@ -54,9 +54,9 @@ public:
 		// Set up the command buffer data
 		// TODO: This is temporary just for testing
 		m_vertices = {
-			VKVertex<float, 4>({ 0.0f, 0.0f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),
-			VKVertex<float, 4>({ 0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}),
-			VKVertex<float, 4>({-0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f})
+			VKVertex<float, 4>({ 0.0f, 0.0f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),
+			VKVertex<float, 4>({-0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {0.5f, 1.0f})
 		};
 
 		m_indices = { 0, 1, 2 };
@@ -71,10 +71,10 @@ public:
 		// Set up the command buffer data
 		// TODO: This is temporary just for testing
 		m_vertices = {
-			VKVertex<float, 4>({-0.5f, 0.0f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),
-			VKVertex<float, 4>({ 0.5f, 0.0f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}),
-			VKVertex<float, 4>({ 0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}),
-			VKVertex<float, 4>({-0.5f, 0.0f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f})
+			VKVertex<float, 4>({-0.5f, 0.0f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.0f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),
+			VKVertex<float, 4>({ 0.5f, 0.0f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),
+			VKVertex<float, 4>({-0.5f, 0.0f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f})
 		};
 
 		m_indices = {
@@ -93,15 +93,15 @@ public:
 		// TODO: This is temporary just for testing
 		m_vertices = {
 			// Top
-			VKVertex<float, 4>({-0.5f, 0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),	// 0 top left back
-			VKVertex<float, 4>({ 0.5f, 0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}),	// 1 top right back
-			VKVertex<float, 4>({ 0.5f, 0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}),	// 2	 top right front
-			VKVertex<float, 4>({-0.5f, 0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),	// 3 top left front
+			VKVertex<float, 4>({-0.5f, 0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 0 top left back
+			VKVertex<float, 4>({ 0.5f, 0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 1 top right back
+			VKVertex<float, 4>({ 0.5f, 0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 2	 top right front
+			VKVertex<float, 4>({-0.5f, 0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}),	// 3 top left front
 
-			VKVertex<float, 4>({-0.5f, -0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}),	// 4 bottom left back
-			VKVertex<float, 4>({ 0.5f, -0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}),	// 5 bottom right back
-			VKVertex<float, 4>({ 0.5f, -0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}),	// 6 bottom right front
-			VKVertex<float, 4>({-0.5f, -0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f})	// 7 bottom left front
+			VKVertex<float, 4>({-0.5f, -0.5f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}),	// 4 bottom left back
+			VKVertex<float, 4>({ 0.5f, -0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}),	// 5 bottom right back
+			VKVertex<float, 4>({ 0.5f, -0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}, {1.0f, 1.0f}),	// 6 bottom right front
+			VKVertex<float, 4>({-0.5f, -0.5f,  0.5f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f})	// 7 bottom left front
 		};
 
 		m_indices = {
