@@ -92,11 +92,16 @@ RESULT VKTexture::Initialize() {
 
 	// Transition the image layout
 	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), "Failed to transition image layout");
+		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL), "Failed to transition image layout");
 	
 	// Copy staging buffer to image
 	CRM(CopyStagingBufferToImage(), "Failed to copy staging buffer to image");
+
+	// Second time transition
+	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), "Failed to transition image layout");
 
 	// Set up the image view
 	m_pVKImageView = VKImageView::make(
