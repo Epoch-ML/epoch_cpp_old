@@ -9,6 +9,7 @@
 
 #include "VKBuffer.h"
 #include "VKVertexBuffer.h"
+#include "VKModel.h"
 
 #include "VKDescriptorSet.h"
 #include "VKDepthAttachment.h"
@@ -22,6 +23,24 @@ VKCommandBuffers::VKCommandBuffers(
 ) :
 	m_pVKCommandPool(pVKCommandPool),
 	m_pVKVertexBuffer(pVKVertexBuffer),
+	m_pVKModel(nullptr),
+	m_pVKDescriptorSet(pVKDescriptorSet),
+	m_pVKPipeline(pVKPipeline),
+	m_pVKSwapchain(pVKSwapchain)
+{
+	//
+}
+
+VKCommandBuffers::VKCommandBuffers(
+	const EPRef<VKCommandPool>& pVKCommandPool,
+	const EPRef<VKModel>& pVKModel,
+	const EPRef<VKDescriptorSet>& pVKDescriptorSet,
+	const EPRef<VKPipeline>& pVKPipeline,
+	const EPRef<VKSwapchain>& pVKSwapchain
+) :
+	m_pVKCommandPool(pVKCommandPool),
+	m_pVKVertexBuffer(nullptr),
+	m_pVKModel(pVKModel),
 	m_pVKDescriptorSet(pVKDescriptorSet),
 	m_pVKPipeline(pVKPipeline),
 	m_pVKSwapchain(pVKSwapchain)
@@ -121,6 +140,8 @@ RESULT VKCommandBuffers::Kill() {
 
 	m_pVKVertexBuffer = nullptr;
 
+	m_pVKModel = nullptr;
+
 	m_pVKDescriptorSet = nullptr;
 
 	m_pVKCommandPool = nullptr;
@@ -178,12 +199,44 @@ Error:
 	return nullptr;
 }
 
+EPRef<VKCommandBuffers> VKCommandBuffers::MakeFromModel(
+	const EPRef<VKCommandPool>& pVKCommandPool,
+	const EPRef<VKModel>& pVKModel,
+	const EPRef<VKDescriptorSet>& pVKDescriptorSet,
+	const EPRef<VKPipeline>& pVKPipeline,
+	const EPRef<VKSwapchain>& pVKSwapchain
+) {
+	RESULT r = R::OK;
+	EPRef<VKCommandBuffers> pVKCommandBuffer = nullptr;
+
+	pVKCommandBuffer = new VKCommandBuffers(
+		pVKCommandPool,
+		pVKModel,
+		pVKDescriptorSet,
+		pVKPipeline,
+		pVKSwapchain);
+
+	CNM(pVKCommandBuffer, "Failed to allocate vk command buffer");
+
+	CRM(pVKCommandBuffer->Initialize(), "Failed to initialize VK command buffer");
+
+Success:
+	return pVKCommandBuffer;
+
+Error:
+	pVKCommandBuffer = nullptr;
+	return nullptr;
+}
+
+// TODO: This should be popped out my dudez
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
 
 	EPArray<VkClearValue, 2> vkClearValues = {};
 
-	CNM(m_pVKVertexBuffer, "Cannot record command buffers without a vertex buffer");
+	CBM(m_pVKVertexBuffer != nullptr || m_pVKModel != nullptr, 
+		"Cannot record command buffers without a vertex buffer or model");
+
 	CNM(m_pVKDescriptorSet, "Cannot record command buffers without a descriptor set");
 
 	for (uint32_t i = 0; i < m_vkCommandBuffers.size(); i++) {
@@ -222,10 +275,17 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 
 		//// TODO: wtf land - 
 		// a lot of arch needs to go into this
-		m_pVKVertexBuffer->Bind(m_vkCommandBuffers[i]);
-		m_pVKDescriptorSet->Bind(m_vkCommandBuffers[i], m_pVKPipeline->GetVKPipelineLayout(), i);
+		if (m_pVKVertexBuffer != nullptr) {
+			m_pVKVertexBuffer->Bind(m_vkCommandBuffers[i]);
+			m_pVKDescriptorSet->Bind(m_vkCommandBuffers[i], m_pVKPipeline->GetVKPipelineLayout(), i);
+			m_pVKVertexBuffer->DrawIndexed(m_vkCommandBuffers[i]);
+		}
 
-		m_pVKVertexBuffer->DrawIndexed(m_vkCommandBuffers[i]);
+		if (m_pVKModel != nullptr) {
+			m_pVKModel->Bind(m_vkCommandBuffers[i]);
+			m_pVKDescriptorSet->Bind(m_vkCommandBuffers[i], m_pVKPipeline->GetVKPipelineLayout(), i);
+			m_pVKModel->Draw(m_vkCommandBuffers[i]);
+		}
 
 		vkCmdEndRenderPass(m_vkCommandBuffers[i]);
 

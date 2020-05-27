@@ -91,6 +91,30 @@ Error:
 	return nullptr;
 }
 
+EPRef<VKCommandBuffers> VKCommandPool::MakeVertexDescriptorCommandBuffers(
+	const EPRef<VKPipeline>& pVKPipeline,
+	const EPRef<VKSwapchain>& pVKSwapchain,
+	const EPRef<VKModel>& pVKModel,
+	const EPRef<VKDescriptorSet>& pVKDescriptorSet
+) {
+	RESULT r = R::OK;
+
+	EPRef<VKCommandBuffers> pVKCommandBuffers = VKCommandBuffers::MakeFromModel(
+		*(new EPRef<VKCommandPool>(this)),
+		pVKModel,
+		pVKDescriptorSet,
+		pVKPipeline,
+		pVKSwapchain);
+
+	CNM(pVKCommandBuffers, "Failed to make vk command buffers");
+
+Success:
+	return pVKCommandBuffers;
+
+Error:
+	return nullptr;
+}
+
 VKCommandPool::VKCommandPool(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,

@@ -20,6 +20,7 @@ class VKPipeline;
 class VKCommandBuffers;
 class VKVertexBuffer;
 class VKDescriptorSet;
+class VKModel;
 
 class VKCommandPool :
 	public pool,
@@ -59,6 +60,12 @@ public:
 		const EPRef<VKPipeline>&,
 		const EPRef<VKSwapchain>&,
 		const EPRef<VKVertexBuffer>&, 
+		const EPRef<VKDescriptorSet>&);
+
+	EPRef<VKCommandBuffers> MakeVertexDescriptorCommandBuffers(
+		const EPRef<VKPipeline>&,
+		const EPRef<VKSwapchain>&,
+		const EPRef<VKModel>&,
 		const EPRef<VKDescriptorSet>&);
 
 private:
