@@ -8,6 +8,8 @@
 #include "VKSampler.h"
 #include "VKTexture.h"
 
+#include "VKDepthAttachment.h"
+
 RESULT VKDescriptorSet::Initialize() {
 	RESULT r = R::OK;
 

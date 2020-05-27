@@ -138,6 +138,7 @@ RESULT VKImage::TranisitionImageLayout(
 	const EPRef<VKCommandPool>& pVKCommandPool, 
 	VkImageLayout vkOldImageLayout, 
 	VkImageLayout vkNewImageLayout,
+	VkImageAspectFlags vkImageAspectFlags,
 	VkQueue vkQueue
 ) {
 	RESULT r = R::OK;
@@ -158,7 +159,7 @@ RESULT VKImage::TranisitionImageLayout(
 	vkImageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	vkImageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	vkImageMemoryBarrier.image = m_vkTextureImage;
-	vkImageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	vkImageMemoryBarrier.subresourceRange.aspectMask = vkImageAspectFlags;
 	vkImageMemoryBarrier.subresourceRange.baseMipLevel = 0;
 	vkImageMemoryBarrier.subresourceRange.levelCount = 1;
 	vkImageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
@@ -166,6 +167,19 @@ RESULT VKImage::TranisitionImageLayout(
 
 	vkImageMemoryBarrier.srcAccessMask = 0; // TODO
 	vkImageMemoryBarrier.dstAccessMask = 0; // TODO
+
+	// Logic should be generalized in the future
+	if (vkNewImageLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		vkImageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+		if (VKFormatHasStencilComponent(m_vkFormat)) {
+			vkImageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+	}
+	else {
+		vkImageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	}
+
 
 	CRM(pVKCommandBuffers->PipelineBarrier(0, vkImageMemoryBarrier), 
 		"Failed to set image pipeline barrier for layout transition");

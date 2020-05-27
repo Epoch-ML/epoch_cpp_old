@@ -12,6 +12,7 @@
 
 // TODO: wtf does this need to be everywhere?
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKTexture::CopyStagingBufferToImage() {
 	RESULT r = R::OK;
@@ -96,6 +97,7 @@ RESULT VKTexture::Initialize() {
 	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
 		VK_IMAGE_LAYOUT_UNDEFINED,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		VK_IMAGE_ASPECT_COLOR_BIT,
 		m_vkQueue), 
 	"Failed to transition image layout");
 	
@@ -106,6 +108,7 @@ RESULT VKTexture::Initialize() {
 	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		VK_IMAGE_ASPECT_COLOR_BIT,
 		m_vkQueue), 
 	"Failed to transition image layout");
 
@@ -113,7 +116,8 @@ RESULT VKTexture::Initialize() {
 	m_pVKImageView = VKImageView::make(
 		m_vkPhysicalDevice, 
 		m_vkLogicalDevice, 
-		m_pVKImage);
+		m_pVKImage,
+		VK_IMAGE_ASPECT_COLOR_BIT);
 	CNM(m_pVKImageView, "Failed to create VKImageView");
 
 	// Set up sampler

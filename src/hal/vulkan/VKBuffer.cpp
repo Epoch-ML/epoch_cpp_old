@@ -1,6 +1,7 @@
 #include "VKBuffer.h"
 
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 #include "hal/image.h"
 #include "hal/STBImage.h"

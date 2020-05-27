@@ -22,13 +22,14 @@ class VKCommandPool;
 
 class VKImageView :
 	public VKObj,
-	public EPFactoryMethod<VKImageView, VkPhysicalDevice, VkDevice, const EPRef<VKImage>&>
+	public EPFactoryMethod<VKImageView, VkPhysicalDevice, VkDevice, const EPRef<VKImage>&, VkImageAspectFlags>
 {
 private:
 	VKImageView(
 		VkPhysicalDevice vkPhysicalDevice,
 		VkDevice vkLogicalDevice,
-		const EPRef<VKImage>& pVKImage
+		const EPRef<VKImage>& pVKImage,
+		VkImageAspectFlags vkImageAspectFlags
 	);
 
 	virtual RESULT Initialize() override;
@@ -40,7 +41,7 @@ public:
 		VkDevice vkLogicalDevice
 	);
 
-	RESULT Initialize(VkImage vkImage, VkFormat vkFormat);
+	RESULT Initialize(VkImage vkImage, VkFormat vkFormat, VkImageAspectFlags vkImageAspectFlags);
 
 	const VkImageView& GetVKImageViewHandle() const { return m_vkImageView; }
 
@@ -50,12 +51,15 @@ public:
 	static EPRef<VKImageView> InternalMake(
 		VkPhysicalDevice,
 		VkDevice,
-		const EPRef<VKImage>&
+		const EPRef<VKImage>&,
+		VkImageAspectFlags
 	);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
+
+	VkImageAspectFlags m_vkImageAspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
 
 	EPRef<VKImage> m_pVKImage = nullptr;
 

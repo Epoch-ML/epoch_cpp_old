@@ -20,6 +20,7 @@
 #include "VKTexture.h"
 
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKHAL::EnumerateInstanceExtensions() {
 	RESULT r = R::OK;
@@ -435,7 +436,7 @@ bool VKHAL::IsVKPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice) {
 		return false;
 
 	// Check swap chain
-	EPRef<VKSwapchain> pVKSwapchain = VKSwapchain::make(vkPhysicalDevice, m_vkSurface);
+	EPRef<VKSwapchain> pVKSwapchain = VKSwapchain::make(vkPhysicalDevice, m_vkSurface, m_pVKCommandPool);
 	if (pVKSwapchain == nullptr) {
 		DEBUG_LINEOUT("Failed to allocate VK swapchain");
 		return false;
@@ -599,9 +600,15 @@ RESULT VKHAL::InitializeSwapchain() {
 
 	CRM(CleanupSwapchain(), "Failed to clean up swapchain first");
 
+	// Initialize Command Pool first
+	CRM(InitializeCommandPool(), "Failed to initialize command pool");
+
+	CNM(m_pVKCommandPool, "Swapchain initialization requires valid command pool");
+
 	m_pVKSwapchain = VKSwapchain::make(
 		m_vkPhysicalDevice, 
 		m_vkSurface, 
+		m_pVKCommandPool,
 		m_vkLogicalDevice,
 		VK_FORMAT_B8G8R8A8_SRGB, 
 		VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
@@ -611,8 +618,6 @@ RESULT VKHAL::InitializeSwapchain() {
 
 	CNM(m_pVKSwapchain, "Failed to make vk swapchain");
 
-	// Initialize Command Pool first
-	CRM(InitializeCommandPool(), "Failed to initialize command pool");
 
 	// Texture before pipeline?
 	CRM(InitializeTexture(), "Failed to initialize texture");	// TODO: yea this
@@ -733,7 +738,6 @@ RESULT VKHAL::InitializeCommandPool() {
 	CNM(m_vkPhysicalDevice, "Command pool needs valid physical device");
 	CNM(m_vkSurface, "Command pool needs valid surface");
 	CNM(m_vkLogicalDevice, "Command pool needs valid logical device");
-	CNM(m_pVKSwapchain, "Command pool needs valid swapchain");
 	CNM(m_vkGraphicsQueueHandle, "Need valid graphics queue handle");
 
 	m_pVKCommandPool = VKCommandPool::make(

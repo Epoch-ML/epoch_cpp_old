@@ -7,6 +7,7 @@
 #include "VKBuffer.h"
 
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKVertexBuffer::Initialize() {
 	RESULT r = R::OK;
@@ -186,7 +187,8 @@ EPRef<VKVertexBuffer> VKVertexBuffer::InternalMake(
 
 	//pVKVertexBuffer->InitializeAsTriangle();
 	//pVKVertexBuffer->InitializeAsQuad();
-	pVKVertexBuffer->InitializeAsCube();
+	pVKVertexBuffer->InitializeAsQuads();
+	//pVKVertexBuffer->InitializeAsCube();
 
 	CRM(pVKVertexBuffer->Initialize(), "Failed to initialize VK vertex buffer");
 

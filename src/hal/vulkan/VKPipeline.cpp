@@ -11,6 +11,8 @@
 #include "VKDescriptorPool.h"
 #include "VKDescriptorSet.h"
 
+#include "VKDepthAttachment.h"
+
 #include "core/math/matrix/matrix.h"
 
 #include "core/types/EPArray.h"
@@ -42,6 +44,7 @@ Error:
 RESULT VKPipeline::Initialize() {
 	RESULT r = R::OK;
 	EPArray<VkVertexInputAttributeDescription, 3> vkVertexAttributeDescriptions = {};
+	EPArray<VkAttachmentDescription, 2> vkAttachments = {};
 
 	// Uniform Descriptor Set Layout
 	VkDescriptorSetLayoutBinding vkDescriptorLayoutBindingUniformBufferObject = {};
@@ -225,23 +228,29 @@ RESULT VKPipeline::Initialize() {
 	CNM(m_vkPipelineLayout, "Failed to create pipeline layout");
 
 	// Color attachment TODO: Split into object
-	m_vkAttachmentDescription.format = m_pVKSwapchain->GetVKSwapchainImageFormat();
-	m_vkAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
-	m_vkAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	m_vkAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	m_vkAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	m_vkAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	m_vkAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	m_vkAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	m_vkColorAttachmentDescription.format = m_pVKSwapchain->GetVKSwapchainImageFormat();
+	m_vkColorAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+	m_vkColorAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	m_vkColorAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	m_vkColorAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	m_vkColorAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	m_vkColorAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	m_vkColorAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 	// Color attachment reference
-	m_vkAttachmentReference.attachment = 0;
-	m_vkAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	m_vkColorAttachmentReference.attachment = 0;
+	m_vkColorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	// Depth Attachment
+	m_vkDepthAttachmentDescription = m_pVKSwapchain->GetVKDepthAttachment()->GetVKAttachmentDescription();
+	m_vkDepthAttachmentReference.attachment = 1;
+	m_vkDepthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	// Subpass
 	m_vkSubpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	m_vkSubpassDescription.colorAttachmentCount = 1;
-	m_vkSubpassDescription.pColorAttachments = &m_vkAttachmentReference;
+	m_vkSubpassDescription.pColorAttachments = &m_vkColorAttachmentReference;
+	m_vkSubpassDescription.pDepthStencilAttachment = &m_vkDepthAttachmentReference;
 
 	// Subpadd dependency
 	m_vkSubpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -252,9 +261,17 @@ RESULT VKPipeline::Initialize() {
 	m_vkSubpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	// Render pass
-	m_vkRenderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	m_vkRenderPassCreateInfo.attachmentCount = 1;
-	m_vkRenderPassCreateInfo.pAttachments = &m_vkAttachmentDescription;
+	// TODO: Automate this
+	vkAttachments[0] = m_vkColorAttachmentDescription;
+	vkAttachments[1] = m_vkDepthAttachmentDescription;
+
+	m_vkRenderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;	
+	m_vkRenderPassCreateInfo.pAttachments = vkAttachments.data;
+	m_vkRenderPassCreateInfo.attachmentCount = static_cast<uint32_t>(vkAttachments.size());
+
+	//m_vkRenderPassCreateInfo.pAttachments = &m_vkColorAttachmentDescription;
+	//m_vkRenderPassCreateInfo.attachmentCount = 1;
+
 	m_vkRenderPassCreateInfo.subpassCount = 1;
 	m_vkRenderPassCreateInfo.pSubpasses = &m_vkSubpassDescription;
 	m_vkRenderPassCreateInfo.dependencyCount = 1;
@@ -263,6 +280,18 @@ RESULT VKPipeline::Initialize() {
 	CVKRM(vkCreateRenderPass(m_vkLogicalDevice, &m_vkRenderPassCreateInfo, nullptr, &m_vkRenderPass),
 		"Failed to create render pass");
 	CNM(m_vkRenderPass, "Failed to create render pass");
+
+	// Depth Stencil 
+	m_vkPipelineDepthStencilStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	m_vkPipelineDepthStencilStateCreateInfo.depthTestEnable = true;
+	m_vkPipelineDepthStencilStateCreateInfo.depthWriteEnable = true;
+	m_vkPipelineDepthStencilStateCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+	m_vkPipelineDepthStencilStateCreateInfo.depthBoundsTestEnable = false;
+	m_vkPipelineDepthStencilStateCreateInfo.minDepthBounds = 0.0f;	// opt
+	m_vkPipelineDepthStencilStateCreateInfo.maxDepthBounds = 0.0f;	// opt
+	m_vkPipelineDepthStencilStateCreateInfo.stencilTestEnable = false;
+	m_vkPipelineDepthStencilStateCreateInfo.front= {};					// opt
+	m_vkPipelineDepthStencilStateCreateInfo.back = {};					// opt
 
 	// Create the graphics pipeline 
 
@@ -279,7 +308,7 @@ RESULT VKPipeline::Initialize() {
 	m_vkGraphicsPipelineCreateInfo.pViewportState = &m_vkPipelineViewportStateCreateInfo;
 	m_vkGraphicsPipelineCreateInfo.pRasterizationState = &m_vkPipelineRasterizationStateCreateInfo;
 	m_vkGraphicsPipelineCreateInfo.pMultisampleState = &m_vkPipelineMultisampleStateCreateInfo;
-	m_vkGraphicsPipelineCreateInfo.pDepthStencilState = nullptr; // Optional
+	m_vkGraphicsPipelineCreateInfo.pDepthStencilState = &m_vkPipelineDepthStencilStateCreateInfo; 
 	m_vkGraphicsPipelineCreateInfo.pColorBlendState = &m_vkPipelineColorBlendStateCreateInfo;
 	m_vkGraphicsPipelineCreateInfo.pDynamicState = nullptr; // Optional
 	m_vkGraphicsPipelineCreateInfo.layout = m_vkPipelineLayout;

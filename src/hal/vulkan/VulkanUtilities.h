@@ -32,6 +32,14 @@ RESULT DestroyDebugUtilsMessengerEXT(
 
 EPVector<VkQueueFamilyProperties> EnumerateVKPhysicalDeviceQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
 
+VkFormat FindSupportedFormat(
+	VkPhysicalDevice vkPhysicalDevice,
+	const EPVector<VkFormat>& vkFormatCandidates, 
+	VkImageTiling vkImageTiling, 
+	VkFormatFeatureFlags vkFormatFeatureFlags);
+
+bool VKFormatHasStencilComponent(VkFormat vkFormat);
+
 class VKQueueFamilies {
 public:
 	VKQueueFamilies() = default;

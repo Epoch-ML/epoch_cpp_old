@@ -159,3 +159,33 @@ VKQueueFamilies FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKH
 Error:
 	return vkQueueFamilies;
 }
+
+VkFormat FindSupportedFormat(
+	VkPhysicalDevice vkPhysicalDevice,
+	const EPVector<VkFormat>& vkFormatCandidates,
+	VkImageTiling vkImageTiling,
+	VkFormatFeatureFlags vkFormatFeatureFlags)
+{
+	for (auto& vkFormat : vkFormatCandidates) {
+		VkFormatProperties vkFormatProperties; 
+		vkGetPhysicalDeviceFormatProperties(vkPhysicalDevice, vkFormat, &vkFormatProperties);
+
+		if ((vkImageTiling == VK_IMAGE_TILING_LINEAR) &&
+			(vkFormatProperties.linearTilingFeatures & vkFormatFeatureFlags) == vkFormatFeatureFlags)
+		{
+			return vkFormat;
+		}
+		else if ((vkImageTiling == VK_IMAGE_TILING_OPTIMAL) &&
+				 (vkFormatProperties.optimalTilingFeatures & vkFormatFeatureFlags) == vkFormatFeatureFlags) 
+		{
+			return vkFormat;
+		}
+	}
+
+	// not found
+	return VK_FORMAT_UNDEFINED;
+}
+
+bool VKFormatHasStencilComponent(VkFormat vkFormat) {
+	return (vkFormat == VK_FORMAT_D32_SFLOAT_S8_UINT) || (vkFormat == VK_FORMAT_D24_UNORM_S8_UINT);
+}

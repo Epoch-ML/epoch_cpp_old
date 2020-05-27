@@ -3,6 +3,7 @@
 #include "VulkanUtilities.h"
 
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKDescriptorPool::Initialize() {
 	RESULT r = R::OK;

@@ -2,10 +2,12 @@
 
 #include "VKImage.h"
 
-RESULT VKImageView::Initialize(VkImage vkImage, VkFormat vkFormat) {
+RESULT VKImageView::Initialize(VkImage vkImage, VkFormat vkFormat, VkImageAspectFlags vkImageAspectFlags) {
 	RESULT r = R::OK;
 
 	VkImageViewCreateInfo vkImageViewCreateInfo = {};
+
+	m_vkImageAspectFlags = vkImageAspectFlags;
 
 	CN(m_vkLogicalDevice);
 	CN(vkImage);
@@ -14,7 +16,7 @@ RESULT VKImageView::Initialize(VkImage vkImage, VkFormat vkFormat) {
 	vkImageViewCreateInfo.image = vkImage;
 	vkImageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	vkImageViewCreateInfo.format = vkFormat;
-	vkImageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	vkImageViewCreateInfo.subresourceRange.aspectMask = m_vkImageAspectFlags;
 	vkImageViewCreateInfo.subresourceRange.baseMipLevel = 0;
 	vkImageViewCreateInfo.subresourceRange.levelCount = 1;
 	vkImageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
@@ -30,7 +32,11 @@ Error:
 }
 
 RESULT VKImageView::Initialize() {
-	return Initialize(m_pVKImage->GetVKImageHandle(), VK_FORMAT_R8G8B8A8_SRGB);
+	return Initialize(
+		m_pVKImage->GetVKImageHandle(), 
+		m_pVKImage->GetVKImageFormat(),
+		m_vkImageAspectFlags
+	);
 }
 
 RESULT VKImageView::Kill() {
@@ -48,7 +54,8 @@ Error:
 EPRef<VKImageView> VKImageView::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
-	const EPRef<VKImage>& pVKImage
+	const EPRef<VKImage>& pVKImage,
+	VkImageAspectFlags vkImageAspectFlags
 ) {
 	RESULT r = R::OK;
 	EPRef<VKImageView> pVKImageView = nullptr;
@@ -56,7 +63,8 @@ EPRef<VKImageView> VKImageView::InternalMake(
 	pVKImageView = new VKImageView(
 		vkPhysicalDevice,
 		vkLogicalDevice,
-		pVKImage
+		pVKImage,
+		vkImageAspectFlags
 	);
 	CNM(pVKImageView, "Failed to allocate vk image view");
 
@@ -73,11 +81,13 @@ Error:
 VKImageView::VKImageView(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
-	const EPRef<VKImage>& pVKImage
+	const EPRef<VKImage>& pVKImage,
+	VkImageAspectFlags vkImageAspectFlags
 ) :
 	m_vkPhysicalDevice(vkPhysicalDevice),
 	m_vkLogicalDevice(vkLogicalDevice),
-	m_pVKImage(pVKImage)
+	m_pVKImage(pVKImage),
+	m_vkImageAspectFlags(vkImageAspectFlags)
 {
 	//
 }
@@ -88,7 +98,8 @@ VKImageView::VKImageView(
 ) :
 	m_vkPhysicalDevice(vkPhysicalDevice),
 	m_vkLogicalDevice(vkLogicalDevice),
-	m_pVKImage(nullptr)
+	m_pVKImage(nullptr),
+	m_vkImageAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)
 {
 	//
 }
