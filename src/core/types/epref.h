@@ -70,13 +70,19 @@ public:
 	explicit EPRef(const EPRef& pEPObj) {
 		m_pEPObj = pEPObj.m_pEPObj;
 		m_pRefCounter = pEPObj.m_pRefCounter;
-		m_pRefCounter->operator++();
+		
+		if (m_pEPObj != nullptr) {
+			m_pRefCounter->operator++();
+		}
 	}
 
 	explicit EPRef(EPRef& pEPObj) {
 		m_pEPObj = pEPObj.m_pEPObj;
 		m_pRefCounter = pEPObj.m_pRefCounter;
-		m_pRefCounter->operator++();
+
+		if (m_pEPObj != nullptr) {
+			m_pRefCounter->operator++();
+		}
 	}
 
 	// move
@@ -100,7 +106,10 @@ public:
 
 			m_pEPObj = pEPObj.m_pEPObj;
 			m_pRefCounter = pEPObj.m_pRefCounter;
-			m_pRefCounter->operator++();
+			
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
 
 		}
 
@@ -112,7 +121,10 @@ public:
 
 			m_pEPObj = pEPObj.m_pEPObj;
 			m_pRefCounter = pEPObj.m_pRefCounter;
-			m_pRefCounter->operator++();
+			
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
 		}
 
 		return *this;
@@ -126,7 +138,9 @@ public:
 			m_pRefCounter = pEPObj.m_pRefCounter;
 
 			// This seems needed since the decrement is being called regardless
-			m_pRefCounter->operator++();
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
 
 			//pEPObj.DecrementCount();
 
@@ -141,7 +155,10 @@ public:
 	EPRef(const EPRef<TOther>& pEPObj) {
 		m_pEPObj = (TEPObj*)(pEPObj.get());
 		m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
-		m_pRefCounter->operator++();
+		
+		if (m_pEPObj != nullptr) {
+			m_pRefCounter->operator++();
+		}
 	}
 
 	template <class TOther>
@@ -150,7 +167,10 @@ public:
 
 			m_pEPObj = (TEPObj*)(pEPObj.get());
 			m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
-			m_pRefCounter->operator++();
+			
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
 
 		}
 
@@ -163,7 +183,10 @@ public:
 
 			m_pEPObj = (TEPObj*)(pEPObj.get());
 			m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
-			m_pRefCounter->operator++();
+			
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
 
 		}
 
@@ -177,7 +200,9 @@ public:
 			m_pRefCounter = (ref_counter*)pEPObj.get_ref_counter();
 
 			// This seems needed since the decrement is being called regardless
-			m_pRefCounter->operator++();
+			if (m_pEPObj != nullptr) {
+				m_pRefCounter->operator++();
+			}
 
 			//pEPObj.DecrementCount();
 

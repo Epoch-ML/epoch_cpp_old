@@ -63,10 +63,12 @@ public:
 		const EPRef<VKCommandPool>& pVKCommandPool, 
 		VkImageLayout vkOldImagelayout, 
 		VkImageLayout vkNewImageLayout,
+		VkImageAspectFlags vkImageAspectFlags,
 		VkQueue vkQueue
 	);
 
 	VkImage GetVKImageHandle() { return m_vkTextureImage; }
+	VkFormat GetVKImageFormat() { return m_vkFormat; }
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;

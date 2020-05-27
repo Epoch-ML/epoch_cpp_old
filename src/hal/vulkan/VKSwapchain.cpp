@@ -12,6 +12,7 @@
 #include "VKImage.h"
 #include "VKImageView.h"
 #include "VKDepthAttachment.h"
+#include "VKCommandPool.h"
 
 RESULT VKSwapchain::Initialize() {
 	RESULT r = R::OK;
@@ -77,14 +78,18 @@ Error:
 }
 
 // This is split since this call can simply query the object
-EPRef<VKSwapchain> VKSwapchain::make(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface) {
+EPRef<VKSwapchain> VKSwapchain::make(
+	VkPhysicalDevice vkPhysicalDevice, 
+	VkSurfaceKHR vkSurface, 
+	const EPRef<VKCommandPool>& pVKCommandPool
+) {
 	RESULT r = R::OK;
 	EPRef<VKSwapchain> pVKSwapchain = nullptr;
 
 	CNM(vkPhysicalDevice, "Cannot make vk swapchain without a valid physical device");
 	CNM(vkSurface, "Cannot make vk swapchain without a valid surface");
 
-	pVKSwapchain = new VKSwapchain(vkPhysicalDevice, vkSurface);
+	pVKSwapchain = new VKSwapchain(vkPhysicalDevice, vkSurface, pVKCommandPool);
 	CNM(pVKSwapchain, "Failed to allocate swapchain");
 
 	CRM(pVKSwapchain->Initialize(), "Failed to initialize VK swapchain");
@@ -100,6 +105,7 @@ Error:
 EPRef<VKSwapchain> VKSwapchain::make(
 	VkPhysicalDevice vkPhysicalDevice, 
 	VkSurfaceKHR vkSurface, 
+	const EPRef<VKCommandPool>& pVKCommandPool,
 	VkDevice vkLogicalDevice,
 	VkFormat vkSurfaceFormat, 
 	VkColorSpaceKHR vkColorSpaceKHR,
@@ -113,7 +119,7 @@ EPRef<VKSwapchain> VKSwapchain::make(
 	CNM(vkSurface, "Cannot make vk swapchain without a valid surface");
 	CNM(vkLogicalDevice, "Cannot make vk swapchain without a valid logical device");
 
-	pVKSwapchain = VKSwapchain::make(vkPhysicalDevice, vkSurface);
+	pVKSwapchain = VKSwapchain::make(vkPhysicalDevice, vkSurface, pVKCommandPool);
 	CNM(pVKSwapchain, "Failed to initialize VK swapchain");
 
 	pVKSwapchain->m_vkLogicalDevice = vkLogicalDevice;
@@ -279,7 +285,8 @@ RESULT VKSwapchain::CreateSwapchain() {
 	m_pVKDepthAttachment = VKDepthAttachment::make(
 		m_vkPhysicalDevice, 
 		m_vkLogicalDevice, 
-		EPRef<VKSwapchain>(this));
+		EPRef<VKSwapchain>(this),
+		m_pVKCommandPool);
 	CNM(m_pVKDepthAttachment, "Failed to create depth attachment");
 
 Error:
@@ -333,9 +340,10 @@ const VkFramebuffer VKSwapchain::GetSwapchainFramebuffers(uint32_t i) const {
 	return m_vkFramebuffers[i]->GetVKFrameBufferHandle();
 }
 
-VKSwapchain::VKSwapchain(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface) :
+VKSwapchain::VKSwapchain(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface, const EPRef<VKCommandPool>& pVKCommandPool) :
 	m_vkPhysicalDevice(vkPhysicalDevice),
-	m_vkSurface(vkSurface)
+	m_vkSurface(vkSurface),
+	m_pVKCommandPool(pVKCommandPool)
 {
 	//
 }

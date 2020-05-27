@@ -34,8 +34,8 @@ Error:
 RESULT VKImageView::Initialize() {
 	return Initialize(
 		m_pVKImage->GetVKImageHandle(), 
-		VK_FORMAT_R8G8B8A8_SRGB, 
-		VK_IMAGE_ASPECT_COLOR_BIT
+		m_pVKImage->GetVKImageFormat(),
+		m_vkImageAspectFlags
 	);
 }
 

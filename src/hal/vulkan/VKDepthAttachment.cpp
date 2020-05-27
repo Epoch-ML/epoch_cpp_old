@@ -5,7 +5,7 @@
 #include "VKSwapchain.h"
 #include "VKImage.h"
 #include "VKImageView.h"
-
+#include "VKCommandPool.h"
 
 VkFormat VKDepthAttachment::FindDepthFormat() {
 	return FindSupportedFormat(
@@ -21,7 +21,6 @@ RESULT VKDepthAttachment::Initialize() {
 
 	m_vkDepthFormat = FindDepthFormat();
 	CBM(m_vkDepthFormat != VK_FORMAT_UNDEFINED, "Failed to find valid format");
-	//CBM(VKFormatHasStencilComponent(m_vkDepthFormat), "Depth format doesn't have a stencil component");
 
 	m_pVKImage = VKImage::make(
 		m_vkPhysicalDevice,
@@ -33,6 +32,14 @@ RESULT VKDepthAttachment::Initialize() {
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 	);
 	CNM(m_pVKImage, "Failed to create depth attachment image");
+
+	// Transition the image layout
+	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+		VK_IMAGE_ASPECT_DEPTH_BIT,
+		m_pVKCommandPool->GetVKQueueHandle()),
+		"Failed to transition image layout");
 
 	m_pVKImageView = VKImageView::make(
 		m_vkPhysicalDevice, 
@@ -59,7 +66,8 @@ Error:
 EPRef<VKDepthAttachment> VKDepthAttachment::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
-	EPRef<VKSwapchain> pVKSwapchain
+	EPRef<VKSwapchain> pVKSwapchain,
+	const EPRef<VKCommandPool>& pVKCommandPool
 ) {
 	RESULT r = R::OK;
 	EPRef<VKDepthAttachment> pVKDepthAttachment = nullptr;
@@ -67,7 +75,8 @@ EPRef<VKDepthAttachment> VKDepthAttachment::InternalMake(
 	pVKDepthAttachment = new VKDepthAttachment(
 		vkPhysicalDevice, 
 		vkLogicalDevice,
-		pVKSwapchain
+		pVKSwapchain,
+		pVKCommandPool
 	);
 	CNM(pVKDepthAttachment, "Failed to allocate vk Depth Attachment");
 
@@ -84,11 +93,13 @@ Error:
 VKDepthAttachment::VKDepthAttachment(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
-	EPRef<VKSwapchain> pVKSwapchain
+	EPRef<VKSwapchain> pVKSwapchain,
+	const EPRef<VKCommandPool>& pVKCommandPool
 ) :
 	m_vkPhysicalDevice(vkPhysicalDevice),
 	m_vkLogicalDevice(vkLogicalDevice),
-	m_pVKSwapchain(pVKSwapchain)
+	m_pVKSwapchain(pVKSwapchain),
+	m_pVKCommandPool(pVKCommandPool)
 {
 	//
 }

@@ -361,6 +361,15 @@ RESULT VKCommandBuffers::PipelineBarrier(uint32_t index, VkImageMemoryBarrier &v
 		vkPipelineSourceStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		vkPipelineDestinationStageFlags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 	}
+	else if (vkImageMemoryBarrier.oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && 
+			 vkImageMemoryBarrier.newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) 
+	{
+		vkImageMemoryBarrier.srcAccessMask = 0;
+		vkImageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		vkPipelineSourceStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		vkPipelineDestinationStageFlags = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	}
 	else {
 		CBM(false, "unsupported layout transition!");
 	}

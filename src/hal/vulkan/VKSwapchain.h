@@ -17,15 +17,17 @@ class VKPipeline;
 class VKFramebuffer;
 class VKImage;
 class VKImageView;
+class VKCommandPool;
 
 class VKDepthAttachment;
 // TODO: VKColorAttachment
+
 
 class VKSwapchain :
 	public swapchain
 {
 private:
-	VKSwapchain(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface);
+	VKSwapchain(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface, const EPRef<VKCommandPool>&);
 
 	virtual RESULT Initialize() override;
 
@@ -67,6 +69,7 @@ public:
 	static EPRef<VKSwapchain> make(
 		VkPhysicalDevice vkPhysicalDevice,
 		VkSurfaceKHR vkSurface,
+		const EPRef<VKCommandPool>& pVKCommandPool,
 		VkDevice vkLogicalDevice,
 		VkFormat vkSurfaceFormat,
 		VkColorSpaceKHR vkColorSpaceKHR,
@@ -75,7 +78,7 @@ public:
 	);
 
 	// This just gets the swap chain initialized
-	static EPRef<VKSwapchain> make(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface);
+	static EPRef<VKSwapchain> make(VkPhysicalDevice vkPhysicalDevice, VkSurfaceKHR vkSurface, const EPRef<VKCommandPool>& pVKCommandPool);
 
 	const EPVector<VkSurfaceFormatKHR>& SurfaceFormats() const { 
 		return const_cast<const EPVector<VkSurfaceFormatKHR>&>(m_vkSurfaceFormats); 
@@ -98,6 +101,8 @@ private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkSurfaceKHR m_vkSurface = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
+
+	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
 
 	VkExtent2D m_vkSelectedExtent2D;
 

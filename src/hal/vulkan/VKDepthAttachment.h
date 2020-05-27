@@ -18,13 +18,18 @@
 class VKImage;
 class VKImageView;
 class VKSwapchain;
+class VKCommandPool;
 
 class VKDepthAttachment :
 	public attachment,
-	public EPFactoryMethod<VKDepthAttachment, VkPhysicalDevice, VkDevice, EPRef<VKSwapchain>>
+	public EPFactoryMethod<VKDepthAttachment, VkPhysicalDevice, VkDevice, EPRef<VKSwapchain>, const EPRef<VKCommandPool>&>
 {
 private:
-	VKDepthAttachment(VkPhysicalDevice vkPhysicalDevice, VkDevice vkLogicalDevice, EPRef<VKSwapchain>);
+	VKDepthAttachment(
+		VkPhysicalDevice vkPhysicalDevice, 
+		VkDevice vkLogicalDevice, 
+		EPRef<VKSwapchain> pVKSwapchain, 
+		const EPRef<VKCommandPool>& pVKCommandPool);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
@@ -34,12 +39,13 @@ private:
 public:
 	virtual ~VKDepthAttachment() override;
 
-	static EPRef<VKDepthAttachment> InternalMake(VkPhysicalDevice, VkDevice, EPRef<VKSwapchain>);
+	static EPRef<VKDepthAttachment> InternalMake(VkPhysicalDevice, VkDevice, EPRef<VKSwapchain>, const EPRef<VKCommandPool>&);
 
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
 	EPRef<VKSwapchain> m_pVKSwapchain = nullptr;
+	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
 	
 	VkFormat m_vkDepthFormat = VK_FORMAT_UNDEFINED;
 
