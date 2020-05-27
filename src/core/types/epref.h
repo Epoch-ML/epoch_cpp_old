@@ -296,7 +296,7 @@ public:
 	inline RESULT DecrementCount() {
 		RESULT r = R::OK;
 
-		CN(m_pRefCounter)
+		CN(m_pRefCounter);
 
 		m_pRefCounter->operator--();
 
@@ -310,6 +310,16 @@ public:
 			m_pEPObj = nullptr;
 			m_pRefCounter = nullptr;
 		}
+
+	Error:
+		return r;
+	}
+
+	inline RESULT IncrementCount() {
+		RESULT r = R::OK;
+
+		CN(m_pRefCounter);
+		m_pRefCounter->operator++();
 
 	Error:
 		return r;

@@ -11,6 +11,7 @@
 
 #include "VKImage.h"
 #include "VKImageView.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKSwapchain::Initialize() {
 	RESULT r = R::OK;
@@ -255,8 +256,12 @@ RESULT VKSwapchain::CreateSwapchain() {
 
 	// Do the same as VKImageView object below
 	m_swapchainImages = EPVector<VkImage>(m_swapchainImageCount);
-	CVKRM(vkGetSwapchainImagesKHR(m_vkLogicalDevice, m_vkSwapchain, &m_swapchainImageCount, m_swapchainImages.data(m_swapchainImageCount)),
-		"Failed to get swapchain images");
+	CVKRM(vkGetSwapchainImagesKHR(
+		m_vkLogicalDevice, 
+		m_vkSwapchain, 
+		&m_swapchainImageCount, 
+		m_swapchainImages.data(m_swapchainImageCount)), 
+	"Failed to get swapchain images");
 
 	m_vkSwapchainImageFormat = m_vkSelectedSurfaceFormat.format;
 
@@ -264,11 +269,18 @@ RESULT VKSwapchain::CreateSwapchain() {
 	for (size_t i = 0; i < m_swapchainImages.size(); i++) {	
 		EPRef<VKImageView> pVKImageView = new VKImageView(m_vkPhysicalDevice, m_vkLogicalDevice);
 		CNM(pVKImageView, "Failed to create swapchain image view %zu", i);
-		CRM(pVKImageView->Initialize(m_swapchainImages[i], m_vkSwapchainImageFormat), 
+		CRM(pVKImageView->Initialize(m_swapchainImages[i], m_vkSwapchainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT), 
 			"Failed to initialize swapchain image view %zu", i);
 		
 		m_swapchainImageViews.PushBack(pVKImageView);
 	}
+	
+	// Depth Attachment
+	m_pVKDepthAttachment = VKDepthAttachment::make(
+		m_vkPhysicalDevice, 
+		m_vkLogicalDevice, 
+		EPRef<VKSwapchain>(this));
+	CNM(m_pVKDepthAttachment, "Failed to create depth attachment");
 
 Error:
 	return r;
@@ -300,6 +312,8 @@ RESULT VKSwapchain::Kill() {
 
 	CNM(m_vkLogicalDevice, "Cannot kill swapchain without valid physical device");
 	CNM(m_vkSwapchain, "Cannot destroy swapchain without valid swapchain");
+
+	m_pVKDepthAttachment = nullptr;
 
 	// Framebuffers done elsewhere 
 

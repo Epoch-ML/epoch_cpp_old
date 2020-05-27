@@ -113,7 +113,8 @@ RESULT VKTexture::Initialize() {
 	m_pVKImageView = VKImageView::make(
 		m_vkPhysicalDevice, 
 		m_vkLogicalDevice, 
-		m_pVKImage);
+		m_pVKImage,
+		VK_IMAGE_ASPECT_COLOR_BIT);
 	CNM(m_pVKImageView, "Failed to create VKImageView");
 
 	// Set up sampler

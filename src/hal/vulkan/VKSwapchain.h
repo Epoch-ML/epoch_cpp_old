@@ -18,6 +18,9 @@ class VKFramebuffer;
 class VKImage;
 class VKImageView;
 
+class VKDepthAttachment;
+// TODO: VKColorAttachment
+
 class VKSwapchain :
 	public swapchain
 {
@@ -105,11 +108,14 @@ private:
 	uint32_t m_swapchainImageCount = 0;
 	VkFormat m_vkSwapchainImageFormat;
 
-	// TODO: 
+	// TODO: move into color attachments
 	EPVector<VkImage> m_swapchainImages;
 	//EPVector<VkImageView> m_swapchainImageViews;
 	//EPVector<EPRef<VKImage>> m_swapchainImages;
 	EPVector<EPRef<VKImageView>> m_swapchainImageViews;
+
+	// Depth
+	EPRef<VKDepthAttachment> m_pVKDepthAttachment = nullptr;
 
 
 // Framebuffers
