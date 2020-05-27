@@ -25,6 +25,7 @@ endif()
 message(${SPD_INCLUDE_PATH}) 
 
 # STB
+# TODO: replace with Freeimage
 option(DISABLE_STB "Disable STB")
 if (DISABLE_STB)
 	message(STATUS "STB is disabled")
@@ -34,9 +35,21 @@ else()
 endif()
 message(${STB_INCLUDE_PATH})
 
+# Tiny Obj Loader
+# TODO: Replace with ass imp
+option(DISABLE_TINY_OBJ_LOADER "Disable tinyobjloader")
+if (DISABLE_TINY_OBJ_LOADER)
+	message(STATUS "tinyobjloader is disabled")
+else()
+    message(STATUS "tinyobjloader is enabled")
+	find_package(tinyobjloader REQUIRED)
+endif()
+message(${TINY_OBJ_LOADER_INCLUDE_PATH})
+
 include_directories(src)
 include_directories(${STB_INCLUDE_PATH})
 include_directories(${SPD_INCLUDE_PATH})
+include_directories(${TINY_OBJ_LOADER_INCLUDE_PATH})
 
 add_subdirectory(src)
 
