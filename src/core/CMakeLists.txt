@@ -21,6 +21,20 @@ file(GLOB MATH_SOURCES
 )
 source_group(math FILES ${MATH_SOURCES})
 
+# Model
+file(GLOB MODEL_SOURCES 
+  "model/*.cpp"
+  "model/*.h"
+)
+source_group(model FILES ${MODEL_SOURCES})
+
+# Image
+file(GLOB IMAGE_SOURCES 
+  "image/*.cpp"
+  "image/*.h"
+)
+source_group(image FILES ${IMAGE_SOURCES})
+
 # Math Matrix
 file(GLOB MATRIX_SOURCES 
   "math/matrix/*.cpp"
@@ -39,6 +53,8 @@ add_library(core
     ${CORE_SOURCES} 
     ${EHM_SOURCES}
     ${MATH_SOURCES}
+    ${MODEL_SOURCES}
+    ${IMAGE_SOURCES}
     ${MATRIX_SOURCES}
     ${TYPES_SOURCES}
 )
