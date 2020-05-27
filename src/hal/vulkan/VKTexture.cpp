@@ -8,7 +8,7 @@
 #include "VKCommandPool.h"
 #include "VKCommandBuffers.h"
 
-#include "hal/STBImage.h"
+#include "core/image/STBImage.h"
 
 // TODO: wtf does this need to be everywhere?
 #include "VKDescriptorSet.h"

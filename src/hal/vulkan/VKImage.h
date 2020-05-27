@@ -10,7 +10,7 @@
 
 #include "VulkanUtilities.h"
 
-#include "hal/image.h"
+#include "core/image/image.h"
 
 #include "core/types/EPVector.h"
 #include "core/types/EPRef.h"

@@ -1,7 +1,7 @@
 #include "texture.h"
 
 // TODO: More robust pattern
-#include "STBImage.h"
+#include "core/image/STBImage.h"
 
 texture::texture(const EPString<char>& strFilename) :
 	m_strFilename(strFilename)
