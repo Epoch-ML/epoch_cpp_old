@@ -17,9 +17,12 @@ public:
 	// TODO: Is this the best way
 	model() = default;
 
-	model(const EPString<char>& strImageFilename) :
-		m_strImageFilename(strImageFilename)
-	{}
+	model(const EPString<char>& strModelFilename, const EPString<char>& strTextureFilename) :
+		m_strModelFilename(strModelFilename),
+		m_strTextureFilename(strTextureFilename)
+	{
+		//
+	}
 
 	~model() = default;
 
@@ -27,7 +30,9 @@ public:
 	virtual RESULT Kill() { return R::NOT_IMPLEMENTED; }
 
 protected:
-	EPString<char> m_strImageFilename;
+	// TODO: obviously do a lot about this
+	EPString<char> m_strModelFilename;
+	EPString<char> m_strTextureFilename;
 };
 
 

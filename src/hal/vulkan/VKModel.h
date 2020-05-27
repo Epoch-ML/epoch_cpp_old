@@ -28,6 +28,7 @@ class VKModel :
 		VkPhysicalDevice, 
 		VkDevice, 
 		EPRef<VKCommandPool>, 
+		const EPString<char>&,
 		const EPString<char>&
 	>
 {
@@ -36,7 +37,7 @@ protected:
 		VkPhysicalDevice vkPhysicalDevice,
 		VkDevice vkLogicalDevice,
 		EPRef<VKCommandPool> pVKCommandPool,
-		const EPString<char>&);
+		const EPString<char>&, const EPString<char>&);
 
 public:
 	virtual ~VKModel() override;
@@ -45,7 +46,7 @@ public:
 	RESULT Bind(VkCommandBuffer vkCommandBuffer);
 	RESULT Draw(VkCommandBuffer vkCommandBuffer);
 
-	static EPRef<VKModel> InternalMake(VkPhysicalDevice, VkDevice, EPRef<VKCommandPool>, const EPString<char>&);
+	static EPRef<VKModel> InternalMake(VkPhysicalDevice, VkDevice, EPRef<VKCommandPool>, const EPString<char>&, const EPString<char>&);
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;

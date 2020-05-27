@@ -8,15 +8,17 @@
 
 #include "core/types/EPObj.h"
 #include "core/types/EPString.h"
+#include "core/types/EPFactoryMethod.h"
 
 #include "model.h"
 
 class TOLModel :
-	public model
+	public model,
+	virtual public EPFactoryMethod<TOLModel, const EPString<char>&, const EPString<char>&>
 {
 public:
-	TOLModel(const EPString<char>& strImageFilename) :
-		model(strImageFilename)
+	TOLModel(const EPString<char>& strModelFilename, const EPString<char>& strTextureFilename) :
+		model(strModelFilename, strTextureFilename)
 	{
 		//
 	}
@@ -25,6 +27,8 @@ public:
 
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
+
+	static EPRef<TOLModel> InternalMake(const EPString<char>& strModelFilename, const EPString<char>& strTextureFilename);
 };
 
 

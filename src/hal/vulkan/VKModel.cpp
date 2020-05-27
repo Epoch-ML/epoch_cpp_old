@@ -9,10 +9,16 @@
 #include "VKDescriptorSet.h"
 #include "VKDepthAttachment.h"
 
+#include "core/model/TOLModel.h"
+
 RESULT VKModel::Initialize() {
 	RESULT r = R::OK;
 
 	// Vertex buffer
+	EPRef<TOLModel> pTOLModel = nullptr;
+
+	pTOLModel = TOLModel::make(m_strModelFilename, m_strTextureFilename);
+
 
 Error:
 	return r;
@@ -74,12 +80,13 @@ EPRef<VKModel> VKModel::InternalMake(
 	VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
 	EPRef<VKCommandPool> pVKCommandPool,
-	const EPString<char>& strFilename
+	const EPString<char>& strModelFilename,
+	const EPString<char>& strTextureFilename
 ) {
 	RESULT r = R::OK;
 	EPRef<VKModel> pVKModel = nullptr;
 
-	pVKModel = new VKModel(vkPhysicalDevice, vkLogicalDevice, pVKCommandPool, strFilename);
+	pVKModel = new VKModel(vkPhysicalDevice, vkLogicalDevice, pVKCommandPool, strModelFilename, strTextureFilename);
 	CNM(pVKModel, "Failed to allocate vk vertex buffer");
 
 	CRM(pVKModel->Initialize(), "Failed to initialize VK vertex buffer");
@@ -95,9 +102,9 @@ Error:
 VKModel::VKModel(VkPhysicalDevice vkPhysicalDevice,
 	VkDevice vkLogicalDevice,
 	EPRef<VKCommandPool> pVKCommandPool,
-	const EPString<char> &strFilename
+	const EPString<char> &strModelFilename, const EPString<char>& strTextureFilename
 ) :
-	model(strFilename),
+	model(strModelFilename, strTextureFilename),
 	m_vkPhysicalDevice(vkPhysicalDevice),
 	m_vkLogicalDevice(vkLogicalDevice),
 	m_pVKCommandPool(pVKCommandPool)
