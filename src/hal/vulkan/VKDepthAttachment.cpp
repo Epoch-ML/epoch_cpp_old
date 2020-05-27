@@ -33,13 +33,13 @@ RESULT VKDepthAttachment::Initialize() {
 	);
 	CNM(m_pVKImage, "Failed to create depth attachment image");
 
-	// Transition the image layout
-	CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
-		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-		VK_IMAGE_ASPECT_DEPTH_BIT,
-		m_pVKCommandPool->GetVKQueueHandle()),
-		"Failed to transition image layout");
+	//// Transition the image layout
+	//CRM(m_pVKImage->TranisitionImageLayout(m_pVKCommandPool,
+	//	VK_IMAGE_LAYOUT_UNDEFINED,
+	//	VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+	//	VK_IMAGE_ASPECT_DEPTH_BIT,
+	//	m_pVKCommandPool->GetVKQueueHandle()),
+	//	"Failed to transition image layout");
 
 	m_pVKImageView = VKImageView::make(
 		m_vkPhysicalDevice, 
@@ -106,4 +106,31 @@ VKDepthAttachment::VKDepthAttachment(
 
 VKDepthAttachment::~VKDepthAttachment() {
 	Kill();
+}
+
+const VkAttachmentDescription VKDepthAttachment::GetVKAttachmentDescription() const {
+	VkAttachmentDescription vkDepthAttachmentDescription = {};
+
+	vkDepthAttachmentDescription.format = m_vkDepthFormat;
+	vkDepthAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+	vkDepthAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	vkDepthAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	vkDepthAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	vkDepthAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	vkDepthAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	vkDepthAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	return vkDepthAttachmentDescription;
+}
+
+const VkFormat VKDepthAttachment::GetVKFormat() const { 
+	return m_vkDepthFormat; 
+}
+
+const VkImage VKDepthAttachment::GetVKImageHandle() const { 
+	return m_pVKImage->GetVKImageHandle(); 
+}
+
+const VkImageView VKDepthAttachment::GetVKImageViewHandle() const { 
+	return m_pVKImageView->GetVKImageViewHandle(); 
 }

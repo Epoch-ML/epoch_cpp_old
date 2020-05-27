@@ -6,7 +6,9 @@
 
 #include "VKVertex.h"
 #include "VKBuffer.h"
+
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 #include "core/math/math.h"
 #include "core/math/matrix/rotation.h"

@@ -7,6 +7,7 @@
 #include "VKCommandBuffers.h"
 
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKCommandPool::Initialize() {
 	RESULT r = R::OK;

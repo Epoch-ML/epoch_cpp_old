@@ -7,6 +7,7 @@
 #include "VKBuffer.h"
 
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKVertexBuffer::Initialize() {
 	RESULT r = R::OK;

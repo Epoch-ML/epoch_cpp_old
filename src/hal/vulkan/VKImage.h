@@ -67,7 +67,7 @@ public:
 		VkQueue vkQueue
 	);
 
-	VkImage GetVKImageHandle() { return m_vkTextureImage; }
+	VkImage GetVKImageHandle() const { return m_vkTextureImage; }
 	VkFormat GetVKImageFormat() { return m_vkFormat; }
 
 private:

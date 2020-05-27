@@ -6,18 +6,28 @@
 #include "VKPipeline.h"
 
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
+
+#include "core/types/EPArray.h"
 
 RESULT VKFramebuffer::Initialize() {
 	RESULT r = R::OK;
 	
+	EPArray<VkImageView, 2> vkAttachments = {};
+	
+
 	CNM(m_vkLogicalDevice, "Cannot initialize framebuffer without valid logical device");
 	CNM(m_pVKPipeline, "Cannot initialize framebuffer without valid pipeline");
 	CNM(m_pVKSwapchain, "Cannot initialize framebuffer without valid swapchain");
 
+	// TODO: Automate this
+	vkAttachments[0] = m_pVKSwapchain->GetSwapchainImageView(m_frameBufferIndex);
+	vkAttachments[1] = m_pVKSwapchain->GetVKDepthAttachment()->GetVKImageViewHandle();
+
 	m_vkFramebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	m_vkFramebufferCreateInfo.renderPass = m_pVKPipeline->GetVKRenderPassHandle();
-	m_vkFramebufferCreateInfo.attachmentCount = 1;
-	m_vkFramebufferCreateInfo.pAttachments = &(m_pVKSwapchain->GetSwapchainImageView(m_frameBufferIndex));
+	m_vkFramebufferCreateInfo.attachmentCount = static_cast<uint32_t>(vkAttachments.size());
+	m_vkFramebufferCreateInfo.pAttachments = vkAttachments.data;
 	m_vkFramebufferCreateInfo.width = m_pVKSwapchain->GetExtentsWidth();
 	m_vkFramebufferCreateInfo.height = m_pVKSwapchain->GetExtentsHeight();
 	m_vkFramebufferCreateInfo.layers = 1;

@@ -61,6 +61,8 @@ public:
 
 	const VkSwapchainKHR GetVKSwapchainHandle() const { return m_vkSwapchain; }
 
+	const EPRef<VKDepthAttachment> GetVKDepthAttachment() const { return m_pVKDepthAttachment; }
+
 	const uint32_t GetFramebufferCount() const {
 		return (uint32_t)(m_vkFramebuffers.size());
 	}

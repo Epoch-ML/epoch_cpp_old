@@ -9,7 +9,9 @@
 
 #include "VKBuffer.h"
 #include "VKVertexBuffer.h"
+
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 VKCommandBuffers::VKCommandBuffers(
 	const EPRef<VKCommandPool>& pVKCommandPool, 
@@ -179,15 +181,10 @@ Error:
 RESULT VKCommandBuffers::RecordCommandBuffers() {
 	RESULT r = R::OK;
 
+	EPArray<VkClearValue, 2> vkClearValues = {};
+
 	CNM(m_pVKVertexBuffer, "Cannot record command buffers without a vertex buffer");
 	CNM(m_pVKDescriptorSet, "Cannot record command buffers without a descriptor set");
-
-	//m_vkQueueFamilies = FindQueueFamilies(
-	//	m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
-	//	m_pVKCommandPool->GetVKSurfaceHandle()
-	//);
-	//
-	//uint32_t graphicsPipeline = m_vkQueueFamilies.GetGraphicsQueueIndex();
 
 	for (uint32_t i = 0; i < m_vkCommandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo vkCommandBufferBeginInfo = {};
@@ -208,9 +205,11 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = m_pVKSwapchain->GetSwapchainExtent();
 
-		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
+		// Clear colors
+		vkClearValues[0] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		vkClearValues[1] = { 1.0f, 0.0f };
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(vkClearValues.size());
+		renderPassInfo.pClearValues = vkClearValues.data;
 
 		vkCmdBeginRenderPass(m_vkCommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 

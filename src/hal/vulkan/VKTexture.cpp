@@ -12,6 +12,7 @@
 
 // TODO: wtf does this need to be everywhere?
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKTexture::CopyStagingBufferToImage() {
 	RESULT r = R::OK;

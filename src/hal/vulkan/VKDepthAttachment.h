@@ -41,6 +41,12 @@ public:
 
 	static EPRef<VKDepthAttachment> InternalMake(VkPhysicalDevice, VkDevice, EPRef<VKSwapchain>, const EPRef<VKCommandPool>&);
 
+	const VkAttachmentDescription GetVKAttachmentDescription() const;
+
+	const VkFormat GetVKFormat() const;
+	const VkImage GetVKImageHandle() const;
+	const VkImageView GetVKImageViewHandle() const;
+
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;

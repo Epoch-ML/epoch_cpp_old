@@ -94,8 +94,12 @@ private:
 	EPRef<VKDescriptorSet> m_pVKDescriptorSet = nullptr;
 
 	// TODO: Render pass is here, move into an object
-	VkAttachmentDescription m_vkAttachmentDescription = {};
-	VkAttachmentReference m_vkAttachmentReference = {};
+	VkAttachmentDescription m_vkColorAttachmentDescription = {};
+	VkAttachmentReference m_vkColorAttachmentReference = {};
+
+	// TODO: objectify more
+	VkAttachmentDescription m_vkDepthAttachmentDescription = {};
+	VkAttachmentReference m_vkDepthAttachmentReference = {};
 
 	VkSubpassDescription m_vkSubpassDescription = {};
 	VkSubpassDependency m_vkSubpassDependency = {};
@@ -103,6 +107,9 @@ private:
 	// Render pass
 	VkRenderPassCreateInfo m_vkRenderPassCreateInfo = {};
 	VkRenderPass m_vkRenderPass = nullptr;
+
+	// Depth Stencil
+	VkPipelineDepthStencilStateCreateInfo m_vkPipelineDepthStencilStateCreateInfo = {};
 
 	VkGraphicsPipelineCreateInfo m_vkGraphicsPipelineCreateInfo = {};
 

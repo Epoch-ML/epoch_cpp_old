@@ -20,6 +20,7 @@
 #include "VKTexture.h"
 
 #include "VKDescriptorSet.h"
+#include "VKDepthAttachment.h"
 
 RESULT VKHAL::EnumerateInstanceExtensions() {
 	RESULT r = R::OK;
