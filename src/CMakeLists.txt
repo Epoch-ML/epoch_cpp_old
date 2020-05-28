@@ -8,6 +8,7 @@ add_definitions(-DEPOCH_HAL_DIR="${EPOCH_DIR_VAL}/src/hal")
 add_definitions(-DEPOCH_SHADERS_DIR="${EPOCH_DIR_VAL}/src/hal/shaders")
 add_definitions(-DEPOCH_DATA_DIR="${EPOCH_DIR_VAL}/data")
 add_definitions(-DEPOCH_TEXTURES_DIR="${EPOCH_DIR_VAL}/data/textures")
+add_definitions(-DEPOCH_MODELS_DIR="${EPOCH_DIR_VAL}/data/models")
 
 # Release Configuration
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")

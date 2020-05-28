@@ -3,8 +3,8 @@
 #include "VKDescriptorSet.h"
 #include "VKDepthAttachment.h"
 
-#include "hal/image.h"
-#include "hal/STBImage.h"
+#include "core/image/image.h"
+#include "core/image/STBImage.h"
 
 RESULT VKBuffer::CreateBuffer(
 	VkPhysicalDevice vkPhysicalDevice,

@@ -33,6 +33,8 @@ protected:
 		EPRef<VKCommandPool> pVKCommandPool, 
 		VkQueue vkQueue);
 
+	friend class VKModel;
+
 public:
 	virtual ~VKVertexBuffer() override;
 
@@ -189,6 +191,9 @@ public:
 	virtual RESULT Initialize() override;
 	virtual RESULT Kill() override;
 
+protected:
+	RESULT Set(const EPVector<vertex<float, 4>>& vertices, const EPVector<uint32_t>& indices);
+
 private:
 	VkPhysicalDevice m_vkPhysicalDevice = nullptr;
 	VkDevice m_vkLogicalDevice = nullptr;
@@ -197,7 +202,7 @@ private:
 
 	// TODO: need a better way in the future
 	EPVector<VKVertex<float, 4>> m_vertices;
-	EPVector<uint16_t> m_indices;
+	EPVector<uint32_t> m_indices;
 
 // Staging Buffer
 	VkBuffer m_vkStagingBuffer = nullptr;

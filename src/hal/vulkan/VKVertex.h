@@ -33,6 +33,38 @@ public:
 		//
 	}
 
+	VKVertex(const vertex<TValue, dimension>& rhs) :
+		m_ptPosition(rhs.m_ptPosition),
+		m_cColor(rhs.m_cColor),
+		m_uvcoord(rhs.m_uvcoord)
+	{
+		//
+	}
+
+	VKVertex& operator=(const vertex<TValue, dimension>& rhs) {
+		m_ptPosition = rhs.m_ptPosition;
+		m_cColor = rhs.m_cColor;
+		m_uvcoord = rhs.m_uvcoord;
+
+		return *this;
+	}
+
+	VKVertex(vertex<TValue, dimension>& rhs) :
+		m_ptPosition(rhs.m_ptPosition),
+		m_cColor(rhs.m_cColor),
+		m_uvcoord(rhs.m_uvcoord)
+	{
+		//
+	}
+
+	VKVertex& operator=(vertex<TValue, dimension>& rhs) {
+		m_ptPosition = rhs.m_ptPosition;
+		m_cColor = rhs.m_cColor;
+		m_uvcoord = rhs.m_uvcoord;
+
+		return *this;
+	}
+
 	VKVertex(
 		std::initializer_list<TValue> ptValues, 
 		std::initializer_list<float> cValues,

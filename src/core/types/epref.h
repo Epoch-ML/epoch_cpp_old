@@ -1,7 +1,7 @@
 #ifndef EP_REF_H_
 #define EP_REF_H_
 
-#include "core/ehm/result.h"
+#include "core/ehm/ehm.h"
 
 // epoch reference
 // epoch/src/core/types/epref.h
@@ -411,7 +411,9 @@ public:
 		return *this;
 	}
 
-protected:
+// TODO: Revisit
+//protected:
+public:
 	ref_counter* m_pRefCounter = nullptr;
 	TEPObj* m_pEPObj = nullptr;
 };

@@ -52,8 +52,8 @@ Error:
 RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	RESULT r = R::OK;
 
-	point<> ptEye = point<>(2.0f, 2.0f, 2.0f);
-	point<> ptOrigin = point<>();
+	point<> ptEye = point<>(1.5f, 1.5f, 1.5f);
+	point<> ptLookAt = point<>(0.0f, 1.0f, 0.0f);
 
 	// TODO: get rid of this from here (for testing)
 	static auto startTime = std::chrono::high_resolution_clock::now();
@@ -66,12 +66,13 @@ RESULT VKUniformBuffer::Update(uint32_t currentImage) {
 	m_uniformBufferObject.m_mat4View.SetIdentity(1.0f);
 	m_uniformBufferObject.m_mat4Projection.SetIdentity(1.0f);
 
-	m_uniformBufferObject.m_mat4Model = rotation(math::axis::Y, theta);// *rotation(math::axis::Z, theta);
+	//m_uniformBufferObject.m_mat4Model = rotation(math::axis::Y, theta/10.0f) * rotation(math::axis::X, (float)(M_PI_2));
+	m_uniformBufferObject.m_mat4Model = translation(math::axis::Y, -0.5f) * rotation(math::axis::Y, theta / 10.0f);
 
 	m_uniformBufferObject.m_mat4View = view<>::MakeLookAtViewMatrix(
 		//rotation(math::axis::Z, theta * 0.5f) * rotation(math::axis::Y, theta * 1.5f) * rotation(math::axis::X, theta * 1.0f) * ptEye,
 		ptEye,
-		ptOrigin, vector<>::j()
+		ptLookAt, vector<>::j()
 	);
 
 	theta += 0.025f;

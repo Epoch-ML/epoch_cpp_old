@@ -22,6 +22,7 @@ class VKSwapchain;
 class VKCommandPool;
 class VKBuffer;
 class VKVertexBuffer;
+class VKModel;
 class VKDescriptorSet;
 
 class VKCommandBuffers :
@@ -51,6 +52,13 @@ private:
 	VKCommandBuffers(
 		const EPRef<VKCommandPool>&, 
 		const EPRef<VKVertexBuffer>&, 
+		const EPRef<VKDescriptorSet>&,
+		const EPRef<VKPipeline>&,
+		const EPRef<VKSwapchain>&);
+
+	VKCommandBuffers(
+		const EPRef<VKCommandPool>&,
+		const EPRef<VKModel>&,
 		const EPRef<VKDescriptorSet>&,
 		const EPRef<VKPipeline>&,
 		const EPRef<VKSwapchain>&);
@@ -85,6 +93,14 @@ public:
 		const EPRef<VKSwapchain>&
 	);
 
+	static EPRef<VKCommandBuffers> MakeFromModel(
+		const EPRef<VKCommandPool>&,
+		const EPRef<VKModel>&,
+		const EPRef<VKDescriptorSet>&,
+		const EPRef<VKPipeline>&,
+		const EPRef<VKSwapchain>&
+	);
+
 	//static EPRef<VKCommandBuffers> InternalMake(const EPRef<VKCommandPool>&);
 
 	RESULT RecordCommandBuffers();
@@ -105,6 +121,7 @@ private:
 	// TODO: temp
 	EPRef<VKDescriptorSet> m_pVKDescriptorSet = nullptr;
 	EPRef<VKVertexBuffer> m_pVKVertexBuffer = nullptr;
+	EPRef<VKModel> m_pVKModel = nullptr;
 
 	VKQueueFamilies m_vkQueueFamilies = {};
 

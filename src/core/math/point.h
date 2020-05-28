@@ -22,7 +22,10 @@ public:
 
 	~point() = default;
 
+	point(TValue x) { this->x(x); }
+	point(TValue x, TValue y) { this->x(x); this->y(y); }
 	point(TValue x, TValue y, TValue z) { this->x(x); this->y(y); this->z(z); this->w(1); }
+	point(TValue x, TValue y, TValue z, TValue w) { this->x(x); this->y(y); this->z(z); this->w(w); }
 
 	point(std::initializer_list<TValue> values) {
 		// TODO: this should work / be faster

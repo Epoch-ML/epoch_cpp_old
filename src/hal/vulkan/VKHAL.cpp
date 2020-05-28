@@ -18,6 +18,7 @@
 #include "VKCommandBuffers.h"
 #include "VKVertexBuffer.h"
 #include "VKTexture.h"
+#include "VKModel.h"
 
 #include "VKDescriptorSet.h"
 #include "VKDepthAttachment.h"
@@ -627,7 +628,8 @@ RESULT VKHAL::InitializeSwapchain() {
 	// TODO: One of these things is not like the others
 	CRM(m_pVKSwapchain->InitializeFramebuffers(m_pVKPipeline), "Failed to initialize framebuffers");
 
-	CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
+	//CRM(InitializeVertexBuffer(), "Failed to initialize vertex buffer");
+	CRM(InitializeVKModel(), "Failed to initialize VK model");
 
 	CRM(m_pVKPipeline->InitializeDescriptors(m_pVKTexture), 
 		"Failed to initialize / update descriptors");
@@ -686,6 +688,7 @@ RESULT VKHAL::InitializeTexture() {
 		m_pVKCommandPool,
 		"wooden_crate.jpg",
 		//"statue.jpg",
+		//"viking_room.png",
 		m_pVKCommandPool->GetVKQueueHandle()
 	);
 
@@ -706,7 +709,29 @@ RESULT VKHAL::InitializeVertexBuffer() {
 		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
 		m_pVKCommandPool,
 		m_pVKCommandPool->GetVKQueueHandle());
+
 	CNM(m_pVKVertexBuffer, "Failed to create vertex buffer");
+
+Error:
+	return r;
+}
+
+RESULT VKHAL::InitializeVKModel() {
+	RESULT r = R::OK;
+
+	CNM(m_pVKCommandPool, "Vertex buffer needs valid command pool");
+
+	m_pVKModel = VKModel::make(
+		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
+		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
+		m_pVKCommandPool,
+		//"bunny.obj",
+		"sponza/sponza.obj",
+		"wooden_crate.jpg");
+		//"viking_room.obj", 
+		//"viking_room.png");
+
+	CNM(m_pVKModel, "Failed to create VK model");
 
 Error:
 	return r;
@@ -717,12 +742,20 @@ RESULT VKHAL::InitializeCommandBuffers() {
 
 	// TODO: this is probably not true in a more general pipeline 
 	CNM(m_pVKCommandPool, "Command buffers need valid comman pool");
-	CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
 
+	//CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
+	//m_pVKCommandBuffers = m_pVKCommandPool->MakeVertexDescriptorCommandBuffers(
+	//	m_pVKPipeline,
+	//	m_pVKSwapchain,
+	//	m_pVKVertexBuffer, 
+	//	m_pVKPipeline->GetVKDescriptorSet()
+	//);
+
+	CNM(m_pVKModel, "Command buffers need valid vertex buffer");
 	m_pVKCommandBuffers = m_pVKCommandPool->MakeVertexDescriptorCommandBuffers(
 		m_pVKPipeline,
 		m_pVKSwapchain,
-		m_pVKVertexBuffer, 
+		m_pVKModel,
 		m_pVKPipeline->GetVKDescriptorSet()
 	);
 
