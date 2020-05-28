@@ -55,6 +55,7 @@ RESULT VKModel::Draw(VkCommandBuffer vkCommandBuffer) {
 	CN(vkCommandBuffer);
 
 	CRM(m_pVKVertexBuffer->DrawIndexed(vkCommandBuffer), "Failed to draw vk vertex buffer");
+	//CRM(m_pVKVertexBuffer->Draw(vkCommandBuffer), "Failed to draw vk vertex buffer");
 
 Error:
 	return r;

@@ -234,7 +234,7 @@ RESULT VKCommandBuffers::RecordCommandBuffers() {
 
 	EPArray<VkClearValue, 2> vkClearValues = {};
 
-	CBM(m_pVKVertexBuffer != nullptr || m_pVKModel != nullptr, 
+	CBM(((m_pVKVertexBuffer != nullptr) || (m_pVKModel != nullptr)), 
 		"Cannot record command buffers without a vertex buffer or model");
 
 	CNM(m_pVKDescriptorSet, "Cannot record command buffers without a descriptor set");

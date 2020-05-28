@@ -39,16 +39,15 @@ RESULT TOLModel::Initialize() {
 			vertex<float, 4> vert = {};
 
 			vert.m_ptPosition = {
-				tinyObjAttributes.vertices[3 * index.vertex_index + 0],
-				tinyObjAttributes.vertices[3 * index.vertex_index + 1],
-				tinyObjAttributes.vertices[3 * index.vertex_index + 2],
-				//tinyObjAttributes.vertex_weights[index.vertex_index]
-				0.0f
+				tinyObjAttributes.vertices[3 * index.vertex_index + 0] * 0.025f,
+				tinyObjAttributes.vertices[3 * index.vertex_index + 1] * 0.025f,
+				tinyObjAttributes.vertices[3 * index.vertex_index + 2] * 0.025f,
+				1.0f
 			};
 
 			vert.m_uvcoord = {
 				tinyObjAttributes.texcoords[2 * index.texcoord_index + 0],
-				tinyObjAttributes.texcoords[2 * index.texcoord_index + 1]
+				1.0f - tinyObjAttributes.texcoords[2 * index.texcoord_index + 1]  // flip the y
 			};
 
 			// TODO: Add normals and color

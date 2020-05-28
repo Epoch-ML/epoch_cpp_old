@@ -688,6 +688,7 @@ RESULT VKHAL::InitializeTexture() {
 		m_pVKCommandPool,
 		"wooden_crate.jpg",
 		//"statue.jpg",
+		//"viking_room.png",
 		m_pVKCommandPool->GetVKQueueHandle()
 	);
 
@@ -723,9 +724,12 @@ RESULT VKHAL::InitializeVKModel() {
 	m_pVKModel = VKModel::make(
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
 		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
-		m_pVKCommandPool, 
-		"viking_room.obj", 
-		"viking_room.png");
+		m_pVKCommandPool,
+		//"bunny.obj",
+		"sponza/sponza.obj",
+		"wooden_crate.jpg");
+		//"viking_room.obj", 
+		//"viking_room.png");
 
 	CNM(m_pVKModel, "Failed to create VK model");
 
@@ -738,8 +742,8 @@ RESULT VKHAL::InitializeCommandBuffers() {
 
 	// TODO: this is probably not true in a more general pipeline 
 	CNM(m_pVKCommandPool, "Command buffers need valid comman pool");
-	//CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
 
+	//CNM(m_pVKVertexBuffer, "Command buffers need valid vertex buffer");
 	//m_pVKCommandBuffers = m_pVKCommandPool->MakeVertexDescriptorCommandBuffers(
 	//	m_pVKPipeline,
 	//	m_pVKSwapchain,
@@ -751,7 +755,7 @@ RESULT VKHAL::InitializeCommandBuffers() {
 	m_pVKCommandBuffers = m_pVKCommandPool->MakeVertexDescriptorCommandBuffers(
 		m_pVKPipeline,
 		m_pVKSwapchain,
-		m_pVKModel, 
+		m_pVKModel,
 		m_pVKPipeline->GetVKDescriptorSet()
 	);
 

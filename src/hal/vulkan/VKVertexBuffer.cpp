@@ -227,7 +227,10 @@ RESULT VKVertexBuffer::Set(const EPVector<vertex<float, 4>>& vertices, const EPV
 		m_vertices.PushBack(vert);
 	}
 
-	m_indices = indices;
+	//m_indices = indices;
+	for (const auto& index : indices) {
+		m_indices.PushBack(index);
+	}
 
 Error:
 	return r;

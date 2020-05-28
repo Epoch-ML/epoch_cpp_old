@@ -29,6 +29,14 @@ public:
 		this->element(2, 3) = zTranslate;
 	}
 
+	translation(math::axis translateAxis, TValue value) {
+		this->SetIdentity(1.0f);
+
+		this->element(0, 3) = (translateAxis == math::axis::X) ? value : 0.0f;
+		this->element(1, 3) = (translateAxis == math::axis::Y) ? value : 0.0f;
+		this->element(2, 3) = (translateAxis == math::axis::Z) ? value : 0.0f;
+	}
+
 	translation(matrix<TValue, 4, 1> vVector) {
 		this->SetIdentity(1.0f);
 
