@@ -18,6 +18,7 @@
 #include "VulkanUtilities.h"
 
 class VKCommandPool;
+class VKVertexBuffer;
 
 //template <typename TValue, int dimension> class VKVertex;
 #include "VKVertex.h"
@@ -57,20 +58,7 @@ private:
 	EPRef<VKCommandPool> m_pVKCommandPool = nullptr;
 
 	// TODO: need a better way in the future
-	EPVector<VKVertex<float, 4>> m_vertices;
-	EPVector<uint16_t> m_indices;
-
-	// Staging Buffer
-	VkBuffer m_vkStagingBuffer = nullptr;
-	VkDeviceMemory m_vkStagingBufferDeviceMemory = nullptr;
-
-	// Vertex Buffer
-	VkBuffer m_vkVertexBuffer = nullptr;
-	VkDeviceMemory m_vkVertexBufferDeviceMemory = nullptr;
-
-	// Index Buffer
-	VkBuffer m_vkIndexBuffer = nullptr;
-	VkDeviceMemory m_vkIndexBufferDeviceMemory = nullptr;
+	EPRef<VKVertexBuffer> m_pVKVertexBuffer = nullptr;
 };
 
 #endif // ! VK_MODEL_H_

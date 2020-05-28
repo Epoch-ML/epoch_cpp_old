@@ -724,8 +724,8 @@ RESULT VKHAL::InitializeVKModel() {
 		m_pVKCommandPool->GetVKPhyscialDeviceHandle(),
 		m_pVKCommandPool->GetVKLogicalDeviceHandle(),
 		m_pVKCommandPool, 
-		"viking_room/viking_room.obj", 
-		"viking_room/viking_room.png");
+		"viking_room.obj", 
+		"viking_room.png");
 
 	CNM(m_pVKModel, "Failed to create VK model");
 

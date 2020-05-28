@@ -4,6 +4,7 @@
 #include "VKCommandPool.h"
 
 #include "VKVertex.h"
+#include "VKVertexBuffer.h"
 #include "VKBuffer.h"
 
 #include "VKDescriptorSet.h"
@@ -18,7 +19,20 @@ RESULT VKModel::Initialize() {
 	EPRef<TOLModel> pTOLModel = nullptr;
 
 	pTOLModel = TOLModel::make(m_strModelFilename, m_strTextureFilename);
+	CNM(pTOLModel, "Failed to load TOL model from disk");
 
+	// TODO: this is not using the factory - revisit
+	m_pVKVertexBuffer = new VKVertexBuffer(
+		m_vkPhysicalDevice, 
+		m_vkLogicalDevice, 
+		m_pVKCommandPool, 
+		m_pVKCommandPool->GetVKQueueHandle());
+	CNM(m_pVKVertexBuffer, "Failed to allocate vk vertex buffer");
+
+	CRM(m_pVKVertexBuffer->Set(pTOLModel->GetVertices(), pTOLModel->GetIndices()),
+		"Failed to set model indices and vertices");
+
+	CRM(m_pVKVertexBuffer->Initialize(), "Failed to initialize VK vertex buffer");
 
 Error:
 	return r;
@@ -27,14 +41,9 @@ Error:
 RESULT VKModel::Bind(VkCommandBuffer vkCommandBuffer) {
 	RESULT r = R::OK;
 
-	VkBuffer vkBuffers[] = { m_vkVertexBuffer };
-	VkDeviceSize vkOffsets[] = { 0 };
-
 	CN(vkCommandBuffer);
 
-	// Bind the vertex and index buffers
-	vkCmdBindVertexBuffers(vkCommandBuffer, 0, 1, vkBuffers, vkOffsets);
-	vkCmdBindIndexBuffer(vkCommandBuffer, m_vkIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	CRM(m_pVKVertexBuffer->Bind(vkCommandBuffer), "Failed to bind vk vertex buffer");
 
 Error:
 	return r;
@@ -45,7 +54,7 @@ RESULT VKModel::Draw(VkCommandBuffer vkCommandBuffer) {
 
 	CN(vkCommandBuffer);
 
-	vkCmdDraw(vkCommandBuffer, static_cast<uint32_t>(m_vertices.size()), 1, 0, 0);
+	CRM(m_pVKVertexBuffer->DrawIndexed(vkCommandBuffer), "Failed to draw vk vertex buffer");
 
 Error:
 	return r;
@@ -54,23 +63,10 @@ Error:
 RESULT VKModel::Kill() {
 	RESULT r = R::OK;
 
-	CN(m_vkLogicalDevice);
+	m_pVKVertexBuffer = nullptr;
 
-	CN(m_vkVertexBuffer);
-	CN(m_vkVertexBufferDeviceMemory);
-
-	vkDestroyBuffer(m_vkLogicalDevice, m_vkVertexBuffer, nullptr);
-
-	CN(m_vkVertexBufferDeviceMemory);
-	vkFreeMemory(m_vkLogicalDevice, m_vkVertexBufferDeviceMemory, nullptr);
-
-	CN(m_vkIndexBuffer);
-	CN(m_vkIndexBufferDeviceMemory);
-
-	vkDestroyBuffer(m_vkLogicalDevice, m_vkIndexBuffer, nullptr);
-
-	CN(m_vkVertexBufferDeviceMemory);
-	vkFreeMemory(m_vkLogicalDevice, m_vkIndexBufferDeviceMemory, nullptr);
+	// TODO: move textures into this object
+	//m_pVKTexture = nullptr;
 
 Error:
 	return r;

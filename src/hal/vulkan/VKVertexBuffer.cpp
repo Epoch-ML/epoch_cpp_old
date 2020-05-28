@@ -120,7 +120,7 @@ RESULT VKVertexBuffer::Bind(VkCommandBuffer vkCommandBuffer) {
 
 	// Bind the vertex and index buffers
 	vkCmdBindVertexBuffers(vkCommandBuffer, 0, 1, vkBuffers, vkOffsets);
-	vkCmdBindIndexBuffer(vkCommandBuffer, m_vkIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindIndexBuffer(vkCommandBuffer, m_vkIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 Error:
 	return r;
@@ -215,4 +215,20 @@ VKVertexBuffer::VKVertexBuffer(VkPhysicalDevice vkPhysicalDevice,
 
 VKVertexBuffer::~VKVertexBuffer() {
 	Kill();
+}
+
+RESULT VKVertexBuffer::Set(const EPVector<vertex<float, 4>>& vertices, const EPVector<uint32_t>& indices) {
+	RESULT r = R::OK;
+
+	// This should employ a copy
+	// TODO: explore move semantics for this call since that would be fffffaaaassssttt'er
+	// m_vertices = vertices;
+	for (const auto& vert : vertices) {
+		m_vertices.PushBack(vert);
+	}
+
+	m_indices = indices;
+
+Error:
+	return r;
 }

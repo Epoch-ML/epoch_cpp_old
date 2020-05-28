@@ -7,10 +7,16 @@
 // epoch/src/core/model/TOLModel.h
 
 #include "core/types/EPObj.h"
+#include "core/types/EPRef.h"
 #include "core/types/EPString.h"
 #include "core/types/EPFactoryMethod.h"
 
 #include "model.h"
+
+#include "core/image/image.h"
+
+#include "hal/vertex.h"
+
 
 class TOLModel :
 	public model,
@@ -29,6 +35,20 @@ public:
 	virtual RESULT Kill() override;
 
 	static EPRef<TOLModel> InternalMake(const EPString<char>& strModelFilename, const EPString<char>& strTextureFilename);
+
+	const EPVector<vertex<float, 4>>& GetVertices() const {
+		return m_vertices;
+	}
+
+	const EPVector<uint32_t>& GetIndices() const {
+		return m_indices;
+	}
+
+private:
+	EPRef<image> m_pImage = nullptr;
+
+	EPVector<vertex<float, 4>> m_vertices;
+	EPVector<uint32_t> m_indices;
 };
 
 
