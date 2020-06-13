@@ -20,27 +20,39 @@ file(GLOB SHADERS_SOURCES
 )
 source_group("shaders" FILES ${SHADERS_SOURCES})
 
-# TODO: Switch to the below
-add_library(hal
-    ${SOURCES}
-    ${VULKAN_SOURCES}
-)
+IF(WIN32)
+    add_library(hal
+        ${SOURCES}
+        ${VULKAN_SOURCES}
+    )
 
-target_link_libraries(hal
-  Vulkan::Vulkan
-)
+    target_link_libraries(hal
+        Vulkan::Vulkan
+    )
 
-# Vulkan
-# TODO: Might want to move this to the actual vulkan hal
-find_package(Vulkan REQUIRED)
+    # Vulkan
+    # TODO: Might want to move this to the actual vulkan hal
+    find_package(Vulkan REQUIRED)
 
-message(${Vulkan_INCLUDE_DIR})
+    message(${Vulkan_INCLUDE_DIR})
 
-#add_executable(vulkaninfo ${Vulkan_INCLUDE_DIR}\..\Demos\vulkaninfo.cpp)
-#target_compile_definitions(vulkaninfo PRIVATE VK_USE_PLATFORM_WIN32_KHR)
-#target_include_directories(vulkaninfo PRIVATE Vulkan::Vulkan)
-#target_link_libraries(vulkaninfo Vulkan::Vulkan)
-include_directories(${Vulkan_INCLUDE_DIR})
+    #add_executable(vulkaninfo ${Vulkan_INCLUDE_DIR}\..\Demos\vulkaninfo.cpp)
+    #target_compile_definitions(vulkaninfo PRIVATE VK_USE_PLATFORM_WIN32_KHR)
+    #target_include_directories(vulkaninfo PRIVATE Vulkan::Vulkan)
+    #target_link_libraries(vulkaninfo Vulkan::Vulkan)
+    include_directories(${Vulkan_INCLUDE_DIR})
+
+ELSEIF(APPLE)
+    add_library(hal
+        ${SOURCES}
+    )
+ELSE()
+    add_library(hal
+        ${SOURCES}
+    )
+ENDIF()
+
+
 
 #IF(APPLE
 #   Mac OS X specific code
@@ -65,15 +77,9 @@ include_directories(${Vulkan_INCLUDE_DIR})
 #        ${SOURCES}
 #        ${LINUX_SOURCES}
 #    )
-#ELSEIF(WIN32)
-#    add_library(sandbox
-#        ${SOURCES}
-#        ${WIN64_SOURCES}
-#    )
-#ENDIF()
+
 
 # Tests
-
 add_executable(hal.tests
     "hal.tests.cpp"
     "Vulkan/VulkanHAL.tests.cpp"
