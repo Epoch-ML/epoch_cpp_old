@@ -8,7 +8,7 @@
 
 #include "TypesTestSuite.h"
 
-int main(int argc, char* argv[]) {
+int main(UNUSED int argc, UNUSED char* argv[]) {
 	RESULT r = R::SUCCESS;
 
 	TypesTestSuite *pTypesTestSuite = TypesTestSuite::make();

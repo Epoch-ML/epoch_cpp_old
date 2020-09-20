@@ -4,8 +4,8 @@
 
 class dum {
 public:
-	dum() { DEBUG_LINEOUT("construct dum %d", ++dum_count); }
-	virtual ~dum() { DEBUG_LINEOUT("destruct dum %d", --dum_count); }
+	dum() { DEBUG_LINEOUT("construct dum %d", (int)++dum_count); }
+	virtual ~dum() { DEBUG_LINEOUT("destruct dum %d", (int)--dum_count); }
 	virtual RESULT Print() { DEBUG_LINEOUT("dum class"); return R::OK; }
 public:
 	static long dum_count;
@@ -13,15 +13,15 @@ public:
 
 class dumdum : public dum {
 public:
-	dumdum() { DEBUG_LINEOUT("construct dumdum %d", ++dum_count); }
-	virtual ~dumdum() override { DEBUG_LINEOUT("destruct dumdum %d", --dum_count); }
+	dumdum() { DEBUG_LINEOUT("construct dumdum %d", (int)++dum_count); }
+	virtual ~dumdum() override { DEBUG_LINEOUT("destruct dumdum %d", (int)--dum_count); }
 	virtual RESULT Print() override { DEBUG_LINEOUT("dumdum class"); return R::OK; }
 };
 
 class dumdumdum : public dumdum {
 public:
-	dumdumdum() { DEBUG_LINEOUT("construct dumdumdum %d", ++dum_count); }
-	virtual ~dumdumdum() override { DEBUG_LINEOUT("destruct dumdumdum %d", --dum_count); }
+	dumdumdum() { DEBUG_LINEOUT("construct dumdumdum %d", (int)++dum_count); }
+	virtual ~dumdumdum() override { DEBUG_LINEOUT("destruct dumdumdum %d", (int)--dum_count); }
 	virtual RESULT Print() override { DEBUG_LINEOUT("dumdumdum class"); return R::OK; }
 };
 
@@ -48,7 +48,7 @@ RESULT TypesTestSuite::TestEPRef(EPTestBase* pEPTestBase) {
 		pDumDumDum = eprDumDumDum.get();
 	}
 
-	CBM(dum::dum_count == 0, "Dum count %d should be zero", dum::dum_count);
+	CBM(dum::dum_count == 0, "Dum count %d should be zero", (int)dum::dum_count);
 
 	// Case - Create a epr<dum> of a dumdum*
 	{
@@ -56,7 +56,7 @@ RESULT TypesTestSuite::TestEPRef(EPTestBase* pEPTestBase) {
 		eprDum->Print();
 	}
 
-	CBM(dum::dum_count == 0, "Dum count %d should be zero", dum::dum_count);
+	CBM(dum::dum_count == 0, "Dum count %d should be zero", (int)dum::dum_count);
 
 	// Case - Create a epr<dum> from a epr<dumdum>
 	{
@@ -65,7 +65,7 @@ RESULT TypesTestSuite::TestEPRef(EPTestBase* pEPTestBase) {
 		eprDum->Print();
 	}
 
-	CBM(dum::dum_count == 0, "Dum count %d should be zero", dum::dum_count);
+	CBM(dum::dum_count == 0, "Dum count %d should be zero", (int)dum::dum_count);
 
 	// Case - Construct epr<dumdum> from epr<dum> to dumdum object
 	{
@@ -76,7 +76,7 @@ RESULT TypesTestSuite::TestEPRef(EPTestBase* pEPTestBase) {
 		eprDumDum->Print();
 	}
 
-	CBM(dum::dum_count == 0, "Dum count %d should be zero", dum::dum_count);
+	CBM(dum::dum_count == 0, "Dum count %d should be zero", (int)dum::dum_count);
 
 Error:
 	return r;

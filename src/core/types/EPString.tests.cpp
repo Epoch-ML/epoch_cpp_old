@@ -5,7 +5,7 @@ RESULT TypesTestSuite::TestEPString(EPTestBase* pEPTestBase) {
 	RESULT r = R::OK;
 
 	const char* kTestString = "Test string";
-	const wchar_t* kTestWideString = L"Test wide string";
+	UNUSED const wchar_t* kTestWideString = L"Test wide string";
 
 	EPString<char> strTestString = kTestString;
 

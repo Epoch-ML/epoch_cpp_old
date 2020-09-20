@@ -70,7 +70,7 @@ public:
 
 	bool IsRunning() { return m_fRunning; }
 	bool IsShuttingDown() { return m_fPendingShutdown; }
-	RESULT QueueShutdown() { m_fPendingShutdown; return R::OK; }
+	RESULT QueueShutdown() { m_fPendingShutdown = true; return R::OK; }
 
 private:
 	EPString<char> m_strProcessName;

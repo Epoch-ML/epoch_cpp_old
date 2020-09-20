@@ -75,9 +75,9 @@ RESULT TOLModel::Initialize() {
 
 	// TODO: Add material handling
 	// Handle materials
-	for (const auto& material : tinyObjMaterials) {
-		// 
-	}
+//	for (const auto& material : tinyObjMaterials) {
+//		//
+//	}
 
 	// load texture
 	m_pImage = STBImage::make(m_strTextureFilename);

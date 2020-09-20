@@ -8,7 +8,6 @@ EPRef<SandboxProcess> SandboxProcessFactory::InternalMakeWin64(const EPString<ch
 
 	EPRef<SandboxProcess> pSandboxProcess = nullptr;
 
-
 	switch (procType) {
 		case SandboxProcess::type::window: {
 			pSandboxProcess = new Win64SandboxWindowProcess();

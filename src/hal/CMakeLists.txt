@@ -79,6 +79,8 @@ ENDIF()
 #    )
 
 
+IF(WIN32)
+
 # Tests
 add_executable(hal.tests
     "hal.tests.cpp"
@@ -93,6 +95,23 @@ target_link_libraries(hal.tests
   hal 
   Vulkan::Vulkan
 )
+#ELSEIF(APPLE)
+ELSE()
+    # Tests
+    add_executable(hal.tests
+        "hal.tests.cpp"
+        #"Vulkan/VulkanHAL.tests.cpp"
+    )
+
+    target_link_libraries(hal.tests
+        core
+        logger
+        sandbox
+        eptest
+        hal
+        #Vulkan::Vulkan
+    )
+ENDIF()
 
 add_test(
   NAME 

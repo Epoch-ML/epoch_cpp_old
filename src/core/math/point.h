@@ -33,26 +33,26 @@ public:
 
 		int index = 0;			
 		for (auto val : values) {
-			data[index++] = val;
+			this->data[index++] = val;
 		}
 	}
 
 	point(const matrix<TValue, N, 1>& rhs) {
-		memcpy(this->data, rhs.data, sizeof(data));
+		memcpy(this->data, rhs.data, sizeof(this->data));
 	}
 
 	point& operator=(const matrix<TValue, N, 1>& rhs) {
-		memcpy(this->data, rhs.data, sizeof(data));
+		memcpy(this->data, rhs.data, sizeof(this->data));
 		return *this;
 	}
 
 	point(matrix<TValue, N, 1>&& rhs) {
-		memcpy(this->data, rhs.data, sizeof(data));
+		memcpy(this->data, rhs.data, sizeof(this->data));
 		rhs.clear();
 	}
 
 	point& operator=(matrix<TValue, N, 1>&& rhs) {
-		memcpy(this->data, rhs.data, sizeof(data));
+		memcpy(this->data, rhs.data, sizeof(this->data));
 		rhs.clear();
 		return *this;
 	}
@@ -62,7 +62,7 @@ public:
 
 		int index = 0;
 		for (auto val : values) {
-			data[index++] = val;
+			this->data[index++] = val;
 		}
 
 		return *this;
@@ -73,7 +73,7 @@ public:
 
 		int index = 0;
 		for (auto val : values) {
-			data[index++] = val;
+			this->data[index++] = val;
 		}
 
 		return R::OK;

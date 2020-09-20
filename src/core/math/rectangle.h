@@ -10,8 +10,8 @@ template <typename T>
 class rectangle {
 public:
 	rectangle() :
-		width(0),
-		height(0)
+		w(0),
+		h(0)
 	{}
 
 	rectangle(const T& width, const T& height) :
