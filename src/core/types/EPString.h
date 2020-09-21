@@ -61,8 +61,8 @@ public:
 	EPString(const EPString& lhs, const EPString& rhs) {
 		size_t strResult_n = lhs.size() + rhs.size() - 1;
 		m_stringStorage = EPVector<TChar>(strResult_n, true);
-		memcpy(m_stringStorage.data(), lhs.c_str(), (lhs.length() - 1) * sizeof(TCHAR));
-		memcpy(m_stringStorage.data() + (lhs.length() - 1), rhs.c_str(), rhs.length() * sizeof(TCHAR));
+		memcpy(m_stringStorage.data(), lhs.c_str(), (lhs.length() - 1) * sizeof(char));
+		memcpy(m_stringStorage.data() + (lhs.length() - 1), rhs.c_str(), rhs.length() * sizeof(char));
 	}
 
 	EPString(const TChar szString[], size_t szString_n) :
@@ -148,7 +148,7 @@ public:
 	}
 
 	inline bool operator<(const EPString& rhs) const {
-		for (int i = 0; i < std::min(length(), rhs.length()); i++) {
+		for (unsigned long i = 0; i < std::min(length(), rhs.length()); i++) {
 			TChar cLeft = m_stringStorage[i];
 			TChar cRight = rhs[i];
 
@@ -168,8 +168,8 @@ public:
 	EPString operator+(const EPString& rhs) const {
 		EPString strReturn = EPString(this->length() + rhs.length() - 1, true);
 		
-		memcpy(strReturn.m_stringStorage.data(), this->c_str(), (this->length() - 1) * sizeof(TCHAR));
-		memcpy(strReturn.m_stringStorage.data() + (this->length() - 1), rhs.c_str(), rhs.length() * sizeof(TCHAR));
+		memcpy(strReturn.m_stringStorage.data(), this->c_str(), (this->length() - 1) * sizeof(char));
+		memcpy(strReturn.m_stringStorage.data() + (this->length() - 1), rhs.c_str(), rhs.length() * sizeof(char));
 
 		return strReturn;
 	}
@@ -182,8 +182,8 @@ public:
 		return m_stringStorage[idx];
 	}
 
-	const size_t length() const { return m_stringStorage.size(); }
-	const size_t size() const { return m_stringStorage.size(); }
+	size_t length() const { return m_stringStorage.size(); }
+	size_t size() const { return m_stringStorage.size(); }
 
 	const TChar* c_str() const {
 		return m_stringStorage.GetCBuffer();

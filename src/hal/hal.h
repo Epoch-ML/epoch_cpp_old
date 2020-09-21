@@ -26,7 +26,7 @@ public:
 	
 	// TODO: Not ideal
 	static const char* GetTypeName(HAL::type halType) {
-		const EPVector<char*> kHALTypes = {
+		const EPVector<const char*> kHALTypes = {
 			"vulkan",
 			"custom"
 		};

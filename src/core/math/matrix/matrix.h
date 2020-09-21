@@ -104,7 +104,7 @@ public:
 				DEBUG_LINEOUT(" |");
 				DEBUG_OUT("| ");
 			}
-			DEBUG_OUT("%02f ", m_data[i]);
+			DEBUG_OUT("%02f ", this->m_data[i]);
 		}
 		DEBUG_LINEOUT("| ");
 		return R::OK;

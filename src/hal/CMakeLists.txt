@@ -20,27 +20,41 @@ file(GLOB SHADERS_SOURCES
 )
 source_group("shaders" FILES ${SHADERS_SOURCES})
 
-# TODO: Switch to the below
-add_library(hal
-    ${SOURCES}
-    ${VULKAN_SOURCES}
-)
+IF(WIN32)
+    add_definitions(-DEPOCH_HAL_VULKAN)
 
-target_link_libraries(hal
-  Vulkan::Vulkan
-)
+    add_library(hal
+        ${SOURCES}
+        ${VULKAN_SOURCES}
+    )
 
-# Vulkan
-# TODO: Might want to move this to the actual vulkan hal
-find_package(Vulkan REQUIRED)
+    target_link_libraries(hal
+        Vulkan::Vulkan
+    )
 
-message(${Vulkan_INCLUDE_DIR})
+    # Vulkan
+    # TODO: Might want to move this to the actual vulkan hal
+    find_package(Vulkan REQUIRED)
 
-#add_executable(vulkaninfo ${Vulkan_INCLUDE_DIR}\..\Demos\vulkaninfo.cpp)
-#target_compile_definitions(vulkaninfo PRIVATE VK_USE_PLATFORM_WIN32_KHR)
-#target_include_directories(vulkaninfo PRIVATE Vulkan::Vulkan)
-#target_link_libraries(vulkaninfo Vulkan::Vulkan)
-include_directories(${Vulkan_INCLUDE_DIR})
+    message(${Vulkan_INCLUDE_DIR})
+
+    #add_executable(vulkaninfo ${Vulkan_INCLUDE_DIR}\..\Demos\vulkaninfo.cpp)
+    #target_compile_definitions(vulkaninfo PRIVATE VK_USE_PLATFORM_WIN32_KHR)
+    #target_include_directories(vulkaninfo PRIVATE Vulkan::Vulkan)
+    #target_link_libraries(vulkaninfo Vulkan::Vulkan)
+    include_directories(${Vulkan_INCLUDE_DIR})
+
+ELSEIF(APPLE)
+    add_library(hal
+        ${SOURCES}
+    )
+ELSE()
+    add_library(hal
+        ${SOURCES}
+    )
+ENDIF()
+
+
 
 #IF(APPLE
 #   Mac OS X specific code
@@ -65,15 +79,11 @@ include_directories(${Vulkan_INCLUDE_DIR})
 #        ${SOURCES}
 #        ${LINUX_SOURCES}
 #    )
-#ELSEIF(WIN32)
-#    add_library(sandbox
-#        ${SOURCES}
-#        ${WIN64_SOURCES}
-#    )
-#ENDIF()
+
+
+IF(WIN32)
 
 # Tests
-
 add_executable(hal.tests
     "hal.tests.cpp"
     "Vulkan/VulkanHAL.tests.cpp"
@@ -87,6 +97,23 @@ target_link_libraries(hal.tests
   hal 
   Vulkan::Vulkan
 )
+#ELSEIF(APPLE)
+ELSE()
+    # Tests
+    add_executable(hal.tests
+        "hal.tests.cpp"
+        #"Vulkan/VulkanHAL.tests.cpp"
+    )
+
+    target_link_libraries(hal.tests
+        core
+        logger
+        sandbox
+        eptest
+        hal
+        #Vulkan::Vulkan
+    )
+ENDIF()
 
 add_test(
   NAME 

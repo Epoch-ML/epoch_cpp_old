@@ -59,11 +59,11 @@ public:
 		return const_cast<rectangle<int>&>(m_rectDimensions);
 	}
 
-	inline const int GetHeight() const {
+	inline int GetHeight() const {
 		return m_rectDimensions.height();
 	}
 
-	inline const int GetWidth() const {
+	inline int GetWidth() const {
 		return m_rectDimensions.width();
 	}
 

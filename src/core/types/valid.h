@@ -6,8 +6,8 @@
 
 class valid {
 private:
-	bool m_fValidated;
-	bool m_fValid;
+    bool m_fValid;
+    bool m_fValidated;
 
 public:
 	valid() :

@@ -9,6 +9,7 @@
 // EP Vector storage class that works the way WE FUCKING WANT IT TO
 
 #include "core/types/EPObj.h"
+#include "core/types/EPRef.h"
 
 // TODO: Needs test suite (all the core shits need test suites)
 
@@ -52,11 +53,11 @@ public:
 	class const_iterator : public iterator {
 	public:
 		const_iterator(TStorage* pValue) noexcept : iterator(pValue) {}
-		TStorage& operator*() { return (*m_pValue); }
-		TStorage* operator->() { return m_pValue; }
-		bool operator==(const const_iterator& rhs) { return m_pValue == rhs.m_pValue; }
-		bool operator!=(const const_iterator& rhs) { return m_pValue != rhs.m_pValue; }
-	};
+		TStorage& operator*() { return (*(this->m_pValue)); }
+		TStorage* operator->() { return this->m_pValue; }
+        bool operator==(const const_iterator& rhs) { return this->m_pValue == rhs.m_pValue; }
+        bool operator!=(const const_iterator& rhs) { return this->m_pValue != rhs.m_pValue; }
+    };
 
 	iterator begin() noexcept { 
 		return iterator(&m_pBuffer[0]); 
@@ -200,7 +201,7 @@ public:
 		CNR(pTempBuffer, R::MEMORY_ALLOCATION_FAILED);
 
 		// set to zero and swap
-		memset(pTempBuffer, 0, sizeof(TStorage) * pTempBuffer_n);	// this will ensure null termination 
+		memset((void*)pTempBuffer, 0, sizeof(TStorage) * pTempBuffer_n);	// this will ensure null termination
 
 		std::swap(pTempBuffer, m_pBuffer);
 		std::swap(pTempBuffer_n, m_pBuffer_n);
@@ -278,7 +279,7 @@ public:
 		return pData;
 	}
 
-	const bool empty() const {
+	bool empty() const {
 		return (m_pBuffer_c == 0);
 	}
 
@@ -306,11 +307,11 @@ public:
 		return m_pBuffer[index];
 	}
 
-	const size_t size() const { 
+	size_t size() const {
 		return m_pBuffer_c;
 	}
 
-	const size_t byte_size() const {
+	size_t byte_size() const {
 		return (m_pBuffer_c * sizeof(TStorage));
 	}
 
@@ -339,13 +340,13 @@ public:
 
 	inline void destroy(bool fDeallocate = true) {
 		for (size_t i = 0; i < m_pBuffer_c; i++) {
-			if (typeid(TStorage) == typeid(EPRef)) {
-				m_pBuffer[i] = nullptr;
-			}
-			else {
+//			if (typeid(TStorage) == typeid(EPRef)) {
+//				m_pBuffer[i] = nullptr;
+//			}
+//			else {
 				(m_pBuffer[i]).~TStorage();
 				m_pBuffer[i] = nullptr;
-			}
+			//}
 		}
 
 		clear(fDeallocate);
@@ -374,8 +375,8 @@ private:
 			return R::MEMORY_ALLOCATION_FAILED;
 
 		// Copy and swap
-		memset(pTempBuffer, 0, sizeof(TStorage) * pTempBuffer_n);	// this will ensure null termination 
-		memcpy(pTempBuffer, m_pBuffer, sizeof(TStorage) * m_pBuffer_n);
+		memset((void*)pTempBuffer, 0, sizeof(TStorage) * pTempBuffer_n);	// this will ensure null termination
+		memcpy((void*)pTempBuffer, (void*)m_pBuffer, sizeof(TStorage) * m_pBuffer_n);
 
 		std::swap(pTempBuffer, m_pBuffer);
 		std::swap(pTempBuffer_n, m_pBuffer_n);

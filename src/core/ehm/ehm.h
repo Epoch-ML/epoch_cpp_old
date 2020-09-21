@@ -107,6 +107,7 @@
 #endif
 
 #if defined(DEBUG_OUT_TO_CONSOLE)
+    #define CONSOLE_OUT_NA(str) do { printf("%s", str); } while(0);
 	#define CONSOLE_OUT(str, ...) do { printf(str, ##__VA_ARGS__); } while(0);
 #elif defined(DEBUG_OUT_TO_WIN_DEBUGGER)
 	// TODO: 
@@ -114,6 +115,7 @@
 
 // Console Output
 #ifdef _DEBUG
+    #define DEBUG_OUT_NA(str) do { CONSOLE_OUT_NA(str); } while(0);
     #define DEBUG_OUT(str, ...) do { CONSOLE_OUT(str, ##__VA_ARGS__); } while(0);
     #define DEBUG_LINEOUT(str, ...) do { CONSOLE_OUT(str, ##__VA_ARGS__); CONSOLE_OUT("\n"); } while(0); 
 	#define DEBUG_LINEOUT_RETURN(str, ...) do { CONSOLE_OUT(str, ##__VA_ARGS__); CONSOLE_OUT("\r"); } while(0); 
@@ -121,6 +123,7 @@
 
 	#define RELEASE_LINEOUT(str, ...) DEBUG_LINEOUT(str, ##__VA_ARGS__)
 #else
+    #define DEBUG_OUT_NA(str)
 	#define DEBUG_OUT(str, ...)
 	#define DEBUG_LINEOUT(str, ...)
 	#define DEBUG_LINEOUT_RETURN(str, ...) 
@@ -175,14 +178,14 @@ inline const char* CMP_STR(size_t lhs, size_t rhs) {
 // compare less than
 #define CLT(lhs, rhs) do{if(lhs >= rhs) {r = R::FAIL; EPLogError("CLT", r); goto Error;}} while(0);
 #define CLTR(lhs, rhs, rcode) do{if(lhs >= rhs) {r = rcode; EPLogError("CLTR", r); goto Error;}} while(0);
-#define CLTDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs >= rhs) {r = R::FAIL; EPLogErrorMessage("CLTM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
+#define CLTDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs >= rhs) {r = R::FAIL; EPLogErrorMessage("CLTM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT_NA(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CLTM(lhs, rhs, msg, ...) do{if(lhs >= rhs) {r = R::FAIL; EPLogErrorMessage("CLTM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CLTRM(condition, rcode, msg, ...) do{if(lhs >= rhs) {r = rcode; EPLogErrorMessage("CLTRM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 
 // compare greater than
 #define CGT(lhs, rhs) do{if(lhs <= rhs) {r = R::FAIL; EPLogError("CGT", r); goto Error;}} while(0);
 #define CGTR(lhs, rhs, rcode) do{if(lhs <= rhs) {r = rcode; EPLogError("CGTR", r); goto Error;}} while(0);
-#define CGTDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs <= rhs) {r = R::FAIL; EPLogErrorMessage("CGTM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
+#define CGTDM(lhs, rhs, emsg, dmsg, ...) do{if(lhs <= rhs) {r = R::FAIL; EPLogErrorMessage("CGTM", r, dmsg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT_NA(emsg); DEBUG_OUT(" : "); DEBUG_OUT(dmsg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CGTM(lhs, rhs, msg, ...) do{if(lhs <= rhs) {r = R::FAIL; EPLogErrorMessage("CGTM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 #define CGTRM(condition, rcode, msg, ...) do{if(lhs <= rhs) {r = rcode; EPLogErrorMessage("CGTRM", r, msg, ##__VA_ARGS__); DEBUG_OUT(CurrentFileLine); DEBUG_OUT(msg, ##__VA_ARGS__); DEBUG_OUT("\n"); goto Error; }} while(0);
 

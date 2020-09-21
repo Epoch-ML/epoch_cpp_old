@@ -36,47 +36,59 @@ file(GLOB WIN64_SOURCES
 )
 source_group("win64" FILES ${WIN64_SOURCES})
 
-# TODO: Switch to the below
-add_library(sandbox
-    ${SOURCES}
-    ${WIN64_SOURCES}
-)
+IF(WIN32)
+    add_definitions(-DEPOCH_SANDBOX_WIN32)
 
-#IF(APPLE
-#   Mac OS X specific code
-#   TODO: Add OSX vs. iOS
-#   add_library(sandbox
-#   ${SOURCES}
-#   ${OSX_SOURCES}
-#   )
-#
-#   add_library(sandbox
-#   ${SOURCES}
-#   ${IOS_SOURCES}
-#   )
-#)
-#ELSEIF(UNIX AND NOT APPLE)
-#    add_library(sandbox
-#        ${SOURCES}
-#        ${LINUX_SOURCES}
-#    )
-#ELSEIF(ANDROID)
-#    add_library(sandbox
-#        ${SOURCES}
-#        ${LINUX_SOURCES}
-#    )
-#ELSEIF(WIN32)
-#    add_library(sandbox
-#        ${SOURCES}
-#        ${WIN64_SOURCES}
-#    )
-#ENDIF()
+    add_library(sandbox
+        ${SOURCES}
+        ${WIN64_SOURCES}
+    )
+
+    file(GLOB TEST_SOURCES
+      "sandbox.tests.cpp"
+      "win64/Win64Sandbox.tests.cpp"
+    )
+ELSEIF(UNIX AND NOT APPLE)
+    add_definitions(-DEPOCH_SANDBOX_UNIX)
+
+    add_library(sandbox
+        ${SOURCES}
+        ${LINUX_SOURCES}
+    )
+
+    file(GLOB TEST_SOURCES
+      "sandbox.tests.cpp"
+    )
+
+ELSEIF(APPLE)
+    add_definitions(-DEPOCH_SANDBOX_APPLE)
+
+    #   TODO: Add OSX vs. iOS
+    add_library(sandbox
+        ${SOURCES}
+        ${OSX_SOURCES}
+    )
+
+    file(GLOB TEST_SOURCES
+      "sandbox.tests.cpp"
+    )
+ELSEIF(ANDROID)
+    add_definitions(-DEPOCH_SANDBOX_ANDROID)
+
+    add_library(sandbox
+        ${SOURCES}
+        ${ANDROID_SOURCES}
+    )
+
+    file(GLOB TEST_SOURCES
+      "sandbox.tests.cpp"
+    )
+ENDIF()
 
 # Tests
 
 add_executable(sandbox.tests
-    "sandbox.tests.cpp"
-    "win64/Win64Sandbox.tests.cpp"
+    ${TEST_SOURCES}
 )
 
 target_link_libraries(sandbox.tests

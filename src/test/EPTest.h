@@ -48,7 +48,7 @@ public:
 
 protected:
 	void reset() {
-		RESULT m_testResult = R::NO_RESULT;
+		m_testResult = R::NO_RESULT;
 		m_strName = EPString<char>();
 		m_fTestRun = false;
 		m_usTimeRun = 0;

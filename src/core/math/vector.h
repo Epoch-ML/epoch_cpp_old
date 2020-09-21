@@ -23,26 +23,26 @@ public:
 
 		int index = 0;
 		for (auto val : values) {
-			data[index++] = val;
+			this->data[index++] = val;
 		}
 	}
 
 	vector(const matrix<TValue, N, 1>& rhs) {
-		memcpy(this->data, rhs.data, sizeof(data));
+		memcpy(this->data, rhs.data, sizeof(this->data));
 	}
 	
 	vector& operator=(const matrix<TValue, N, 1>& rhs) {
-		memcpy(this->data, rhs.data, sizeof(data));
+		memcpy(this->data, rhs.data, sizeof(this->data));
 		return *this;
 	}
 
 	vector(matrix<TValue, N, 1>&& rhs) {
-		memcpy(this->data, rhs.data, sizeof(data));
+		memcpy(this->data, rhs.data, sizeof(this->data));
 		rhs.clear();
 	}
 
 	vector& operator=(matrix<TValue, N, 1>&& rhs) {
-		memcpy(this->data, rhs.data, sizeof(data));
+		memcpy(this->data, rhs.data, sizeof(this->data));
 		rhs.clear();
 		return *this;
 	}
@@ -61,7 +61,7 @@ public:
 
 		int index = 0;
 		for (auto val : values) {
-			data[index++] = val;
+			this->data[index++] = val;
 		}
 
 		return R::OK;

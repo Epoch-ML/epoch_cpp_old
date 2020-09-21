@@ -90,8 +90,12 @@ public:
 
 		EPTestCase* pLHS = nullptr;
 		EPTestCase* pRHS = nullptr;
+        expected lhsExpected;
+        int pctFaster = 0;
+        size_t lhsDuration = 0;
+        size_t rhsDuration = 0;
 
-		CBM(cases.size() != 0, "No test cases registered");
+        CBM(cases.size() != 0, "No test cases registered");
 		CBM(cases.size() <= 2, "CompareTestCases doesn't yet support more han two comparable test cases");
 
 		pLHS = const_cast<EPTestCase*>(&(cases[0]));
@@ -103,16 +107,14 @@ public:
 		CRM(pLHS->GetResult(), "lhs failed");
 		CRM(pRHS->GetResult(), "rhs failed");
 
-		size_t lhsDuration = pLHS->GetTestCaseDuration();
-		size_t rhsDuration = pRHS->GetTestCaseDuration();
-		int pctFaster = (int)(((float)(rhsDuration) / (float)(lhsDuration)) * 100.0f);
+		lhsDuration = pLHS->GetTestCaseDuration();
+		rhsDuration = pRHS->GetTestCaseDuration();
+		pctFaster = (int)(((float)(rhsDuration) / (float)(lhsDuration)) * 100.0f);
 
 		// Print the comparison
 		RELEASE_CMP(pLHS->m_strTestCaseName.c_str(),
 			pLHS->m_strTestCaseFlavor.c_str(), lhsDuration,
 			pRHS->m_strTestCaseFlavor.c_str(), rhsDuration, pctFaster);
-
-		expected lhsExpected;
 
 		// Defer to LHS to be the fastest, if both are trying to be faster 
 		// then go with the one that actually is trying to be faster
@@ -125,7 +127,6 @@ public:
 		else {
 			lhsExpected = expected::COMPARE;
 		}
-
 
 		switch (lhsExpected) {
 			case expected::COMPARE: {

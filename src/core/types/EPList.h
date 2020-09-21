@@ -89,11 +89,11 @@ public:
 
 	class const_iterator : public iterator {
 	public:
-		const_iterator(EPList::node* pNode) noexcept : m_pNode(pNode) {}
-		TValue& operator*() { return (m_pNode->m_value); }
+		const_iterator(EPList::node* pNode) noexcept : iterator(pNode) {}
+		TValue& operator*() { return (this->m_pNode->m_value); }
 		//TValue* operator->() { return m_pValue; }
-		bool operator==(const iterator& rhs) { return m_pNode->m_value == rhs.m_pNode->m_value; }
-		bool operator!=(const iterator& rhs) { return m_pNode->m_value != rhs.m_pNode->m_value; }
+		bool operator==(const iterator& rhs) { return this->m_pNode->m_value == rhs.m_pNode->m_value; }
+		bool operator!=(const iterator& rhs) { return this->m_pNode->m_value != rhs.m_pNode->m_value; }
 	};
 
 	iterator begin() {
@@ -250,7 +250,7 @@ public:
 		return r;
 	}
 
-	const size_t size() const {
+	size_t size() const {
 		return m_listLength;
 	}
 
