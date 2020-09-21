@@ -13,11 +13,16 @@ class HALTestSuite :
 {
 
 public:
-	RESULT TestVulkanHAL(EPTestBase* pEPTestBase);
+
+	#ifdef EPOCH_HAL_VULKAN
+		RESULT TestVulkanHAL(EPTestBase* pEPTestBase);
+	#endif
 
 	EP_TESTS_START{
-
-		EP_ADD_TEST(TestVulkanHAL);
+		
+		#ifdef EPOCH_HAL_VULKAN
+			EP_ADD_TEST(TestVulkanHAL);
+		#endif
 
 	} EP_TESTS_END
 };

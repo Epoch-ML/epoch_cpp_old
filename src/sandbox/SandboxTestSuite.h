@@ -13,11 +13,15 @@ class SandboxTestSuite :
 {
 
 public:
-	RESULT TestWin64Sandbox(EPTestBase* pEPTestBase);
+	#ifdef EPOCH_SANDBOX_WIN32
+		RESULT TestWin64Sandbox(EPTestBase* pEPTestBase);
+	#endif
 
-	EP_TESTS_START{
+	EP_TESTS_START {
 
-		EP_ADD_TEST(TestWin64Sandbox);
+		#ifdef EPOCH_SANDBOX_WIN32
+			EP_ADD_TEST(TestWin64Sandbox);
+		#endif
 
 	} EP_TESTS_END
 };

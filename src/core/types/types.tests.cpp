@@ -8,19 +8,22 @@
 
 #include "TypesTestSuite.h"
 
-int main(UNUSED int argc, UNUSED char* argv[]) {
-	RESULT r = R::SUCCESS;
+// This includes the main call (not a WinMain keep in mind)
+EP_TEST_SUITE_MAIN(TypesTestSuite)
 
-	TypesTestSuite *pTypesTestSuite = TypesTestSuite::make();
-	CNM(pTypesTestSuite, "Failed to create TypesTestSuite");
-	CRM(pTypesTestSuite->RunAllTests(), "Not all tests passed");
+// int main(UNUSED int argc, UNUSED char* argv[]) {
+// 	RESULT r = R::SUCCESS;
 
-Success:
-	return 0;
+// 	TypesTestSuite *pTypesTestSuite = TypesTestSuite::make();
+// 	CNM(pTypesTestSuite, "Failed to create TypesTestSuite");
+// 	CRM(pTypesTestSuite->RunAllTests(), "Not all tests passed");
 
-Error:
-	return -1;
-}
+// Success:
+// 	return 0;
+
+// Error:
+// 	return -1;
+// }
 
 
 #endif // ! TYPES_TEST_CPP_

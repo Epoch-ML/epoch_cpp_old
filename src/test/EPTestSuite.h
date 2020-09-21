@@ -23,23 +23,23 @@
 	pfnTest = EPTest<RESULT(EPTestBase *)>(#test_name, [&](EPTestBase *pEpTestBase) -> RESULT {		\
 		return this->EP_TEST_FN_NAME(test_name)(pEpTestBase);										\
 	});																								\
-	CRM(Add(#test_name, pfnTest), "Failed to add test " #test_name);									\
+	CRM(Add(#test_name, pfnTest), "Failed to add test " #test_name);								\
 } while (0);
 
 
 #define EP_TESTS_END Error:		\
-	return r;						\
+	return r;					\
 }		
 
 
-#define EP_TEST_SUITE_MAIN(test_suite_name) int main(int argc, char* argv[]) {	\
-	RESULT r = R::SUCCESS;														\
-	##test_suite_name* pTestSuite = ##test_suite_name::make();					\
-	CNM(pTestSuite, "Failed to create " #test_suite_name);						\
-	CRM(pTestSuite->RunAllTests(), "Not all tests passed");						\
-	return 0;																	\
-Error:																			\
-	return -1;																	\
+#define EP_TEST_SUITE_MAIN(test_suite_name) int main(UNUSED int argc, UNUSED char* argv[]) {		\
+	RESULT r = R::SUCCESS;																			\
+	test_suite_name* pTestSuite = test_suite_name::make();											\
+	CNM(pTestSuite, "Failed to create " #test_suite_name);											\
+	CRM(pTestSuite->RunAllTests(), "Not all tests passed");											\
+	return 0;																						\
+Error:																								\
+	return -1;																						\
 }
 
 

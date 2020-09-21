@@ -21,6 +21,8 @@ file(GLOB SHADERS_SOURCES
 source_group("shaders" FILES ${SHADERS_SOURCES})
 
 IF(WIN32)
+    add_definitions(-DEPOCH_HAL_VULKAN)
+
     add_library(hal
         ${SOURCES}
         ${VULKAN_SOURCES}
