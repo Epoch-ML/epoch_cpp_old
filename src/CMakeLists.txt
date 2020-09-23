@@ -35,6 +35,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DNOMINMAX")
 
 set(CMAKE_CXX_FLAGS_CORE "${CMAKE_CXX_FLAGS}")
 
+message("epoch " ${CMAKE_BUILD_TYPE} " build")
+
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	message("epoch/src/cmakelists.txt msvc")
 	
