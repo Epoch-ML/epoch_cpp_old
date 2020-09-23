@@ -39,7 +39,16 @@ public:
 	//	return m_value;
 	//}
 
-private:
+	void set(T val) {
+		m_value = val;
+		return;
+	}
+
+	bool operator==(const tuple_implementation &rhs) const {
+		return (this->m_value == rhs.m_value);
+	}
+
+protected:
 	T m_value;
 };
 
@@ -47,7 +56,15 @@ private:
 template <size_t index, typename... TArgs>
 class tuple_recurring_base
 {
-	// 
+
+public:
+	int GetNumElements() {
+		return index;
+	}
+
+	bool operator==(const tuple_recurring_base &rhs) const {
+		return true;
+	}
 };
 
 // Specialization
@@ -70,11 +87,23 @@ public:
 		// 
 	}
 
+	bool operator==(const tuple_recurring_base &rhs) const {
+		if(static_cast<const tuple_implementation<index, T>*>(this)->operator==(rhs) == false)
+			return true;
+		
+		return static_cast<const tuple_recurring_base<index + 1, TArgs...>*>(this)->operator==(rhs);
+	}
+
+	int GetNumElements() {
+		return static_cast<tuple_recurring_base<index + 1, TArgs...>*>(this)->GetNumElements();
+	}
+
 };
 
 
 template <typename... TArgs>
-class EPTuple : public tuple_recurring_base<0, TArgs...>
+class EPTuple : 
+	public tuple_recurring_base<0, TArgs...>
 {
 public:
 	EPTuple() 
@@ -98,6 +127,19 @@ public:
 	//GType& get() const {
 	//	return static_cast<tuple_implementation<index, GType>*>(this)->get();
 	//}
+
+	template <size_t index, typename GType>
+	void set(GType val) {
+		return static_cast<tuple_implementation<index, GType>*>(this)->set(val);
+	}
+
+	bool operator==(const EPTuple &rhs) const {
+		return static_cast<const tuple_recurring_base<0, TArgs...>*>(this)->operator==(rhs);
+	}
+
+	int GetNumElements() {
+		return static_cast<tuple_recurring_base<0, TArgs...>*>(this)->GetNumElements();
+	}
 
 private:
 	

@@ -20,6 +20,7 @@ public:
 	RESULT TestEPString(EPTestBase* pEPTestBase);
 	RESULT TestEPList(EPTestBase* pEPTestBase);
 	RESULT TestEPRef(EPTestBase* pEPTestBase);
+	RESULT TestEPTuple(EPTestBase* pEPTestBase);
 
 	EP_TESTS_START {
 
@@ -30,6 +31,8 @@ public:
 
 		// TODO: this is incomplete
 		EP_ADD_TEST(TestEPString);
+
+		EP_ADD_TEST(TestEPTuple);
 
 	} EP_TESTS_END
 };

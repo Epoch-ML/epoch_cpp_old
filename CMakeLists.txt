@@ -51,6 +51,20 @@ include_directories(${STB_INCLUDE_PATH})
 include_directories(${SPD_INCLUDE_PATH})
 include_directories(${TINY_OBJ_LOADER_INCLUDE_PATH})
 
+ADD_CUSTOM_TARGET(debug
+	COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${CMAKE_SOURCE_DIR}
+  	COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
+  	COMMENT "Switch CMAKE_BUILD_TYPE to Debug"
+)
+
+ADD_CUSTOM_TARGET(release
+	COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${CMAKE_SOURCE_DIR}
+	COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
+	COMMENT "Switch CMAKE_BUILD_TYPE to Release"
+)
+
+# make CTEST_OUTPUT_ON_FAILURE=1 test types.tests
+
 add_subdirectory(src)
 
 # Set start up project

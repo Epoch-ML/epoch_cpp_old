@@ -64,6 +64,7 @@ add_executable(types.tests
   types/EPVector.tests.cpp
   types/EPString.tests.cpp
   types/EPRef.tests.cpp
+  types/EPTuple.tests.cpp
 )
 
 target_link_libraries(types.tests
@@ -74,7 +75,7 @@ target_link_libraries(types.tests
 
 add_test(
   NAME 
-    all_tests
+    core_tests
   COMMAND 
     "types.tests"
 )
